@@ -1,4 +1,6 @@
-# SHOPING WELL
+# Nora's Atelier
+
+Portfolio ecommerce application for handmade gifts, wedding and event decorations, and photography studio décor.
 
 1. Create Git Repo
 2. 

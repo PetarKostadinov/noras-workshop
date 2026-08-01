@@ -1,76 +1,78 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Footer() {
-  return (
-    <div className="pt-5">
-        <footer className="text-center text-lg-start text-white" style={{ backgroundColor: 'rgba(53, 50, 50, 0.8)' }}>
-          <div className="container p-4 pb-0">
-            <section>
-              <div className="row">
-                <div className="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                  <h6 className="text-uppercase mb-4 font-weight-bold">
-                    SHOPPING WELL
-                  </h6>
-                  <p>
-                    After both the Prohibition era and COVID-19, 
-                    the alcohol industry started evolving at a rapid pace
-                    As such, the industry has gained extreme significance recently. 
-                    The alcoholic beverage industry now has millions of stores around the world. 
-                    Recently, we've even seen increase in business owners taking the opportunity to start selling alcohol online.
-                  </p>
-                </div>
-                <hr className="w-100 clearfix d-md-none" />
-                <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-                  <h6 className="text-uppercase mb-4 font-weight-bold">Products</h6>
-                  <p>
-                    <a className="text-white" href="https://www.absolut.com/en/">ABSOLUT Vodka</a>
-                  </p>
-                  <p>
-                    <a className="text-white" href="https://www.jackdaniels.com/">JACK DANIEL'S Wiskey</a>
-                  </p>
-                  <p>
-                    <a className="text-white" href="https://www.woodfordreserve.com/">WOODFORD Bourbon</a>
-                  </p>
-                  <p>
-                    <a className="text-white" href="https://www.hennessy.com/en-int/collection/hennessy-paradis">HENNESSY Cognac</a>
-                  </p>
-                </div>
-                <hr className="w-100 clearfix d-md-none" />
-                <hr className="w-100 clearfix d-md-none" />
-                <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
-                  <h6 className="text-uppercase mb-4 font-weight-bold">Contacts</h6>
-                  <p><i className="fas fa-home mr-3" /> Burgas, Bulgaria</p>
-                  <p><i className="fas fa-envelope mr-3" /> petar_vs@outlook.com</p>
-                  <p><i className="fas fa-phone mr-3" /> + 01 234 567 88</p>
-                </div>
-                <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
-                  <h6 className="text-uppercase mb-4 font-weight-bold">Follow us</h6>
+  const currentYear = new Date().getFullYear();
 
-                  <a className="btn btn-primary btn-floating m-1"
-                    style={{ backgroundColor: '#3b5998' }}
-                    href="https://www.facebook.com/profile.php?id=100000562363371"
-                    role="button">
-                    <i className="fab fa-facebook-f" /></a>
-                  <a className="btn btn-primary btn-floating m-1"
-                    style={{ backgroundColor: '#0082ca' }}
-                    href="https://www.linkedin.com/in/petar-kostadinov-759ba8213/"
-                    role="button">
-                    <i className="fab fa-linkedin-in" /></a>
-                  <a className="btn btn-primary btn-floating m-1"
-                    style={{ backgroundColor: '#333333' }}
-                    href="https://github.com/PetarKostadinov"
-                    role="button">
-                    <i className="fab fa-github" /></a>
-                </div>
-              </div>
-            </section>
+  return (
+    <footer className="site-footer">
+      <div className="footer-accent" aria-hidden="true"></div>
+      <div className="container">
+        <div className="footer-main">
+          <div className="footer-brand">
+            <Link to="/" className="footer-brand-lockup">
+              <img src="/images/noras-atelier-logo.png" alt="" />
+              <span>
+                <strong>Nora’s Atelier</strong>
+                <small>Handmade gifts &amp; décor</small>
+              </span>
+            </Link>
+            <p>
+              Handmade gifts and thoughtful décor created for weddings,
+              celebrations, photography studios, and every meaningful moment.
+            </p>
+            <div className="footer-socials" aria-label="Social links">
+              <a href="https://www.linkedin.com/in/petar-kostadinov-759ba8213/" target="_blank" rel="noreferrer" aria-label="LinkedIn">
+                <i className="fab fa-linkedin-in" aria-hidden="true"></i>
+              </a>
+              <a href="https://github.com/PetarKostadinov" target="_blank" rel="noreferrer" aria-label="GitHub">
+                <i className="fab fa-github" aria-hidden="true"></i>
+              </a>
+            </div>
           </div>
-          <div className="text-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
-            <p className="text-white">2023 Copyright: Petar Kostadinov &copy;</p>
+
+          <nav className="footer-column" aria-label="Shop">
+            <h2>Shop</h2>
+            <Link to="/search">All products</Link>
+            <Link to="/search?category=Handmade%20Gifts">Handmade gifts</Link>
+            <Link to="/search?category=Wedding%20Decor">Wedding décor</Link>
+            <Link to="/search?category=Event%20Decor">Event décor</Link>
+            <Link to="/search?category=Studio%20Decor">Studio backdrops</Link>
+          </nav>
+
+          <nav className="footer-column" aria-label="Your account">
+            <h2>Your account</h2>
+            <Link to="/login">Sign in</Link>
+            <Link to="/register">Create account</Link>
+            <Link to="/cart">Shopping cart</Link>
+            <Link to="/profile">Profile</Link>
+            <Link to="/orderhistory">Order history</Link>
+          </nav>
+
+          <div className="footer-column footer-contact">
+            <h2>Let’s create something</h2>
+            <p>Questions about a gift, event setup, or custom studio styling?</p>
+            <a href="mailto:petar_vs@outlook.com">
+              <i className="far fa-envelope" aria-hidden="true"></i>
+              petar_vs@outlook.com
+            </a>
+            <span>
+              <i className="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Burgas, Bulgaria
+            </span>
           </div>
-        </footer>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© {currentYear} Nora’s Atelier. Portfolio ecommerce project.</p>
+          <div>
+            <span><i className="fas fa-lock" aria-hidden="true"></i> Secure shopping</span>
+            <span><i className="fas fa-leaf" aria-hidden="true"></i> Thoughtfully made</span>
+          </div>
+        </div>
       </div>
-  )
+    </footer>
+  );
 }
 
 export default Footer;

@@ -1,13 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
-const URL_PATERN = /http(s)?:\/\/./i;
+const IMAGE_PATH_PATTERN = /^(https?:\/\/.+|\/images\/.+)/i;
 const productSchema = new Schema(
     {
         name: { type: String, required: true, unique: true },
         slug: { type: String, required: true, unique: true },
         image: {
             type: String, validate: {
-                validator: (value) => URL_PATERN.test(value),
+                validator: (value) => IMAGE_PATH_PATTERN.test(value),
                 message: 'Invalid Image URL'
             }
         },

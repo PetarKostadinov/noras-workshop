@@ -10,18 +10,18 @@ function Search() {
         navigate(query ? `/search/?query=${query}` : '/search');
     }
     return (
-        <Form className="d-flex me-auto" onSubmit={submitHandler}>
-            <InputGroup>
+        <Form className="header-search" onSubmit={submitHandler}>
+            <InputGroup className="header-search-group">
                 <FormControl
                     type="text"
                     name="q" id="q"
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="search products &hellip;"
+                    placeholder="Search gifts, décor and studio sets..."
                     aria-label="Search Products"
                     aria-describedby="button-search"
                 >
                 </FormControl>
-                <Button variant="outline-primary" type="submit" id="button-search">
+                <Button type="submit" id="button-search" className="header-search-button">
                     <i className="fas fa-search"></i>
                 </Button>
             </InputGroup>

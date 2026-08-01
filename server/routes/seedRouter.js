@@ -1,19 +1,40 @@
 import express from "express";
-//import data from "../data.js";
+import expressAsyncHandler from "express-async-handler";
 import Product from "../models/productModel.js";
-import User from "../models/userModel.js";
+import testProducts from "../data/testProducts.js";
 
 const seedRouter = express.Router();
 
-seedRouter.get('/', async (req, res) => {
-  await Product.remove({});
-  const createdProducts = await Product.insertMany(data.products);
+seedRouter.post('/products', expressAsyncHandler(async (req, res) => {
+  const replacedDemoSlugs = [
+    'bacardi-oro',
+    'hendricks-gin',
+    'jack-daniels-single-barrel',
+    'veuve-clicquot-yellow-label',
+  ];
+  const removed = await Product.deleteMany({ slug: { $in: replacedDemoSlugs } });
 
-  await User.remove({});
-  const createdUsers = await User.insertMany(data.users);
+  const operations = testProducts.map((product) => ({
+    updateOne: {
+      filter: { slug: product.slug },
+      update: { $set: product },
+      upsert: true,
+    },
+  }));
 
-  res.send({ createdProducts, createdUsers });
-});
+  const result = await Product.bulkWrite(operations);
+  const products = await Product.find({
+    slug: { $in: testProducts.map((product) => product.slug) },
+  }).sort({ name: 1 });
+
+  res.send({
+    message: "Test products seeded successfully",
+    removed: removed.deletedCount,
+    inserted: result.upsertedCount,
+    updated: result.modifiedCount,
+    products,
+  });
+}));
 
 
 export default seedRouter;

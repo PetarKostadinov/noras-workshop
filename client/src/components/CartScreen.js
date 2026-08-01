@@ -1,23 +1,22 @@
 import React, { useContext } from 'react';
-
-import { Button, Card, Col, ListGroup, Row } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
-import {getProductById} from '../service/cartService';
+import { getProductById } from '../service/cartService';
 
 function CartScreen() {
   const navigate = useNavigate();
   const { state, dispatch: ctxDispatch } = useContext(Store);
-  const {
-    cart: { cartItems },
-  } = state;
+  const { cart: { cartItems }, userInfo } = state;
+  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const updateCartHandler = async (item, quantity) => {
     const data = await getProductById(item._id);
     if (data.countMany < quantity) {
       window.alert('Sorry. Product is out of stock');
+      return;
     }
     ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
@@ -27,108 +26,90 @@ function CartScreen() {
   };
 
   const checkoutHandler = () => {
-    navigate('/login?redirect=/shipping');
+    navigate(userInfo ? '/shipping' : '/login?redirect=/shipping');
   };
 
-    return (
-        <div>
-            <Helmet>
-                <title>Shopping Cart</title>
-            </Helmet>
-            <h1>Shopping Cart</h1>
-            <Row>
-                <Col md={8}>
-                    {cartItems.length === 0 ? (
-                        <MessageComponent>
-                            Cart is empty <Link to="/">Go Shoping</Link>
-                        </MessageComponent>
-                    ) : (
-                        <ListGroup>
-                            {cartItems.map((x) => (
-                                <ListGroup.Item
-                                    style={{ backgroundColor: 'rgba(53, 50, 50, 0.8)' }}
-                                    key={x._id}
-                                >
-                                    <Row className="align-items-center">
-                                        <Col md={4}>
-                                            <img
-                                                src={x.image}
-                                                alt={x.name}
-                                                className="img-fluid rounded img-thumbnail"
-                                            ></img>{' '}
-                                            <Link
-                                                className="hov"
-                                                to={`/product/${x._id}/${x.slug}`}
-                                            >
-                                                {x.name}
-                                            </Link>
-                                        </Col>
-                                        <Col md={3}>
-                                            <Button
-                                                variant="light"
-                                                onClick={() => updateCartHandler(x, x.quantity - 1)}
-                                                disabled={x.quantity === 1}
-                                            >
-                                                <i className="fas fa-minus-circle"></i>
-                                            </Button>{' '}
-                                            <span className="text-white">
-                                                {' ' + x.quantity + ' '}
-                                            </span>{' '}
-                                            <Button
-                                                variant="light"
-                                                onClick={() => updateCartHandler(x, x.quantity + 1)}
-                                                disabled={x.quantity === x.countMany}
-                                            >
-                                                <i className="fas fa-plus-circle"></i>
-                                            </Button>{' '}
-                                        </Col>
-                                        <Col className="text-white" md={3}>
-                                            ${x.price}
-                                        </Col>
-                                        <Col md={2}>
-                                            <Button
-                                                onClick={() => removeItemHandler(x)}
-                                                variant="light">
-                                                <i className="fas fa-trash"></i>
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </ListGroup.Item>
-                            ))}
-                        </ListGroup>
-                    )
-                    }
-                </Col>
-                <Col md={4}>
-                    <Card>
-                        <Card.Body>
-                            <ListGroup variant="flush">
-                                <ListGroup.Item>
-                                    <h3>
-                                        Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}{' '}
-                                        items) : $
-                                        {cartItems.reduce((a, c) => a + c.price * c.quantity, 0)}
-                                    </h3>
-                                </ListGroup.Item>
-                                <ListGroup.Item>
-                                    <div className="d-grid">
-                                        <Button
-                                            variant="primary"
-                                            type="button"
-                                            onClick={checkoutHandler}
-                                            disabled={cartItems.length === 0}
-                                        >
-                                            Proceed To Checkout
-                                        </Button>
-                                    </div>
-                                </ListGroup.Item>
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+  return (
+    <section className="cart-page">
+      <Helmet><title>Your cart | Nora’s Atelier</title></Helmet>
+
+      <div className="cart-heading">
+        <span>Your selection</span>
+        <h1>Shopping cart</h1>
+        <p>{itemCount === 0 ? 'Your cart is ready for something meaningful.' : itemCount + (itemCount === 1 ? ' item' : ' items') + ' saved for your occasion.'}</p>
+      </div>
+
+      {cartItems.length === 0 ? (
+        <div className="cart-empty">
+          <div className="cart-empty-icon"><i className="fas fa-shopping-bag" aria-hidden="true"></i></div>
+          <h2>Your cart is empty</h2>
+          <p>Discover handmade gifts and décor created for life’s special moments.</p>
+          <Link to="/search" className="cart-shop-link">Explore the collection</Link>
         </div>
-    )
+      ) : (
+        <div className="cart-layout">
+          <div className="cart-items" aria-label="Cart items">
+            {cartItems.map((item) => {
+              const productUrl = '/product/' + item._id + '/' + item.slug;
+              return (
+                <article className="cart-item" key={item._id}>
+                  <Link to={productUrl} className="cart-item-image">
+                    <img src={item.image} alt={item.name} />
+                  </Link>
+                  <div className="cart-item-details">
+                    <span>{item.category || item.brand}</span>
+                    <Link to={productUrl}><h2>{item.name}</h2></Link>
+                    <button className="cart-remove-mobile" type="button" onClick={() => removeItemHandler(item)}>
+                      Remove
+                    </button>
+                  </div>
+                  <div className="cart-quantity" aria-label={'Quantity for ' + item.name}>
+                    <Button variant="link" onClick={() => updateCartHandler(item, item.quantity - 1)} disabled={item.quantity === 1} aria-label="Decrease quantity">
+                      <i className="fas fa-minus" aria-hidden="true"></i>
+                    </Button>
+                    <span>{item.quantity}</span>
+                    <Button variant="link" onClick={() => updateCartHandler(item, item.quantity + 1)} disabled={item.quantity === item.countMany} aria-label="Increase quantity">
+                      <i className="fas fa-plus" aria-hidden="true"></i>
+                    </Button>
+                  </div>
+                  <strong className="cart-item-price">{'$' + (item.price * item.quantity).toFixed(2)}</strong>
+                  <button className="cart-remove" type="button" onClick={() => removeItemHandler(item)} aria-label={'Remove ' + item.name}>
+                    <i className="far fa-trash-alt" aria-hidden="true"></i>
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+
+          <aside className="cart-summary">
+            <span className="cart-summary-eyebrow">Order summary</span>
+            <h2>Your total</h2>
+            <div className="cart-summary-row">
+              <span>Subtotal · {itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
+              <strong>{'$' + subtotal.toFixed(2)}</strong>
+            </div>
+            <div className="cart-summary-row">
+              <span>Delivery</span>
+              <span>Calculated at checkout</span>
+            </div>
+            <div className="cart-summary-total">
+              <span>Total</span>
+              <strong>{'$' + subtotal.toFixed(2)}</strong>
+            </div>
+            <Button type="button" onClick={checkoutHandler} className="cart-checkout">
+              Continue to checkout
+              <i className="fas fa-arrow-right" aria-hidden="true"></i>
+            </Button>
+            <div className="cart-assurance">
+              <span><i className="fas fa-lock" aria-hidden="true"></i> Secure checkout</span>
+              <span><i className="fas fa-box" aria-hidden="true"></i> Carefully packaged</span>
+            </div>
+            <Link to="/search" className="cart-continue">Continue shopping</Link>
+          </aside>
+        </div>
+      )}
+    </section>
+  );
 }
 
 export default CartScreen;

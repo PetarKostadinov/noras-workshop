@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./components/Home";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,25 +18,21 @@ import Protected from "./helpersComponents/Protected";
 import DashboardPage from "./components/DashboardPage";
 import AdminRoute from "./helpersComponents/AdminRoute";
 import Header from "./components/Header";
-import { useState } from "react";
 import CreateItem from "./components/CreateItem";
 import EditItemPage from "./components/EditItemPage";
 import CarouselComponent from "./helpersComponents/Carousel";
 import Footer from "./components/Footer";
 
-function App() {
-
-  const [sideBarIsOpen] = useState(false);
+function AppContent() {
+  const { pathname } = useLocation();
+  const showHomepageHero = pathname === "/";
 
   return (
-    <BrowserRouter>
-      <div className={sideBarIsOpen ?
-        "d-flex flex-column site-container active-cont"
-        : "d-flex flex-column site=container"
-      }>
+    <>
+      <div className="d-flex flex-column site-container">
         <ToastContainer position="bottom-center" limit={1} />
         <Header />
-        <CarouselComponent />
+        {showHomepageHero && <CarouselComponent />}
         <main>
           <Container className="mt-3 expand">
             <Routes>
@@ -73,6 +69,14 @@ function App() {
         </main>
       </div>
       <Footer />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

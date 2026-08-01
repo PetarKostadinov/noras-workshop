@@ -5,16 +5,14 @@ import Rating from '../helpersComponents/Rating';
 import { Store } from '../helpersComponents/Store';
 import { getProduct } from '../service/productService';
 
-function Product(props) {
-  const { product } = props;
-
+function Product({ product }) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart: { cartItems } } = state;
+  const productUrl = '/product/' + product._id + '/' + product.slug;
 
   const addToCartHandler = async (item) => {
     const exists = cartItems.find((x) => x._id === product._id);
     const quantity = exists ? exists.quantity + 1 : 1;
-
     const data = await getProduct(item._id);
 
     if (data.countMany < quantity) {
@@ -26,22 +24,37 @@ function Product(props) {
   };
 
   return (
-    <Card className="card h-100">
-      <Link to={`/product/${product._id}/${product.slug}`}>
-        <img src={product.image} className="card-img-top" alt={product.name}></img>
-      </Link>
-      <Card.Body>
-        <Link className="link-none-underline hov" to={`/product/${product._id}/${product.slug}`}>
-          <Card.Title>
-            {product.name}
-          </Card.Title>
+    <Card className="product-card h-100">
+      <div className="product-card-media">
+        <Link to={productUrl} aria-label={'View ' + product.name}>
+          <img src={product.image} className="card-img-top" alt={product.name} />
         </Link>
-        <Rating rating={product.rating} numReviews={product.numReviews}></Rating>
-        <Card.Text className="price">${product.price}</Card.Text>
-        {product.countMany === 0
-          ? <Button disabled variant="light">Out Of Stock</Button>
-          : <Button onClick={() => addToCartHandler(product)}>Add To Cart</Button>
-        }
+        <span className="product-category">{product.category}</span>
+        {product.countMany > 0 && product.countMany <= 5 && (
+          <span className="product-stock">Only {product.countMany} left</span>
+        )}
+      </div>
+      <Card.Body className="product-card-body">
+        <div className="product-card-content">
+          <span className="product-brand">{product.brand}</span>
+          <Link className="product-title-link" to={productUrl}>
+            <Card.Title>{product.name}</Card.Title>
+          </Link>
+          <Rating rating={product.rating} numReviews={product.numReviews} />
+          <Card.Text className="product-card-description">{product.description}</Card.Text>
+        </div>
+        <div className="product-card-footer">
+          <Card.Text className="price">{'$' + product.price.toFixed(2)}</Card.Text>
+          {product.countMany === 0
+            ? <Button disabled variant="light" className="product-card-button">Out of stock</Button>
+            : (
+              <Button onClick={() => addToCartHandler(product)} className="product-card-button" aria-label={'Add ' + product.name + ' to cart'}>
+                <i className="fas fa-shopping-bag" aria-hidden="true"></i>
+                <span>Add to cart</span>
+              </Button>
+            )
+          }
+        </div>
       </Card.Body>
     </Card>
   );

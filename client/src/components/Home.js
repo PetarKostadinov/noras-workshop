@@ -59,10 +59,14 @@ function Home() {
         <>
             <div>
                 <Helmet>
-                    <title>shopping well</title>
+                    <title>Nora’s Atelier | Handmade Gifts &amp; Event Décor</title>
                 </Helmet>
 
-                <h1>Products</h1>
+                <div className="collection-heading">
+                    <span>Made with intention</span>
+                    <h2>Shop the collection</h2>
+                    <p>Handcrafted pieces for gifting, gathering, and creating beautiful photographs.</p>
+                </div>
                 <div className="products">
                     {loading ? (
                         <LoadingComponent />
@@ -72,7 +76,7 @@ function Home() {
                         <>
                             <Row className="row pt-4 gy-4">
                                 {currentProducts.map((x) => (
-                                    <Col key={x._id} sm={6} md={5} lg={4} className="md-4">
+                                    <Col key={x._id} sm={6} lg={4} className="product-column">
                                         <Product product={x}></Product>
                                     </Col>
                                 ))}

@@ -1,6 +1,5 @@
-
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
@@ -10,71 +9,59 @@ import { loginUser } from '../service/userService';
 function Login() {
     const navigate = useNavigate();
     const { search } = useLocation();
-    const redirectInUrl = new URLSearchParams(search).get('redirect');
-    const redirect = redirectInUrl ? redirectInUrl : '/';
-
+    const redirect = new URLSearchParams(search).get('redirect') || '/';
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const { state, dispatch: ctxDispatch } = useContext(Store);
-    const { userInfo } = state;
 
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
             const data = await loginUser(email, password);
-
-            if (data.status === 401) {
-                throw new Error(data.message)
-            }
+            if (data.status === 401) throw new Error(data.message);
             ctxDispatch({ type: 'USER_LOGIN', payload: data });
             localStorage.setItem('userInfo', JSON.stringify(data));
-
-            navigate(redirect || '/');
+            navigate(redirect);
         } catch (error) {
             toast.error(error.message);
         }
     };
 
     useEffect(() => {
-        if (userInfo) {
-            navigate(redirect);
-        }
-    }, [navigate, redirect, userInfo]);
+        if (state.userInfo) navigate(redirect);
+    }, [navigate, redirect, state.userInfo]);
 
     return (
-        <Container className="small-container">
-            <Helmet>
-                <title>Login</title>
-            </Helmet>
-            <h1 className="my-3">Login</h1>
-            <Form onSubmit={submitHandler}>
-                <Form.Group className="mb-3" controlid="email">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                        type="email"
-                        required
-                        onChange={(e) => setEmail(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3" controlid="password">
-                    <Form.Label>Pasword</Form.Label>
-                    <Form.Control
-                        type="password"
-                        required
-                        onChange={(e) => setPassword(e.target.value)}
-                    ></Form.Control>
-                </Form.Group>
-                <div className="mb-3">
-                    <Button type="submit">Login</Button>
+        <section className="auth-page">
+            <Helmet><title>Sign in | Nora’s Atelier</title></Helmet>
+            <div className="auth-visual auth-visual-login" aria-hidden="true">
+                <div className="auth-visual-copy">
+                    <span>Crafted with care</span>
+                    <h2>Welcome back to your collection of beautiful moments.</h2>
                 </div>
-                <div className="mb-3">
-                    No Registration ?{' '}
-                    <Link to={`/register?redirect=${redirect}`}>Register Here</Link>
+            </div>
+            <div className="auth-panel">
+                <div className="auth-heading">
+                    <img src="/images/noras-atelier-logo.png" alt="" />
+                    <span>Welcome back</span>
+                    <h1>Sign in to your account</h1>
+                    <p>Continue shopping handmade gifts and thoughtful décor.</p>
                 </div>
-            </Form>
-        </Container>
-    )
+                <Form onSubmit={submitHandler} className="auth-form">
+                    <Form.Group controlId="login-email">
+                        <Form.Label>Email address</Form.Label>
+                        <Form.Control type="email" autoComplete="email" placeholder="you@example.com" required onChange={(e) => setEmail(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group controlId="login-password">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control type="password" autoComplete="current-password" placeholder="Enter your password" required onChange={(e) => setPassword(e.target.value)} />
+                    </Form.Group>
+                    <Button type="submit" className="auth-submit">Sign in</Button>
+                    <p className="auth-switch">New to Nora’s Atelier? <Link to={'/register?redirect=' + redirect}>Create an account</Link></p>
+                </Form>
+            </div>
+        </section>
+    );
 }
 
 export default Login;
