@@ -36,8 +36,12 @@ productRouter.get('/products', (req, res) => {
 const PAGE_SIZE = 3;
 productRouter.get('/search', expressAsyncHandler(async (req, res) => {
     const { query } = req;
-    const pageSize = query.pageSize || PAGE_SIZE;
-    const page = query.page || 1;
+    const requestedPageSize = Number.parseInt(query.pageSize, 10);
+    const requestedPage = Number.parseInt(query.page, 10);
+    const pageSize = Number.isFinite(requestedPageSize)
+        ? Math.min(Math.max(requestedPageSize, 1), 50)
+        : PAGE_SIZE;
+    const page = Number.isFinite(requestedPage) ? Math.max(requestedPage, 1) : 1;
     const category = query.category || '';
     const brand = query.brand || '';
     const price = query.price || '';

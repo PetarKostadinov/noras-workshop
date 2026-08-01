@@ -32,7 +32,7 @@ function Header() {
     }, []);
 
     return (
-        <header>
+        <header className="site-header">
             <Navbar variant="dark" expand="lg" className="main-navbar">
                 <Container className="header-container">
                     <LinkContainer to="/">

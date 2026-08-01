@@ -18,6 +18,21 @@ const prices = [
 
 const ratings = [4, 3, 2, 1];
 
+const getPaginationItems = (currentPage, totalPages) => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+
+    const visiblePages = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+    const pagesInRange = [...visiblePages]
+        .filter((item) => item >= 1 && item <= totalPages)
+        .sort((a, b) => a - b);
+
+    return pagesInRange.reduce((items, item, index) => {
+        if (index > 0 && item - pagesInRange[index - 1] > 1) items.push(`ellipsis-${item}`);
+        items.push(item);
+        return items;
+    }, []);
+};
+
 function SearchPage() {
     const navigate = useNavigate();
     const { search } = useLocation();
@@ -28,6 +43,7 @@ function SearchPage() {
     const rating = params.get('rating') || 'all';
     const order = params.get('order') || 'newest';
     const page = params.get('page') || '1';
+    const currentPage = Math.max(1, Number.parseInt(page, 10) || 1);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -197,19 +213,53 @@ function SearchPage() {
 
                     {pages > 1 && (
                         <nav className="catalog-pagination" aria-label="Catalog pages">
-                            {[...Array(pages).keys()].map((index) => {
-                                const pageNumber = index + 1;
-                                return (
+                            {currentPage > 1 ? (
+                                <Link
+                                    to={getFilterUrl({ page: String(currentPage - 1) })}
+                                    className="catalog-pagination-step"
+                                    aria-label="Go to previous page"
+                                >
+                                    <i className="fas fa-chevron-left" aria-hidden="true"></i>
+                                    <span>Previous</span>
+                                </Link>
+                            ) : (
+                                <span className="catalog-pagination-step disabled" aria-disabled="true">
+                                    <i className="fas fa-chevron-left" aria-hidden="true"></i>
+                                    <span>Previous</span>
+                                </span>
+                            )}
+
+                            <div className="catalog-pagination-pages">
+                                {getPaginationItems(currentPage, pages).map((item) => typeof item === 'string' ? (
+                                    <span key={item} className="catalog-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                                ) : (
                                     <Link
-                                        key={pageNumber}
-                                        to={getFilterUrl({ page: String(pageNumber) })}
-                                        className={Number(page) === pageNumber ? 'active' : ''}
-                                        aria-current={Number(page) === pageNumber ? 'page' : undefined}
+                                        key={item}
+                                        to={getFilterUrl({ page: String(item) })}
+                                        className={currentPage === item ? 'active' : ''}
+                                        aria-current={currentPage === item ? 'page' : undefined}
+                                        aria-label={`Go to page ${item}`}
                                     >
-                                        {pageNumber}
+                                        {item}
                                     </Link>
-                                );
-                            })}
+                                ))}
+                            </div>
+
+                            {currentPage < pages ? (
+                                <Link
+                                    to={getFilterUrl({ page: String(currentPage + 1) })}
+                                    className="catalog-pagination-step"
+                                    aria-label="Go to next page"
+                                >
+                                    <span>Next</span>
+                                    <i className="fas fa-chevron-right" aria-hidden="true"></i>
+                                </Link>
+                            ) : (
+                                <span className="catalog-pagination-step disabled" aria-disabled="true">
+                                    <span>Next</span>
+                                    <i className="fas fa-chevron-right" aria-hidden="true"></i>
+                                </span>
+                            )}
                         </nav>
                     )}
                 </div>
