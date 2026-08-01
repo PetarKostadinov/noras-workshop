@@ -92,7 +92,7 @@ function PreviewOrder() {
                             <span className="review-payment-icon"><i className="fab fa-paypal" aria-hidden="true"></i></span>
                             <div>
                                 <strong>{cart.paymentMethod}</strong>
-                                <small>You’ll complete payment securely after placing the order.</small>
+                                <small>Your order will be saved as pending, then confirmed after secure payment.</small>
                             </div>
                         </div>
                     </section>
@@ -123,7 +123,7 @@ function PreviewOrder() {
 
                 <aside className="review-summary">
                     <span>Order summary</span>
-                    <h2>Ready to place</h2>
+                    <h2>Ready for payment</h2>
                     <div className="review-summary-row"><span>Items</span><strong>{'$' + totals.itemsPrice.toFixed(2)}</strong></div>
                     <div className="review-summary-row">
                         <span>Delivery</span>
@@ -136,13 +136,13 @@ function PreviewOrder() {
                     )}
                     <Button onClick={placeOrderHandler} disabled={placingOrder || cart.cartItems.length === 0} className="review-place-order">
                         {placingOrder ? (
-                            <><span className="spinner-border spinner-border-sm" aria-hidden="true"></span> Placing order...</>
+                            <><span className="spinner-border spinner-border-sm" aria-hidden="true"></span> Creating secure order...</>
                         ) : (
-                            <>Place order <i className="fas fa-arrow-right" aria-hidden="true"></i></>
+                            <>Continue to secure payment <i className="fas fa-arrow-right" aria-hidden="true"></i></>
                         )}
                     </Button>
                     <p className="review-terms">
-                        By placing this order, you confirm that the delivery and payment details are correct.
+                        Your order is confirmed only after payment is completed successfully.
                     </p>
                     <div className="review-trust">
                         <span><i className="fas fa-lock" aria-hidden="true"></i> Secure checkout</span>

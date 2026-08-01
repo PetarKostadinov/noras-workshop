@@ -2916,6 +2916,86 @@ main {
   color: #e6aa99;
 }
 
+.paypal-load-error {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  color: #765047;
+  background: #fff4df;
+  border: 1px solid #efd5a8;
+  border-radius: 0.75rem;
+  font-size: 0.76rem;
+}
+
+.paypal-load-error > i {
+  margin-top: 0.15rem;
+  color: #bb7540;
+}
+
+.paypal-load-error strong,
+.paypal-load-error span {
+  display: block;
+}
+
+.paypal-load-error span {
+  margin: 0.2rem 0 0.6rem;
+  line-height: 1.5;
+}
+
+.paypal-load-error button {
+  padding: 0;
+  color: #9f4e40;
+  background: none;
+  border: 0;
+  font-weight: 750;
+  text-decoration: underline;
+}
+
+.paypal-processing {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  color: #765047;
+  background: #fff7e8;
+  border: 1px solid #ead2a8;
+  border-radius: 0.8rem;
+}
+
+.paypal-processing > i {
+  margin-top: 0.2rem;
+  color: #bb7540;
+  font-size: 1rem;
+}
+
+.paypal-processing strong,
+.paypal-processing span {
+  display: block;
+}
+
+.paypal-processing strong {
+  font-size: 0.82rem;
+}
+
+.paypal-processing span {
+  margin: 0.25rem 0 0.7rem;
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+.paypal-processing button {
+  padding: 0.5rem 0.8rem;
+  color: #fff;
+  background: #a95b4b;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.paypal-processing button:disabled {
+  opacity: 0.65;
+}
+
 .order-paid-message {
   display: flex;
   align-items: center;

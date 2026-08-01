@@ -58,7 +58,7 @@ function Payment() {
                             <span className="payment-option-icon paypal"><i className="fab fa-paypal" aria-hidden="true"></i></span>
                             <span className="payment-option-copy">
                                 <strong>PayPal</strong>
-                                <small>Pay securely with PayPal after placing your order.</small>
+                                <small>Review your order, then confirm it securely with PayPal.</small>
                             </span>
                             <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
                         </label>

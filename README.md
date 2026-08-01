@@ -81,6 +81,8 @@ PORT=5000
 MONGODB_URI="mongodb://127.0.0.1:27017/shoppingcart"
 JWT_SECRET="replace-with-a-long-random-secret"
 PAYPAL_CLIENT_ID="your-paypal-client-id"
+PAYPAL_CLIENT_SECRET="your-paypal-client-secret"
+PAYPAL_ENVIRONMENT="sandbox"
 ~~~
 
 Generate a strong value for JWT_SECRET. Never commit server/.env.
@@ -158,13 +160,14 @@ npm start       # Start the API with nodemon
 | PUT | /api/users/profile | Update the signed-in user's profile |
 | POST | /api/orders | Create an order |
 | GET | /api/orders/mine | Fetch the signed-in user's orders |
-| GET | /api/orders/:id | Fetch an order |
-| PUT | /api/orders/:id/pay | Record a successful payment |
+| GET | /api/orders/:id | Fetch an owned order |
+| POST | /api/orders/:id/paypal-order | Create a server-verified PayPal transaction |
+| PUT | /api/orders/:id/capture-paypal | Capture and verify a PayPal payment |
 | POST | /api/seed/products | Add or update development products |
 
 ## Payment notes
 
-PayPal is the currently implemented payment provider. A valid sandbox or production client ID must be supplied through PAYPAL_CLIENT_ID. The card-payment option displayed in the interface is intentionally marked as coming soon.
+PayPal is the currently implemented payment provider. Configure both `PAYPAL_CLIENT_ID` and the server-only `PAYPAL_CLIENT_SECRET`, then set `PAYPAL_ENVIRONMENT` to `sandbox` or `live`. Orders remain in an awaiting-payment state until the server captures and verifies the PayPal transaction. Never expose the client secret in client-side environment files. The card-payment option is intentionally marked as coming soon.
 
 ## Production checklist
 
@@ -172,7 +175,7 @@ Before deploying:
 
 - Use a strong production JWT_SECRET
 - Configure a production MongoDB URI
-- Configure the correct PayPal client ID
+- Configure the correct PayPal client ID, secret, and live environment
 - Protect or remove the development seed endpoint
 - Restrict product-management API routes to administrators
 - Set the frontend/API deployment URLs and CORS policy as required

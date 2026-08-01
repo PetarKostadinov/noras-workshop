@@ -15,7 +15,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/keys/paypal", (req, res) => {
-  res.send(process.env.PAYPAL_CLIENT_ID || "sb");
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  if (!clientId || clientId === "sb" || !clientSecret) {
+    return res.status(503).send({
+      message: "PayPal Sandbox is not configured. Add a sandbox client ID and secret to server/.env, then restart the server.",
+    });
+  }
+  res.send(clientId);
 });
 
 app.use("/api/seed", seedRouter);

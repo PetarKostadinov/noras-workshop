@@ -100,14 +100,18 @@ function OrderHistory() {
                                         <span>Payment</span>
                                         <strong className={`order-status ${order.isPaid ? 'complete' : 'pending'}`}>
                                             <i className={order.isPaid ? 'fas fa-check-circle' : 'far fa-clock'} aria-hidden="true"></i>
-                                            {order.isPaid ? `Paid · ${formatDate(order.paidAt)}` : 'Awaiting payment'}
+                                            {order.isPaid
+                                                ? `Paid · ${formatDate(order.paidAt)}`
+                                                : order.paymentStatus === 'processing' ? 'Under PayPal review' : 'Awaiting payment'}
                                         </strong>
                                     </div>
                                     <div>
                                         <span>Delivery</span>
                                         <strong className={`order-status ${order.isDelivered ? 'complete' : 'pending'}`}>
                                             <i className={order.isDelivered ? 'fas fa-check-circle' : 'fas fa-truck'} aria-hidden="true"></i>
-                                            {order.isDelivered ? `Delivered · ${formatDate(order.deliveredAt)}` : 'In progress'}
+                                            {order.isDelivered
+                                                ? `Delivered · ${formatDate(order.deliveredAt)}`
+                                                : order.isPaid ? 'Being prepared' : 'Starts after payment'}
                                         </strong>
                                     </div>
                                 </div>
@@ -118,7 +122,9 @@ function OrderHistory() {
                                     onClick={() => navigate(`/order/${order._id}`)}
                                     aria-label={`View details for order ${order._id}`}
                                 >
-                                    View details <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                                    {order.isPaid
+                                        ? 'View details'
+                                        : order.paymentStatus === 'processing' ? 'Check payment' : 'Complete payment'} <i className="fas fa-arrow-right" aria-hidden="true"></i>
                                 </Button>
                             </article>
                         ))}

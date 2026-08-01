@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -33,14 +33,17 @@ function OrderFinalStep() {
     const navigate = useNavigate();
     const { state } = useContext(Store);
     const { userInfo } = state;
-    const [{ loading, error, order, loadingPay }, dispatch] = useReducer(reducer, {
+    const [paypalConfigError, setPaypalConfigError] = useState('');
+    const [paypalLoadAttempt, setPaypalLoadAttempt] = useState(0);
+    const [checkingPayment, setCheckingPayment] = useState(false);
+    const [{ loading, error, order, loadingPay, errorPay }, dispatch] = useReducer(reducer, {
         loading: true,
         order: {},
         error: '',
         successPay: false,
         loadingPay: false,
     });
-    const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+    const [{ isPending, isRejected }, paypalDispatch] = usePayPalScriptReducer();
 
     useEffect(() => {
         if (!userInfo) {
@@ -67,6 +70,7 @@ function OrderFinalStep() {
 
         const loadPayPal = async () => {
             try {
+                setPaypalConfigError('');
                 const { data: clientId } = await axios.get('/api/keys/paypal');
                 paypalDispatch({
                     type: 'resetOptions',
@@ -74,34 +78,62 @@ function OrderFinalStep() {
                 });
                 paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
             } catch (err) {
-                toast.error('Unable to load PayPal');
+                setPaypalConfigError(getError(err));
             }
         };
         loadPayPal();
-    }, [order._id, order.isPaid, order.paymentMethod, paypalDispatch, userInfo]);
+    }, [order._id, order.isPaid, order.paymentMethod, paypalDispatch, paypalLoadAttempt, userInfo]);
 
-    const createPayPalOrder = (data, actions) => (
-        actions.order.create({ purchase_units: [{ amount: { value: order.totalPrice } }] })
-    );
+    const createPayPalOrder = async () => {
+        const { data } = await axios.post(
+            '/api/orders/' + order._id + '/paypal-order',
+            {},
+            { headers: { authorization: 'Bearer ' + userInfo.token } }
+        );
+        return data.id;
+    };
 
-    const approvePayPalOrder = (data, actions) => (
-        actions.order.capture().then(async (details) => {
-            try {
-                dispatch({ type: 'PAY_REQUEST' });
-                const response = await axios.put(
-                    '/api/orders/' + order._id + '/pay',
-                    details,
-                    { headers: { authorization: 'Bearer ' + userInfo.token } }
-                );
-                dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
-                toast.success('Payment completed successfully');
-            } catch (err) {
-                const message = getError(err);
-                dispatch({ type: 'PAY_FAIL', payload: message });
-                toast.error(message);
+    const approvePayPalOrder = async () => {
+        try {
+            dispatch({ type: 'PAY_REQUEST' });
+            const response = await axios.put(
+                '/api/orders/' + order._id + '/capture-paypal',
+                {},
+                { headers: { authorization: 'Bearer ' + userInfo.token } }
+            );
+            dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
+            if (response.data.order.isPaid) {
+                toast.success('Payment verified. Your order is confirmed.');
+            } else {
+                toast.info('Payment received. PayPal is reviewing the transaction.');
             }
-        })
-    );
+        } catch (err) {
+            const message = getError(err);
+            dispatch({ type: 'PAY_FAIL', payload: message });
+            toast.error(message);
+        }
+    };
+
+    const syncPayPalStatus = async () => {
+        try {
+            setCheckingPayment(true);
+            const response = await axios.put(
+                '/api/orders/' + order._id + '/sync-paypal',
+                {},
+                { headers: { authorization: 'Bearer ' + userInfo.token } }
+            );
+            dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
+            if (response.data.order.isPaid) {
+                toast.success('Payment verified. Your order is confirmed.');
+            } else {
+                toast.info('Payment is still under PayPal review.');
+            }
+        } catch (err) {
+            toast.error(getError(err));
+        } finally {
+            setCheckingPayment(false);
+        }
+    };
 
     if (loading) {
         return <div className="order-state"><LoadingComponent /></div>;
@@ -120,11 +152,17 @@ function OrderFinalStep() {
             <Helmet><title>Order confirmation | Nora’s Atelier</title></Helmet>
 
             <div className="order-success-banner">
-                <div className="order-success-icon"><i className="fas fa-check" aria-hidden="true"></i></div>
+                <div className="order-success-icon">
+                    <i className={order.isPaid ? 'fas fa-check' : 'far fa-clock'} aria-hidden="true"></i>
+                </div>
                 <div>
-                    <span>Thank you for your order</span>
-                    <h1>Your order has been placed</h1>
-                    <p>We’ll begin preparing your handmade pieces with care.</p>
+                    <span>{order.isPaid ? 'Thank you for your order' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely'}</span>
+                    <h1>{order.isPaid ? 'Your order is confirmed' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm'}</h1>
+                    <p>{order.isPaid
+                        ? 'We’ll begin preparing your handmade pieces with care.'
+                        : order.paymentStatus === 'processing'
+                            ? 'PayPal is reviewing the transaction. We’ll confirm the order as soon as payment clears.'
+                            : 'Your order is awaiting payment and will not be prepared until payment is confirmed.'}</p>
                 </div>
                 <Link to="/search">Continue shopping</Link>
             </div>
@@ -142,7 +180,7 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-truck" aria-hidden="true"></i></span>
                             <div><span>Delivery</span><h2>Shipping details</h2></div>
                             <span className={'order-status ' + (order.isDelivered ? 'complete' : 'pending')}>
-                                {order.isDelivered ? 'Delivered' : 'Preparing'}
+                                {order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : 'Awaiting payment'}
                             </span>
                         </div>
                         <div className="order-address">
@@ -158,13 +196,15 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-wallet" aria-hidden="true"></i></span>
                             <div><span>Payment</span><h2>{order.paymentMethod}</h2></div>
                             <span className={'order-status ' + (order.isPaid ? 'complete' : 'attention')}>
-                                {order.isPaid ? 'Paid' : 'Payment due'}
+                                {order.isPaid ? 'Paid' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due'}
                             </span>
                         </div>
                         <p className="order-payment-copy">
                             {order.isPaid
                                 ? 'Payment received on ' + new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(order.paidAt))
-                                : 'Complete your secure PayPal payment from the order summary.'}
+                                : order.paymentStatus === 'processing'
+                                    ? 'Payment was submitted successfully and is awaiting PayPal’s final confirmation.'
+                                    : 'Complete your secure PayPal payment from the order summary.'}
                         </p>
                     </section>
 
@@ -193,7 +233,7 @@ function OrderFinalStep() {
 
                 <aside className="order-summary-card">
                     <span>Order summary</span>
-                    <h2>{order.isPaid ? 'Payment complete' : 'Complete payment'}</h2>
+                    <h2>{order.isPaid ? 'Payment complete' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment'}</h2>
                     <div className="order-summary-row"><span>Items</span><strong>{'$' + order.itemsPrice.toFixed(2)}</strong></div>
                     <div className="order-summary-row"><span>Delivery</span><strong>{order.shippingPrice === 0 ? 'Free' : '$' + order.shippingPrice.toFixed(2)}</strong></div>
                     <div className="order-summary-row"><span>Tax</span><strong>{'$' + order.taxPrice.toFixed(2)}</strong></div>
@@ -202,14 +242,48 @@ function OrderFinalStep() {
                     {!order.isPaid && order.paymentMethod === 'PayPal' && (
                         <div className="order-paypal">
                             <p><i className="fas fa-lock" aria-hidden="true"></i> Secure payment powered by PayPal</p>
-                            {isPending || loadingPay ? (
+                            {order.paypalOrderId && ['processing', 'failed'].includes(order.paymentStatus) ? (
+                                <div className="paypal-processing" role="status">
+                                    <i className="far fa-clock" aria-hidden="true"></i>
+                                    <div>
+                                        <strong>Payment submitted</strong>
+                                        <span>PayPal is reviewing the sandbox transaction. Do not pay again.</span>
+                                        <button type="button" disabled={checkingPayment} onClick={syncPayPalStatus}>
+                                            {checkingPayment ? 'Checking…' : 'Check payment status'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                            {paypalConfigError && <MessageComponent variant="warning">{paypalConfigError}</MessageComponent>}
+                            {errorPay && <MessageComponent variant="danger">{errorPay}</MessageComponent>}
+                            {isRejected && !paypalConfigError && (
+                                <div className="paypal-load-error" role="alert">
+                                    <i className="fas fa-exclamation-circle" aria-hidden="true"></i>
+                                    <div>
+                                        <strong>PayPal could not load</strong>
+                                        <span>Allow PayPal in your browser’s privacy or shield settings, then try again.</span>
+                                        <button type="button" onClick={() => setPaypalLoadAttempt((attempt) => attempt + 1)}>
+                                            Retry PayPal
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            {paypalConfigError || isRejected ? null : isPending || loadingPay ? (
                                 <LoadingComponent />
                             ) : (
                                 <PayPalButtons
                                     createOrder={createPayPalOrder}
                                     onApprove={approvePayPalOrder}
-                                    onError={(err) => toast.error(getError(err))}
+                                    onCancel={() => toast.info('Payment cancelled. You can complete it later from Order history.')}
+                                    onError={(err) => {
+                                        const message = getError(err) || 'PayPal could not start the payment. Please try again.';
+                                        dispatch({ type: 'PAY_FAIL', payload: message });
+                                        toast.error(message);
+                                    }}
                                 />
+                            )}
+                                </>
                             )}
                         </div>
                     )}
