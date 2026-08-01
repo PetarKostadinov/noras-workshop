@@ -68,8 +68,8 @@ shoppingCart/
 ### 1. Clone the repository
 
 ~~~bash
-git clone https://github.com/PetarKostadinov/noras-atelier.git
-cd noras-atelier
+git clone https://github.com/PetarKostadinov/shoppingCart.git
+cd shoppingCart
 ~~~
 
 ### 2. Configure the server
