@@ -1,109 +1,185 @@
 # Nora's Atelier
 
-Portfolio ecommerce application for handmade gifts, wedding and event decorations, and photography studio décor.
+Full-stack ecommerce application for handmade gifts, wedding and event decorations, and photography studio décor.
 
-1. Create Git Repo
-2. 
-3. 
-4. 
-5. 
-6. Fetching ProductsFrom Backend 
-    1. set proxy in package.json
-    2. npm i axios
-    3. useState hook
-    4. useEfect hook
-    5. useReducer hook
-    
-7.  Manage Satate By Reducer Hook
-    1. define redcer
-    2. update fetch
-    3. get state from useReducer 
+Nora's Atelier is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and PayPal payment.
 
-8. Create Product and Rating Component
-    1. Rating
-    2. Product
-    3. Use Rating in Product  
+## Features
 
-9. Create Product Details screen
-    1. fetch from backend
-    2. create 3 columns for image, info and action  
+- Responsive boutique storefront and product catalog
+- Product search, category, price, rating, and sorting filters
+- Product details and inventory-aware cart controls
+- Persistent cart, delivery address, and payment selection
+- JWT-based registration, login, and protected account routes
+- Multi-step checkout with delivery, payment, and order review
+- Order creation, order history, and order-status pages
+- PayPal checkout integration
+- Admin-facing product creation and editing screens
+- MongoDB-backed products, users, and orders
+- Responsive layouts for desktop, tablet, and mobile
 
-10. Create Loading and Message Component
-    1. loading component
-    2. spiner component
-    3. message component
-    4. util.js to define getError function
+## Technology
 
-11. Add To Cart Function
-    1. React Context  
-    2. Reducer
-    3. Store Provider
-    4. Add To Cart handler, click button        
+### Client
 
-12. Create Cart Screen
-    1. two columns
-    2. display items
-    3. action column
-    4. clickhandler for dec and incr item count
-    5. remove item
-    6. checkout
+- React 18
+- React Router
+- React Bootstrap and Bootstrap
+- React Context with useReducer
+- Axios and Fetch API
+- React Helmet
+- React Toastify
+- PayPal React SDK
 
-13. Login
-    1. loginform
-    2. add email
-    3. add login button    
-    
-14. Conect To Mongo Database
+### Server
 
-15. Product model
+- Node.js
+- Express
+- MongoDB and Mongoose
+- JSON Web Tokens
+- bcrypt
 
-16. User model
+## Project structure
 
-17. Route in server.js
+~~~text
+shoppingCart/
+├── client/
+│   ├── public/              # Static images and browser metadata
+│   └── src/
+│       ├── components/      # Pages and reusable UI components
+│       ├── helpersComponents/
+│       └── service/         # Client API and calculation helpers
+├── server/
+│   ├── data/                # Development seed products
+│   ├── models/              # Mongoose schemas
+│   ├── routes/              # Express API routes
+│   └── server.js            # API and database entry point
+└── README.md
+~~~
 
-18. Seed Sample Users
-    1. create user model
-    2. sedd sample users
-    3. create user routes
+## Local setup
 
-19. Create Login Backend API
-    1. npm i jswebtoken
-    2. define generateToken    
+### Prerequisites
 
-20. Register - form, handle, backend api
+- Node.js 18 or newer
+- npm
+- A local MongoDB server or MongoDB Atlas connection
 
-21. Implement payment method - imput form, handle submit
+### 1. Clone the repository
 
-22. Create OrderPage
-    1. Show cart items
-    2. handle order action
-    3. ored create api
+~~~bash
+git clone https://github.com/PetarKostadinov/noras-atelier.git
+cd noras-atelier
+~~~
 
-23. Implement Place order Action - handle action, create api   
+### 2. Configure the server
 
-24. Create Order Screen- create backend api, fetch order api, show order info in 2 columns
+Create server/.env using server/.env.example:
 
-25. Pay by PayPal
-    1. generate PayPal client id
-    2. createapi to return client id
-    3. instal react-paypal-js
-    4. use PayPalScriptProvider in index.js
-    5. use usePayPalScriptReducer in Order Screen
-    6. implement loadPayPalcript function
-    7. render PayPal Button
-    8. implement onApprove payment function 
-    9. create pay order api in backend
+~~~env
+PORT=5000
+MONGODB_URI="mongodb://127.0.0.1:27017/shoppingcart"
+JWT_SECRET="replace-with-a-long-random-secret"
+PAYPAL_CLIENT_ID="your-paypal-client-id"
+~~~
 
-26. Create SearchPage    
+Generate a strong value for JWT_SECRET. Never commit server/.env.
 
-27. Create Edit Itme Page 
+### 3. Install dependencies
 
-28. Create Deleta Item Page
+~~~bash
+cd server
+npm install
 
-29. Publish render.com  
-  
+cd ../client
+npm install
+~~~
 
+### 4. Start the application
 
+Run the API from one terminal:
 
+~~~bash
+cd server
+npm start
+~~~
 
+Run the React client from a second terminal:
 
+~~~bash
+cd client
+npm start
+~~~
+
+The client runs at http://localhost:3000 and proxies API requests to http://localhost:5000.
+
+## Add development products
+
+With the server running, seed the sample Nora's Atelier products:
+
+~~~bash
+curl -X POST http://localhost:5000/api/seed/products
+~~~
+
+PowerShell:
+
+~~~powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/seed/products
+~~~
+
+The operation is repeatable: products are updated by slug instead of duplicated. The seed endpoint is intended for local development and should be disabled or protected before production deployment.
+
+## Available scripts
+
+From client/:
+
+~~~bash
+npm start       # Start the React development server
+npm run build   # Create an optimized production build
+npm test        # Run the React test runner
+~~~
+
+From server/:
+
+~~~bash
+npm start       # Start the API with nodemon
+~~~
+
+## Main API routes
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | /api/products | List products |
+| GET | /api/products/search | Search, filter, sort, and paginate |
+| GET | /api/products/categories | List product categories |
+| GET | /api/products/:id | Fetch one product |
+| POST | /api/users/register | Create an account |
+| POST | /api/users/login | Authenticate a user |
+| PUT | /api/users/profile | Update the signed-in user's profile |
+| POST | /api/orders | Create an order |
+| GET | /api/orders/mine | Fetch the signed-in user's orders |
+| GET | /api/orders/:id | Fetch an order |
+| PUT | /api/orders/:id/pay | Record a successful payment |
+| POST | /api/seed/products | Add or update development products |
+
+## Payment notes
+
+PayPal is the currently implemented payment provider. A valid sandbox or production client ID must be supplied through PAYPAL_CLIENT_ID. The card-payment option displayed in the interface is intentionally marked as coming soon.
+
+## Production checklist
+
+Before deploying:
+
+- Use a strong production JWT_SECRET
+- Configure a production MongoDB URI
+- Configure the correct PayPal client ID
+- Protect or remove the development seed endpoint
+- Restrict product-management API routes to administrators
+- Set the frontend/API deployment URLs and CORS policy as required
+
+## Author
+
+Petar Kostadinov
+
+- [GitHub](https://github.com/PetarKostadinov)
+- [LinkedIn](https://www.linkedin.com/in/petar-kostadinov-759ba8213/)
