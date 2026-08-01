@@ -1,63 +1,117 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Button, Form } from 'react-bootstrap'
-import { Helmet } from 'react-helmet-async'
-import { useNavigate } from 'react-router-dom'
-import Checkout from './CheckoutSteps'
-import { Store } from '../helpersComponents/Store'
+import React, { useContext, useEffect, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
+import { Link, useNavigate } from 'react-router-dom';
+import CheckoutSteps from './CheckoutSteps';
+import { Store } from '../helpersComponents/Store';
 
 function Payment() {
     const navigate = useNavigate();
     const { state, dispatch: ctxDispatch } = useContext(Store);
-    const { cart: { shippingInfo, paymentMethod } } = state;
-    const [paymentName, setPayment] = useState(paymentMethod || 'PayPal');
+    const { cart: { shippingInfo, paymentMethod, cartItems } } = state;
+    const [selectedMethod, setSelectedMethod] = useState(paymentMethod || 'PayPal');
+    const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
     useEffect(() => {
-        if (!shippingInfo.address) {
-            navigate('/shipping')
-        }
-    }, [shippingInfo, navigate]);
+        if (!shippingInfo.address) navigate('/shipping');
+    }, [navigate, shippingInfo.address]);
 
-    const submitHandler = (e) => {
-        e.preventDefault();
-        ctxDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: paymentName });
-        localStorage.setItem('paymentMethod', paymentName);
+    const submitHandler = (event) => {
+        event.preventDefault();
+        ctxDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: selectedMethod });
+        localStorage.setItem('paymentMethod', selectedMethod);
         navigate('/order');
-    }
+    };
+
     return (
-        <div>
-            <Checkout step1 step2 step3></Checkout>
-            <div className="container small-container"></div>
-            <Helmet>
-                <title>Payment</title>
-            </Helmet>
-            <h1 className="my-3">Payment</h1>
-            <Form onSubmit={submitHandler}>
-                <div className="mb-3">
-                    <Form.Check
-                        type="radio"
-                        id="PayPal"
-                        label="PayPal"
-                        value="PayPal"
-                        checked={paymentName === "PayPal"}
-                        onChange={(e) => setPayment(e.target.value)}
-                    />
+        <section className="checkout-page">
+            <Helmet><title>Payment method | Nora’s Atelier</title></Helmet>
+            <CheckoutSteps step1 step2 step3 />
+
+            <div className="checkout-heading">
+                <span>Secure checkout</span>
+                <h1>Choose payment</h1>
+                <p>Select how you would like to pay for your order.</p>
+            </div>
+
+            <div className="payment-layout">
+                <div className="checkout-form-card payment-card">
+                    <div className="checkout-form-heading">
+                        <div className="checkout-form-icon"><i className="fas fa-wallet" aria-hidden="true"></i></div>
+                        <div>
+                            <h2>Payment method</h2>
+                            <p>Your payment details are handled securely.</p>
+                        </div>
+                    </div>
+
+                    <Form onSubmit={submitHandler} className="payment-form">
+                        <label className={'payment-option' + (selectedMethod === 'PayPal' ? ' selected' : '')}>
+                            <Form.Check
+                                type="radio"
+                                name="payment-method"
+                                value="PayPal"
+                                checked={selectedMethod === 'PayPal'}
+                                onChange={(event) => setSelectedMethod(event.target.value)}
+                                aria-label="Pay with PayPal"
+                            />
+                            <span className="payment-option-icon paypal"><i className="fab fa-paypal" aria-hidden="true"></i></span>
+                            <span className="payment-option-copy">
+                                <strong>PayPal</strong>
+                                <small>Pay securely with PayPal after placing your order.</small>
+                            </span>
+                            <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
+                        </label>
+
+                        <div className="payment-option disabled" aria-disabled="true">
+                            <span className="payment-radio-placeholder" aria-hidden="true"></span>
+                            <span className="payment-option-icon"><i className="far fa-credit-card" aria-hidden="true"></i></span>
+                            <span className="payment-option-copy">
+                                <strong>Credit or debit card</strong>
+                                <small>Card payments are coming soon.</small>
+                            </span>
+                            <span className="payment-coming-soon">Coming soon</span>
+                        </div>
+
+                        <div className="payment-security-note">
+                            <i className="fas fa-shield-alt" aria-hidden="true"></i>
+                            <span>
+                                <strong>Protected payment</strong>
+                                You’ll complete payment through PayPal’s secure checkout.
+                            </span>
+                        </div>
+
+                        <div className="checkout-form-actions">
+                            <Link to="/shipping"><i className="fas fa-arrow-left" aria-hidden="true"></i> Back to delivery</Link>
+                            <Button type="submit">
+                                Review order
+                                <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                            </Button>
+                        </div>
+                    </Form>
                 </div>
-                <div className="mb-3">
-                    <Form.Check
-                        type="radio"
-                        id="Stripe"
-                        label="Stripe"
-                        value="Stripe"
-                        checked={paymentName === "Stripe"}
-                        onChange={(e) => setPayment(e.target.value)}
-                    />
-                </div>
-                <div className="mb-3" >
-                    <Button type="submit">Continue</Button>
-                </div>
-            </Form>
-        </div>
-    )
+
+                <aside className="payment-summary">
+                    <span>Order snapshot</span>
+                    <h2>{itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart</h2>
+                    <div className="payment-summary-products">
+                        {cartItems.slice(0, 3).map((item) => (
+                            <div key={item._id}>
+                                <img src={item.image} alt="" />
+                                <p><strong>{item.name}</strong><small>Quantity {item.quantity}</small></p>
+                                <span>{'$' + (item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="payment-summary-total">
+                        <span>Cart subtotal</span>
+                        <strong>{'$' + subtotal.toFixed(2)}</strong>
+                    </div>
+                    <p>Shipping and tax are calculated in the final order review.</p>
+                </aside>
+            </div>
+        </section>
+    );
 }
 
-export default Payment
+export default Payment;

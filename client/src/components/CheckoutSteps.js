@@ -1,15 +1,23 @@
-import React from 'react'
-import { Col, Row } from 'react-bootstrap'
+import React from 'react';
 
-function Checkout(props) {
+function CheckoutSteps({ step1, step2, step3, step4 }) {
+    const steps = [
+        { label: 'Account', active: step1 },
+        { label: 'Delivery', active: step2 },
+        { label: 'Payment', active: step3 },
+        { label: 'Review', active: step4 },
+    ];
+
     return (
-        <Row className="checkout-steps">
-            <Col className={props.step1 ? 'active' : ''}>Login</Col>
-            <Col className={props.step2 ? 'active' : ''}>Shipping</Col>
-            <Col className={props.step3 ? 'active' : ''}>Payment</Col>
-            <Col className={props.step4 ? 'active' : ''}>Order</Col>
-        </Row>
-    )
+        <ol className="checkout-steps" aria-label="Checkout progress">
+            {steps.map((step, index) => (
+                <li className={step.active ? 'active' : ''} key={step.label} aria-current={step.active && !steps[index + 1]?.active ? 'step' : undefined}>
+                    <span>{step.active ? <i className="fas fa-check" aria-hidden="true"></i> : index + 1}</span>
+                    <strong>{step.label}</strong>
+                </li>
+            ))}
+        </ol>
+    );
 }
 
-export default Checkout
+export default CheckoutSteps;

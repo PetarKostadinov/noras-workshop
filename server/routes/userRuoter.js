@@ -27,10 +27,30 @@ userRouter.post('/login', expressAsyncHandler(async (req, res) => {
 }));
 
 userRouter.post('/register', expressAsyncHandler(async (req, res) => {
+    const username = req.body.username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!username || !email || !password) {
+        res.status(400).send({ message: 'Name, email, and password are required' });
+        return;
+    }
+
+    if (password.length < 6) {
+        res.status(400).send({ message: 'Password must be at least 6 characters' });
+        return;
+    }
+
+    const existingUser = await User.findOne({ email }).collation({ locale: 'en', strength: 2 });
+    if (existingUser) {
+        res.status(409).send({ message: 'An account with this email already exists' });
+        return;
+    }
+
     const newUser = new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password)
+        username,
+        email,
+        password: bcrypt.hashSync(password)
     });
     const user = await newUser.save();
     res.send({
@@ -38,7 +58,7 @@ userRouter.post('/register', expressAsyncHandler(async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
-        itemsInCartDb: user.isAdmin,
+        itemsInCartDb: user.itemsInCartDb,
         token: generateToken(user)
     });
 

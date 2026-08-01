@@ -28,7 +28,7 @@ function Register() {
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (err) {
-            toast.error(err.message.includes('email') ? 'Invalid email!' : 'Invalid username or password!');
+            toast.error(err.message || 'Unable to create your account');
         }
     };
 
@@ -55,7 +55,7 @@ function Register() {
                 <Form onSubmit={submitHandler} className="auth-form">
                     <Form.Group controlId="register-username">
                         <Form.Label>Full name</Form.Label>
-                        <Form.Control autoComplete="name" placeholder="Your name" required onChange={(e) => setUsername(e.target.value)} />
+                        <Form.Control autoComplete="name" placeholder="Your name" minLength={2} required onChange={(e) => setUsername(e.target.value)} />
                     </Form.Group>
                     <Form.Group controlId="register-email">
                         <Form.Label>Email address</Form.Label>
@@ -64,11 +64,11 @@ function Register() {
                     <div className="auth-form-row">
                         <Form.Group controlId="register-password">
                             <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" autoComplete="new-password" placeholder="Create password" required onChange={(e) => setPassword(e.target.value)} />
+                            <Form.Control type="password" autoComplete="new-password" placeholder="At least 6 characters" minLength={6} required onChange={(e) => setPassword(e.target.value)} />
                         </Form.Group>
                         <Form.Group controlId="register-repeat-password">
                             <Form.Label>Confirm password</Form.Label>
-                            <Form.Control type="password" autoComplete="new-password" placeholder="Repeat password" required onChange={(e) => setRepass(e.target.value)} />
+                            <Form.Control type="password" autoComplete="new-password" placeholder="Repeat password" minLength={6} required onChange={(e) => setRepass(e.target.value)} />
                         </Form.Group>
                     </div>
                     <Button type="submit" className="auth-submit">Create account</Button>
