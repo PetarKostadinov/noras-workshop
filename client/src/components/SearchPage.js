@@ -1,8 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import { LinkContainer } from 'react-router-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import getError from '../util';
@@ -10,87 +8,57 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import Product from './Product';
 import Rating from '../helpersComponents/Rating';
-import { getProducts } from '../service/searchService';
-import { getCategories } from '../service/searchService';
+import { getCategories, getProducts } from '../service/searchService';
 
 const prices = [
-    {
-        name: '$1 to $50',
-        value: '1-50'
-    },
-    {
-        name: '$51 to $200',
-        value: '51-200'
-    },
-    {
-        name: '$201 to $1000',
-        value: '201-1000'
-    }
+    { name: 'Under $50', value: '1-50' },
+    { name: '$51 – $200', value: '51-200' },
+    { name: '$201 and above', value: '201-1000' },
 ];
 
-const ratings = [
-    {
-        name: '4stars & up',
-        rating: 4
-    },
-    {
-        name: '3stars & up',
-        rating: 3
-    },
-    {
-        name: '2stars & up',
-        rating: 2
-    },
-    {
-        name: '1stars & up',
-        rating: 1
-    }
-];
+const ratings = [4, 3, 2, 1];
 
 function SearchPage() {
     const navigate = useNavigate();
     const { search } = useLocation();
-    const sp = new URLSearchParams(search);
-
-    const category = sp.get('category') || 'all';
-    const query = sp.get('query') || 'all';
-    const price = sp.get('price') || 'all';
-    const rating = sp.get('rating') || 'all';
-    const order = sp.get('order') || 'newest';
-    const page = sp.get('page') || 1;
+    const params = new URLSearchParams(search);
+    const category = params.get('category') || 'all';
+    const query = params.get('query') || 'all';
+    const price = params.get('price') || 'all';
+    const rating = params.get('rating') || 'all';
+    const order = params.get('order') || 'newest';
+    const page = params.get('page') || '1';
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
-    const [pages, setPages] = useState(0);
+    const [pages, setPages] = useState(1);
     const [countProducts, setCountProducts] = useState(0);
+    const [categories, setCategories] = useState([]);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-
+            setError('');
             try {
                 const data = await getProducts({ page, category, query, price, rating, order });
                 setProducts(data.products);
-                setPages(data.page);
+                setPages(data.pages || 1);
                 setCountProducts(data.countProducts);
-                setLoading(false);
             } catch (err) {
                 setError(getError(err));
+            } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
-    }, [category, error, order, page, price, query, rating]);
-
-    const [categories, setCategories] = useState([]);
+    }, [category, order, page, price, query, rating]);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const categories = await getCategories();
-                setCategories(categories);
+                setCategories(await getCategories());
             } catch (err) {
                 toast.error(getError(err));
             }
@@ -98,170 +66,156 @@ function SearchPage() {
         fetchCategories();
     }, []);
 
-    const getFilterUrl = (filter) => {
-        const filterPage = filter.page || 1;
-        const filterCategory = filter.category || category;
-        const filterQuery = filter.query || query;
-        const filterRating = filter.rating || rating;
-        const filterPrice = filter.price || price;
-        const sortOrder = filter.order || order;
+    useEffect(() => {
+        setFiltersOpen(false);
+    }, [search]);
 
-        return `/search?category=${filterCategory}&query=${filterQuery}&price=${filterPrice}&rating=${filterRating}&order=${sortOrder}&page=${filterPage}`;
-    }
+    const getFilterUrl = (changes) => {
+        const next = new URLSearchParams({
+            category,
+            query,
+            price,
+            rating,
+            order,
+            page: '1',
+        });
+        Object.entries(changes).forEach(([key, value]) => next.set(key, value));
+        return '/search?' + next.toString();
+    };
+
+    const hasFilters = query !== 'all' || category !== 'all' || price !== 'all' || rating !== 'all';
+
+    const filterLink = (label, key, value, selected, content) => (
+        <Link
+            key={String(value)}
+            to={getFilterUrl({ [key]: String(value) })}
+            className={'catalog-filter-option' + (selected ? ' active' : '')}
+            aria-current={selected ? 'true' : undefined}
+        >
+            <span className="catalog-filter-indicator" aria-hidden="true"></span>
+            {content || label}
+        </Link>
+    );
 
     return (
-        <div className="h-100">
-            <Row>
-                <Helmet>
-                    <title>Search Products</title>
-                </Helmet>
-                <Col md={3}>
-                    <h3>Department</h3>
-                    <div>
-                        <ul className="list-unstyled">
-                            <li>
-                                <Link
-                                    className={'all' === category ? 'text-bold' : ''}
-                                    to={getFilterUrl({ category: 'all' })}
-                                >
-                                    Any
-                                </Link>
-                            </li>
-                            {categories.map((c) => (
-                                <li key={c}>
-                                    <Link
-                                        className={c === category ? 'text-bold' : ''}
-                                        to={getFilterUrl({ category: c })}
-                                    >
-                                        {c}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+        <section className="catalog-page">
+            <Helmet><title>Shop all | Nora’s Atelier</title></Helmet>
+
+            <header className="catalog-heading">
+                <span>Explore the atelier</span>
+                <h1>{category === 'all' ? 'Shop all creations' : category}</h1>
+                <p>Handmade gifts and styling details for celebrations, events, and photography studios.</p>
+            </header>
+
+            <div className="catalog-toolbar">
+                <div className="catalog-results">
+                    <strong>{countProducts}</strong> {countProducts === 1 ? 'creation' : 'creations'}
+                    {query !== 'all' && <span> matching “{query}”</span>}
+                </div>
+                <div className="catalog-toolbar-actions">
+                    <Button className="catalog-filter-toggle" onClick={() => setFiltersOpen(true)}>
+                        <i className="fas fa-sliders-h" aria-hidden="true"></i>
+                        Filters
+                    </Button>
+                    <label className="catalog-sort">
+                        <span>Sort by</span>
+                        <select value={order} onChange={(e) => navigate(getFilterUrl({ order: e.target.value }))}>
+                            <option value="newest">Newest</option>
+                            <option value="lowest">Price: low to high</option>
+                            <option value="highest">Price: high to low</option>
+                            <option value="toprated">Top rated</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            {filtersOpen && <button className="catalog-filter-backdrop" aria-label="Close filters" onClick={() => setFiltersOpen(false)} />}
+
+            <div className="catalog-layout">
+                <aside className={'catalog-filters' + (filtersOpen ? ' open' : '')} aria-label="Product filters">
+                    <div className="catalog-filters-header">
+                        <div>
+                            <span>Refine results</span>
+                            <h2>Filters</h2>
+                        </div>
+                        <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close filters">&times;</button>
                     </div>
-                    <div>
+
+                    <div className="catalog-filter-group">
+                        <h3>Category</h3>
+                        {filterLink('All categories', 'category', 'all', category === 'all')}
+                        {categories.map((item) => filterLink(item, 'category', item, category === item))}
+                    </div>
+
+                    <div className="catalog-filter-group">
                         <h3>Price</h3>
-                        <ul className="list-unstyled">
-                            <li>
-                                <Link
-                                    className={'all' === price ? 'text-bold' : ''}
-                                    to={getFilterUrl({ price: 'all' })}
-                                >
-                                    Any
-                                </Link>
-                            </li>
-                            {prices.map((p) => (
-                                <li key={p.value}>
-                                    <Link
-                                        to={getFilterUrl({ price: p.value })}
-                                        className={p.value === price ? 'text-bold' : ''}
-                                    >
-                                        {p.name}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        {filterLink('Any price', 'price', 'all', price === 'all')}
+                        {prices.map((item) => filterLink(item.name, 'price', item.value, price === item.value))}
                     </div>
-                    <div>
-                        <h3>Avg. Customer Review</h3>
-                        <ul className="list-unstyled">
-                            {ratings.map((r) => (
-                                <li key={r.name}>
-                                    <Link
-                                        to={getFilterUrl({ rating: r.rating })}
-                                        className={`${r.rating}` === `${rating}` ? 'text-bold' : ''}
-                                    >
-                                        <Rating caption={' & up'} rating={r.rating}></Rating>
-                                    </Link>
-                                </li>
-                            ))}
-                            <li>
-                                <Link
-                                    to={getFilterUrl({ rating: 'all' })}
-                                    className={`${rating}` === `all` ? 'text-bold' : ''}
-                                >
-                                    <Rating caption={' & up'} rating={0}></Rating>
-                                </Link>
-                            </li>
-                        </ul>
+
+                    <div className="catalog-filter-group">
+                        <h3>Customer rating</h3>
+                        {filterLink('Any rating', 'rating', 'all', rating === 'all')}
+                        {ratings.map((value) => filterLink(
+                            value + ' stars & up',
+                            'rating',
+                            value,
+                            String(rating) === String(value),
+                            <Rating rating={value} caption=" & up" />
+                        ))}
                     </div>
-                </Col>
-                <Col md={9}>
-                    {loading ? (
-                        <LoadingComponent></LoadingComponent>
-                    ) : error ? (
-                        <MessageComponent variant="danger"></MessageComponent>
-                    ) : (
-                        <>
-                            <h1>Searched Products</h1>
-                            <Row className="justify-content-btween mb-3">
-                                <Col md={6}>
-                                    <div>
-                                        {countProducts === 0 ? 'No' : countProducts} Results
-                                        {query !== 'all' && ' : ' + query}
-                                        {category !== 'all' && ' : ' + category}
-                                        {price !== 'all' && ' : Price ' + price}
-                                        {rating !== 'all' && ' : Rating ' + rating + ' & up'}
-                                        {query !== 'all'
-                                            || category !== 'all'
-                                            || rating !== 'all' ||
-                                            price !== 'all' ? (
-                                            <Button
-                                                variant="light"
-                                                onClick={() => navigate('/search')}
-                                            >
-                                                <i className="fas fa-times-circle"></i>
-                                            </Button>
-                                        ) : null
-                                        }
-                                    </div>
-                                </Col>
-                                <Col className="text-end">
-                                    Select by{' '}
-                                    <select
-                                        value={order}
-                                        onChange={(e) => {
-                                            navigate(getFilterUrl({ order: e.target.value }));
-                                        }}>
-                                        <option value="newest">Newest Arrivals</option>
-                                        <option value="lowest">Price: Low to High</option>
-                                        <option value="highest">Price: High to Low</option>
-                                        <option value="toprated">Avg. Customer Reviews</option>
-                                    </select>
-                                </Col>
-                            </Row>
-                            {products.length === 0 && (
-                                <MessageComponent>No Products Found</MessageComponent>
-                            )}
-                            <Row>
-                                {products.map((product) => (
-                                    <Col sm={6} lg={4} className="mb-3 popup pb-5 pt-5" key={product._id}>
-                                        <Product product={product}></Product>
-                                    </Col>
-                                ))}
-                            </Row>
-                            <div>
-                                {[...Array(pages).keys()].map((x) => (
-                                    <LinkContainer
-                                        key={x + 1}
-                                        className="mx-1"
-                                        to={getFilterUrl({ page: x + 1 })}
-                                    >
-                                        <Button
-                                            className={Number(page) === x + 1 ? 'text-bold' : ''}
-                                            variant="light"
-                                        >
-                                            {x + 1}
-                                        </Button>
-                                    </LinkContainer>
-                                ))}
-                            </div>
-                        </>
+
+                    {hasFilters && (
+                        <Button variant="link" className="catalog-clear-filters" onClick={() => navigate('/search')}>
+                            <i className="fas fa-times" aria-hidden="true"></i>
+                            Clear all filters
+                        </Button>
                     )}
-                </Col>
-            </Row>
-        </div>
-    )
+                </aside>
+
+                <div className="catalog-products">
+                    {loading ? (
+                        <LoadingComponent />
+                    ) : error ? (
+                        <MessageComponent variant="danger">{error}</MessageComponent>
+                    ) : products.length === 0 ? (
+                        <div className="catalog-empty">
+                            <i className="fas fa-search" aria-hidden="true"></i>
+                            <h2>No creations found</h2>
+                            <p>Try removing a filter or browsing the full collection.</p>
+                            <Button onClick={() => navigate('/search')}>Clear filters</Button>
+                        </div>
+                    ) : (
+                        <Row className="g-4">
+                            {products.map((product) => (
+                                <Col sm={6} xl={4} key={product._id}>
+                                    <Product product={product} />
+                                </Col>
+                            ))}
+                        </Row>
+                    )}
+
+                    {pages > 1 && (
+                        <nav className="catalog-pagination" aria-label="Catalog pages">
+                            {[...Array(pages).keys()].map((index) => {
+                                const pageNumber = index + 1;
+                                return (
+                                    <Link
+                                        key={pageNumber}
+                                        to={getFilterUrl({ page: String(pageNumber) })}
+                                        className={Number(page) === pageNumber ? 'active' : ''}
+                                        aria-current={Number(page) === pageNumber ? 'page' : undefined}
+                                    >
+                                        {pageNumber}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
 }
 
 export default SearchPage;
