@@ -10,7 +10,8 @@ This repository is **Nora's Atelier**, a full-stack ecommerce portfolio applicat
 - Keep browser/API contracts synchronized. When a route, request field, response shape, model field, authentication rule, price calculation, or status value changes, update every caller and update `docs/PROJECT_CONTEXT.md` in the same change.
 - Keep `README.md` user-facing. Update it when setup, environment variables, scripts, supported features, or deployment requirements change.
 - Never commit secrets or expose `PAYPAL_CLIENT_SECRET` to the browser. Use `server/.env.example` for documented configuration.
-- Treat all prices and payment results from the client as untrusted. Product availability, prices, totals, order ownership, and PayPal captures must continue to be verified on the server.
+- Treat all prices and payment results from the client as untrusted. Product availability, prices, totals, order ownership, PayPal captures, and Stripe Checkout Sessions must continue to be verified on the server.
+- Never collect or store raw card numbers, expiry dates, or CVC values. Card entry belongs on Stripe-hosted Checkout. Keep `/api/stripe/webhook` mounted with `express.raw(...)` before global JSON parsing or Stripe signature verification will fail.
 - Preserve ownership checks on order routes. Admin UI guards are not server authorization.
 - Follow existing naming and file placement unless improving them is part of the requested work. Do not perform unrelated cleanup.
 - Do not edit generated/dependency folders (`node_modules/`, `client/build/`) or lockfiles unless dependencies actually change.
@@ -50,4 +51,3 @@ At the end of every change, decide whether the repository's durable context chan
 - project-wide conventions, invariants, or known high-impact limitations.
 
 Update this `AGENTS.md` only when agent workflow or repository-wide contribution rules change. Do not add transient task notes, debugging history, speculative plans, or exhaustive file listings to either file.
-

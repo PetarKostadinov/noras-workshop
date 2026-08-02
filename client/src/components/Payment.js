@@ -64,21 +64,28 @@ function Payment() {
                             <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
                         </label>
 
-                        <div className="payment-option disabled" aria-disabled="true">
-                            <span className="payment-radio-placeholder" aria-hidden="true"></span>
+                        <label className={'payment-option' + (selectedMethod === 'Card' ? ' selected' : '')}>
+                            <Form.Check
+                                type="radio"
+                                name="payment-method"
+                                value="Card"
+                                checked={selectedMethod === 'Card'}
+                                onChange={(event) => setSelectedMethod(event.target.value)}
+                                aria-label="Pay by credit or debit card"
+                            />
                             <span className="payment-option-icon"><i className="far fa-credit-card" aria-hidden="true"></i></span>
                             <span className="payment-option-copy">
                                 <strong>Credit or debit card</strong>
-                                <small>Card payments are coming soon.</small>
+                                <small>Pay securely with Visa or another supported card through Stripe.</small>
                             </span>
-                            <span className="payment-coming-soon">Coming soon</span>
-                        </div>
+                            <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
+                        </label>
 
                         <div className="payment-security-note">
                             <i className="fas fa-shield-alt" aria-hidden="true"></i>
                             <span>
                                 <strong>Protected payment</strong>
-                                You’ll complete payment through PayPal’s secure checkout.
+                                You’ll complete payment securely through {selectedMethod === 'Card' ? 'Stripe Checkout' : 'PayPal'}.
                             </span>
                         </div>
 

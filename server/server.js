@@ -4,13 +4,14 @@ import mongoose from "mongoose";
 import seedRouter from "./routes/seedRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRuoter.js";
-import orderRouter from "./routes/orderRouter.js";
+import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 
 dotenv.config();
 
 const app = express();
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
 
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

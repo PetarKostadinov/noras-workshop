@@ -89,7 +89,7 @@ function PreviewOrder() {
                             <Link to="/payment">Edit</Link>
                         </div>
                         <div className="review-payment">
-                            <span className="review-payment-icon"><i className="fab fa-paypal" aria-hidden="true"></i></span>
+                            <span className="review-payment-icon"><i className={cart.paymentMethod === 'Card' ? 'far fa-credit-card' : 'fab fa-paypal'} aria-hidden="true"></i></span>
                             <div>
                                 <strong>{cart.paymentMethod}</strong>
                                 <small>Your order will be saved as pending, then confirmed after secure payment.</small>

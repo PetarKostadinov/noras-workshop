@@ -11,9 +11,9 @@ Nora's Atelier is a responsive ecommerce portfolio application for handmade gift
 1. Browse the home catalog or search/filter products.
 2. View a product and add an inventory-limited quantity to the cart.
 3. Continue to checkout; guests must register or sign in, retain their cart, and return to the checkout step they requested.
-4. Enter shipping details and select PayPal.
+4. Enter shipping details and select PayPal or debit/credit card.
 5. Review the order; the server reconstructs products and totals before saving it.
-6. Complete PayPal payment; the server creates, captures, and verifies the PayPal transaction.
+6. Complete payment; the server verifies PayPal captures or Stripe Checkout through a signed webhook/server lookup.
 7. View the resulting order and order history.
 
 Admin-facing screens allow product creation, editing, and deletion. See **Known risks** for the current server-side authorization gap.
@@ -29,9 +29,11 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | API | Node/Express using ES modules (`server/package.json` has `type: module`) |
 | Database | MongoDB through Mongoose |
 | Authentication | 30-day bearer JWT containing user id, username, email, and `isAdmin` |
-| Payments | PayPal JS SDK in the client; OAuth/order/capture/verification on the server |
+| Payments | PayPal JS SDK plus Stripe-hosted card checkout; payment creation and verification remain server-side |
 
 The client provider order in `client/src/index.js` is `StoreProvider` -> `HelmetProvider` -> deferred `PayPalScriptProvider` -> `App`. PayPal's browser script is loaded only on the payment/order flow after the public client ID is fetched.
+
+Stripe uses hosted Checkout rather than a client provider. `server/server.js` mounts `/api/stripe/webhook` with `express.raw({ type: 'application/json' })` before `express.json()`. Preserve this middleware order: Stripe signature verification requires the untouched request body.
 
 ## Client structure and state
 
@@ -59,7 +61,8 @@ Mounted route groups:
 | --- | --- |
 | `/api/products` | Catalog listing, search/filter/sort, categories, detail, and product management |
 | `/api/users` | Registration, login, and authenticated profile update |
-| `/api/orders` | Server-priced order creation, owned order reads, PayPal creation/capture/sync |
+| `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
+| `/api/stripe/webhook` | Signed Stripe Checkout completion events (raw request body) |
 | `/api/seed` | Repeatable development product seeding |
 | `/api/keys/paypal` | Returns only the public PayPal client ID when server credentials are configured |
 
@@ -81,8 +84,10 @@ These rules are security-sensitive and must remain aligned across UI, API, and d
 - Quantities must be positive integers and must not exceed `countMany`.
 - Creating an order atomically reserves each requested quantity by decrementing `countMany`. If any reservation or the order save fails, already reserved quantities are restored.
 - Current pricing is USD: shipping is `$10` unless items exceed `$100`; tax is 15%; monetary results are rounded to two decimals.
-- Newly created orders force `paymentMethod` to `PayPal`, `paymentStatus` to `pending`, and `fulfillmentStatus` to `awaiting_payment`.
+- Newly created orders accept only `PayPal` or `Card` as the payment method, with `paymentStatus` set to `pending` and `fulfillmentStatus` set to `awaiting_payment`.
 - A PayPal capture is accepted only when its currency is USD, its amount exactly matches the stored order total, and PayPal reports the expected completed state. Pending captures remain awaiting payment.
+- Card details are collected only by Stripe-hosted Checkout. A card payment is accepted only when the signed event or server-retrieved Checkout Session matches the stored order, session ID, USD amount, and paid status.
+- Stripe Checkout Sessions use an atomic attempt counter plus idempotency key. Reuse an open Session; create a new attempt only after the previous Session is no longer open.
 - Client-reported payment completion is intentionally rejected (`PUT /api/orders/:id/pay` returns HTTP 410).
 - PayPal live endpoints are used only when `PAYPAL_ENVIRONMENT=live`; every other value uses sandbox endpoints.
 
@@ -97,6 +102,9 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `PAYPAL_CLIENT_SECRET` (server-only)
 - `PAYPAL_ENVIRONMENT` (`sandbox` or `live`)
 - `NODE_ENV` (`production` disables the development seed endpoint)
+- `CLIENT_URL` (public client origin used for Stripe return URLs)
+- `STRIPE_SECRET_KEY` (server-only Stripe API key)
+- `STRIPE_WEBHOOK_SECRET` (server-only endpoint signing secret)
 
 Use Node.js 18 or newer because server code relies on the built-in `fetch` implementation.
 
@@ -107,6 +115,7 @@ server: npm start
 client: npm start
 client production check: npm run build
 client tests once: npm test -- --watchAll=false
+local Stripe events: stripe listen --forward-to http://localhost:5000/api/stripe/webhook
 ```
 
 There is no meaningful server test suite at present; its `npm test` script is a failing placeholder.

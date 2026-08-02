@@ -44,6 +44,8 @@ const orderSchema = new mongoose.Schema(
             required: true,
         },
         paypalOrderId: { type: String },
+        stripeCheckoutSessionId: { type: String },
+        stripeCheckoutAttempt: { type: Number, default: 0 },
         isPaid: { type: Boolean, default: false },
         paidAt: { type: Date },
         isDelivered: { type: Boolean, default: false },

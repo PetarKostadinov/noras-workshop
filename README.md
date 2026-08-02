@@ -2,7 +2,7 @@
 
 Full-stack ecommerce application for handmade gifts, wedding and event decorations, and photography studio décor.
 
-Nora's Atelier is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and PayPal payment.
+Nora's Atelier is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and secure PayPal or card payment.
 
 ## Features
 
@@ -14,6 +14,7 @@ Nora's Atelier is a portfolio project demonstrating a complete shopping flow—f
 - Multi-step checkout with delivery, payment, and order review
 - Order creation, order history, and order-status pages
 - PayPal checkout integration
+- Stripe-hosted Visa and debit/credit card checkout
 - Admin-facing product creation and editing screens
 - MongoDB-backed products, users, and orders
 - Responsive layouts for desktop, tablet, and mobile
@@ -30,6 +31,7 @@ Nora's Atelier is a portfolio project demonstrating a complete shopping flow—f
 - React Helmet
 - React Toastify
 - PayPal React SDK
+- Stripe Node.js SDK and Stripe-hosted Checkout
 
 ### Server
 
@@ -78,11 +80,15 @@ Create server/.env using server/.env.example:
 
 ~~~env
 PORT=5000
+NODE_ENV="development"
 MONGODB_URI="mongodb://127.0.0.1:27017/shoppingcart"
 JWT_SECRET="replace-with-a-long-random-secret"
 PAYPAL_CLIENT_ID="your-paypal-client-id"
 PAYPAL_CLIENT_SECRET="your-paypal-client-secret"
 PAYPAL_ENVIRONMENT="sandbox"
+CLIENT_URL="http://localhost:3000"
+STRIPE_SECRET_KEY="sk_test_replace_me"
+STRIPE_WEBHOOK_SECRET="whsec_replace_me"
 ~~~
 
 Generate a strong value for JWT_SECRET. Never commit server/.env.
@@ -164,11 +170,27 @@ npm start       # Start the API with nodemon
 | GET | /api/orders/:id | Fetch an owned order |
 | POST | /api/orders/:id/paypal-order | Create a server-verified PayPal transaction |
 | PUT | /api/orders/:id/capture-paypal | Capture and verify a PayPal payment |
+| POST | /api/orders/:id/stripe-checkout | Create or resume Stripe-hosted card checkout |
+| PUT | /api/orders/:id/sync-stripe | Verify the current Stripe Checkout Session |
+| POST | /api/stripe/webhook | Receive signed Stripe payment events |
 | POST | /api/seed/products | Add or update development products |
 
 ## Payment notes
 
-PayPal is the currently implemented payment provider. Configure both `PAYPAL_CLIENT_ID` and the server-only `PAYPAL_CLIENT_SECRET`, then set `PAYPAL_ENVIRONMENT` to `sandbox` or `live`. Orders remain in an awaiting-payment state until the server captures and verifies the PayPal transaction. Never expose the client secret in client-side environment files. The card-payment option is intentionally marked as coming soon.
+PayPal and Stripe-hosted card checkout are supported. Configure both `PAYPAL_CLIENT_ID` and the server-only `PAYPAL_CLIENT_SECRET`, then set `PAYPAL_ENVIRONMENT` to `sandbox` or `live`. For card checkout, configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the public client origin in `CLIENT_URL`. Forward Stripe events to `/api/stripe/webhook`; payment completion is accepted only after server-side Stripe verification. Never expose PayPal or Stripe secret keys in client-side environment files.
+
+### Test Stripe card checkout locally
+
+Use Stripe test-mode credentials only. With the API and client running, authenticate the Stripe CLI and forward signed events to the local webhook:
+
+~~~powershell
+stripe login
+stripe listen --forward-to http://localhost:5000/api/stripe/webhook
+~~~
+
+Copy the `whsec_...` secret printed by `stripe listen` into `STRIPE_WEBHOOK_SECRET`, then restart the API while leaving the listener running. In Stripe-hosted Checkout, use `4242 4242 4242 4242`, any future expiry date, any three-digit CVC, and any postal code for a successful test payment. Test-mode payments appear in the Stripe Dashboard and never move real money.
+
+For production, register the public HTTPS endpoint `https://YOUR_API_DOMAIN/api/stripe/webhook` in Stripe and subscribe it to `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Use that endpoint's signing secret; it is different from the local Stripe CLI secret.
 
 ## Production checklist
 
@@ -177,6 +199,7 @@ Before deploying:
 - Use a strong production JWT_SECRET
 - Configure a production MongoDB URI
 - Configure the correct PayPal client ID, secret, and live environment
+- Configure live Stripe keys, the signed webhook endpoint, and the production `CLIENT_URL`
 - Set `NODE_ENV=production` so the development seed endpoint is disabled
 - Keep product-management API routes restricted to administrators
 - Set the frontend/API deployment URLs and CORS policy as required

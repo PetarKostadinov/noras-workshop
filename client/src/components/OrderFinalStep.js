@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import getError from '../util';
 import LoadingComponent from '../helpersComponents/LoadingComponent';
@@ -30,12 +30,15 @@ function reducer(state, action) {
 
 function OrderFinalStep() {
     const { id: orderId } = useParams();
+    const { search } = useLocation();
     const navigate = useNavigate();
     const { state } = useContext(Store);
     const { userInfo } = state;
     const [paypalConfigError, setPaypalConfigError] = useState('');
     const [paypalLoadAttempt, setPaypalLoadAttempt] = useState(0);
     const [checkingPayment, setCheckingPayment] = useState(false);
+    const [startingCardPayment, setStartingCardPayment] = useState(false);
+    const stripeReturnStatus = new URLSearchParams(search).get('stripe');
     const [{ loading, error, order, loadingPay, errorPay }, dispatch] = useReducer(reducer, {
         loading: true,
         order: {},
@@ -64,6 +67,29 @@ function OrderFinalStep() {
         };
         fetchOrder();
     }, [navigate, orderId, userInfo]);
+
+    useEffect(() => {
+        if (stripeReturnStatus !== 'success' || !order._id || order.isPaid || order.paymentMethod !== 'Card') return;
+
+        const syncCardPayment = async () => {
+            try {
+                setCheckingPayment(true);
+                const response = await axios.put(
+                    '/api/orders/' + order._id + '/sync-stripe',
+                    {},
+                    { headers: { authorization: 'Bearer ' + userInfo.token } }
+                );
+                dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
+                if (response.data.order.isPaid) toast.success('Card payment verified. Your order is confirmed.');
+                else toast.info('Your card payment is still being confirmed.');
+            } catch (err) {
+                toast.error(getError(err));
+            } finally {
+                setCheckingPayment(false);
+            }
+        };
+        syncCardPayment();
+    }, [order._id, order.isPaid, order.paymentMethod, stripeReturnStatus, userInfo]);
 
     useEffect(() => {
         if (!order._id || order.isPaid || order.paymentMethod !== 'PayPal' || !userInfo) return;
@@ -135,6 +161,21 @@ function OrderFinalStep() {
         }
     };
 
+    const startCardCheckout = async () => {
+        try {
+            setStartingCardPayment(true);
+            const response = await axios.post(
+                '/api/orders/' + order._id + '/stripe-checkout',
+                {},
+                { headers: { authorization: 'Bearer ' + userInfo.token } }
+            );
+            window.location.assign(response.data.url);
+        } catch (err) {
+            toast.error(getError(err));
+            setStartingCardPayment(false);
+        }
+    };
+
     if (loading) {
         return <div className="order-state"><LoadingComponent /></div>;
     }
@@ -146,6 +187,7 @@ function OrderFinalStep() {
     const placedDate = order.createdAt
         ? new Intl.DateTimeFormat('en', { dateStyle: 'long' }).format(new Date(order.createdAt))
         : '';
+    const paymentProvider = order.paymentMethod === 'Card' ? 'Stripe' : 'PayPal';
 
     return (
         <section className="order-page">
@@ -161,7 +203,7 @@ function OrderFinalStep() {
                     <p>{order.isPaid
                         ? 'We’ll begin preparing your handmade pieces with care.'
                         : order.paymentStatus === 'processing'
-                            ? 'PayPal is reviewing the transaction. We’ll confirm the order as soon as payment clears.'
+                            ? `${paymentProvider} is reviewing the transaction. We’ll confirm the order as soon as payment clears.`
                             : 'Your order is awaiting payment and will not be prepared until payment is confirmed.'}</p>
                 </div>
                 <Link to="/search">Continue shopping</Link>
@@ -203,8 +245,8 @@ function OrderFinalStep() {
                             {order.isPaid
                                 ? 'Payment received on ' + new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(order.paidAt))
                                 : order.paymentStatus === 'processing'
-                                    ? 'Payment was submitted successfully and is awaiting PayPal’s final confirmation.'
-                                    : 'Complete your secure PayPal payment from the order summary.'}
+                                    ? `Payment was submitted successfully and is awaiting ${paymentProvider}’s final confirmation.`
+                                    : `Complete your secure ${order.paymentMethod === 'Card' ? 'card' : 'PayPal'} payment from the order summary.`}
                         </p>
                     </section>
 
@@ -285,6 +327,19 @@ function OrderFinalStep() {
                             )}
                                 </>
                             )}
+                        </div>
+                    )}
+
+                    {!order.isPaid && order.paymentMethod === 'Card' && (
+                        <div className="order-card-payment">
+                            <p><i className="fas fa-lock" aria-hidden="true"></i> Secure card payment powered by Stripe</p>
+                            {stripeReturnStatus === 'cancelled' && (
+                                <MessageComponent variant="info">Card checkout was cancelled. Your order is saved and you can try again.</MessageComponent>
+                            )}
+                            <button type="button" disabled={startingCardPayment || checkingPayment} onClick={startCardCheckout}>
+                                {checkingPayment ? 'Checking payment…' : startingCardPayment ? 'Opening secure checkout…' : 'Pay securely by card'}
+                            </button>
+                            <small>Visa and other supported debit or credit cards are processed on Stripe’s secure checkout page.</small>
                         </div>
                     )}
 
