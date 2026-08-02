@@ -73,6 +73,7 @@ Relevant model vocabulary:
 
 - Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
 - Product edits submit the complete editable product record. Required text fields are trimmed and cannot be blank; numeric price, inventory, rating, and review constraints are enforced by the product schema.
+- Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
 - Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. Files are stored in `server/uploads/` and served from `/uploads`; deployments must provide persistent writable storage for that directory or replace it with durable object storage.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.

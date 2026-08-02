@@ -1,5 +1,6 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 import Product from '../models/productModel.js';
 import { admin, auth } from '../utils.js';
 import crypto from 'crypto';
@@ -127,23 +128,29 @@ productRouter.post(
     })
 );
 
-productRouter.get('/_id/:id', async (req, res) => {
+productRouter.get('/_id/:id', expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send({ message: 'Invalid product ID' });
+    }
     const product = await Product.findOne({ _id: req.params.id });
     if (product) {
         res.send(product);
     } else {
         res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
     }
-});
+}));
 
-productRouter.get('/:id', async (req, res) => {
+productRouter.get('/:id', expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send({ message: 'Invalid product ID' });
+    }
     const product = await Product.findById(req.params.id);
     if (product) {
         res.send(product);
     } else {
         res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
     }
-});
+}));
 
 productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) => {
     const duplicate = await Product.findOne({
