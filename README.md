@@ -31,7 +31,6 @@ Nora's Atelier is a portfolio project demonstrating a complete shopping flow—f
 - React Helmet
 - React Toastify
 - PayPal React SDK
-- Stripe Node.js SDK and Stripe-hosted Checkout
 
 ### Server
 
@@ -40,6 +39,7 @@ Nora's Atelier is a portfolio project demonstrating a complete shopping flow—f
 - MongoDB and Mongoose
 - JSON Web Tokens
 - bcrypt
+- Stripe Node.js SDK and Stripe-hosted Checkout
 
 ## Project structure
 
@@ -135,8 +135,7 @@ PowerShell:
 Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/seed/products
 ~~~
 
-The operation is repeatable: products are updated by slug instead of duplicated. The seed endpoint is intended for local development and should be disabled or protected before production deployment.
-The server returns 404 for this endpoint when `NODE_ENV=production`.
+The operation is repeatable: products are updated by slug instead of duplicated. The server returns 404 for this development-only endpoint when `NODE_ENV=production`.
 
 ## Available scripts
 

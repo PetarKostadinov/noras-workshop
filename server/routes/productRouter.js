@@ -24,23 +24,6 @@ productRouter.get('/', async (req, res) => {
     res.send(products);
 });
 
-// productRouter.get('/', (req, res) => {
-//     res.send('Hello World!');
-//   });
-
-productRouter.get('/products', expressAsyncHandler(async (req, res) => {
-    const perPage = 5;
-    const page = parseInt(req.query.page) || 1;
-    const [products, count] = await Promise.all([
-        Product.find().skip((page - 1) * perPage).limit(perPage),
-        Product.countDocuments(),
-    ]);
-    res.json({ products, page, totalPages: Math.ceil(count / perPage) });
-}));
-
-
-
-
 const PAGE_SIZE = 3;
 productRouter.get('/search', expressAsyncHandler(async (req, res) => {
     const { query } = req;
@@ -250,7 +233,6 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
             countMany: updatedItem.countMany,
             rating: updatedItem.rating,
             numReviews: updatedItem.numReviews,
-            // token:generateToken(updatedItem)
     });
 }));
 
