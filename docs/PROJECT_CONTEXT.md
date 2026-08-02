@@ -59,7 +59,7 @@ Mounted route groups:
 
 | Prefix | Responsibilities |
 | --- | --- |
-| `/api/products` | Catalog listing, search/filter/sort, categories, detail, and product management |
+| `/api/products` | Catalog listing, search/filter/sort, categories, detail, product management, and admin image uploads |
 | `/api/users` | Registration, login, and authenticated profile update |
 | `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
 | `/api/stripe/webhook` | Signed Stripe Checkout completion events (raw request body) |
@@ -69,6 +69,7 @@ Mounted route groups:
 Relevant model vocabulary:
 
 - Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
+- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. Files are stored in `server/uploads/` and served from `/uploads`; deployments must provide persistent writable storage for that directory or replace it with durable object storage.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.

@@ -22,6 +22,18 @@ export const createProduct = async (userInfo, item) => {
     return parseResponse(response, 'Unable to create product');
 }
 
+export const uploadProductImage = async (token, file) => {
+  const response = await fetch('/api/products/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': file.type,
+      Authorization: `Bearer ${token}`,
+    },
+    body: file,
+  });
+  return parseResponse(response, 'Unable to upload image');
+};
+
 export const deleteProduct = async (id, token) => {
   const response = await fetch(`/api/products/${id}`, {
       method: 'DELETE',

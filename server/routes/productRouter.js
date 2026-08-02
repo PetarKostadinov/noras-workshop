@@ -2,8 +2,20 @@ import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
 import { admin, auth } from '../utils.js';
+import crypto from 'crypto';
+import { mkdir, writeFile } from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const productRouter = express.Router();
+const routeDirectory = path.dirname(fileURLToPath(import.meta.url));
+const uploadDirectory = path.resolve(routeDirectory, '..', 'uploads');
+const imageExtensions = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+    'image/gif': '.gif',
+};
 
 productRouter.get('/', async (req, res) => {
     const products = await Product.find();
@@ -96,6 +108,24 @@ productRouter.get('/categories', expressAsyncHandler(async (req, res) => {
     const categories = await Product.find().distinct('category');
     res.send(categories);
 }))
+
+productRouter.post(
+    '/upload',
+    auth,
+    admin,
+    express.raw({ type: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], limit: '5mb' }),
+    expressAsyncHandler(async (req, res) => {
+        const extension = imageExtensions[req.headers['content-type']];
+        if (!extension || !Buffer.isBuffer(req.body) || req.body.length === 0) {
+            return res.status(400).send({ message: 'Choose a JPG, PNG, WebP, or GIF image' });
+        }
+
+        await mkdir(uploadDirectory, { recursive: true });
+        const filename = `${crypto.randomUUID()}${extension}`;
+        await writeFile(path.join(uploadDirectory, filename), req.body, { flag: 'wx' });
+        res.status(201).send({ image: `/uploads/${filename}` });
+    })
+);
 
 productRouter.get('/_id/:id', async (req, res) => {
     const product = await Product.findOne({ _id: req.params.id });

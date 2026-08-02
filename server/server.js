@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 import seedRouter from "./routes/seedRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRuoter.js";
@@ -10,10 +12,15 @@ dotenv.config();
 
 const app = express();
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
+const serverDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(serverDirectory, 'uploads'), {
+  fallthrough: false,
+  setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff'),
+}));
 
 app.get("/api/keys/paypal", (req, res) => {
   const clientId = process.env.PAYPAL_CLIENT_ID;
