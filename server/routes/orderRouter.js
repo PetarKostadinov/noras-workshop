@@ -3,6 +3,7 @@ import expressAsyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
 import Product from '../models/productModel.js';
+import User from '../models/userModel.js';
 import { auth } from '../utils.js';
 import Stripe from 'stripe';
 
@@ -31,7 +32,8 @@ const restoreInventory = async (reservedItems) => {
 
 const getOwnedOrder = async (orderId, user) => {
     if (!mongoose.isValidObjectId(orderId)) return null;
-    const filter = user.isAdmin ? { _id: orderId } : { _id: orderId, user: user._id };
+    const isCurrentAdmin = await User.exists({ _id: user._id, isAdmin: true });
+    const filter = isCurrentAdmin ? { _id: orderId } : { _id: orderId, user: user._id };
     return Order.findOne(filter);
 };
 

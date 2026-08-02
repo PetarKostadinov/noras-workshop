@@ -79,7 +79,7 @@ Relevant model vocabulary:
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
 - Users have `isAdmin`; the JWT repeats this flag.
 
-Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order.
+Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token.
 
 ## Commerce and payment invariants
 
