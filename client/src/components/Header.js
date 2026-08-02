@@ -16,7 +16,6 @@ function Header() {
 
     const logoutHandler = () => {
         ctxDispatch({ type: 'USER_LOGOUT' });
-        localStorage.clear();
         navigate('/');
     };
 

@@ -18,7 +18,6 @@ function Login() {
         e.preventDefault();
         try {
             const data = await loginUser(email, password);
-            if (data.status === 401) throw new Error(data.message);
             ctxDispatch({ type: 'USER_LOGIN', payload: data });
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);

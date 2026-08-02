@@ -1,3 +1,5 @@
+import { parseResponse } from '../util';
+
 export const fetchOrderHistory = async (token) => {
     const response = await fetch('/api/orders/mine', {
       headers: {
@@ -5,10 +7,7 @@ export const fetchOrderHistory = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
+    return parseResponse(response, 'Unable to load order history');
   };
 
   export async function createOrder(cart, userInfo) {
@@ -31,16 +30,5 @@ export const fetchOrderHistory = async (token) => {
       body: JSON.stringify(order),
     });
   
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  
-    return response.json();
+    return parseResponse(response, 'Unable to create order');
   }
-  
-
-  
- 
-  
-  
- 

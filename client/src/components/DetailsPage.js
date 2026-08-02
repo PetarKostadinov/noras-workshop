@@ -40,7 +40,7 @@ function ProductScreen() {
 
         fetchData();
 
-    }, [id]);
+    }, [ctxDispatch, id]);
 
     const addToCartHandler = async () => {
         const exists = cart.cartItems.find((x) => x._id === product._id);
@@ -59,13 +59,13 @@ function ProductScreen() {
     const deleteHandler = async () => {
 
         try {
-            await deleteProduct(product._id)
+            await deleteProduct(product._id, userInfo.token)
 
             ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: product });
             toast.success('The Item has been deleted successfully')
             navigate('/');
         } catch (error) {
-            toast.error('Item Not Found!')
+            toast.error(getError(error))
         }
     }
 

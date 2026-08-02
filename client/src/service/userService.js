@@ -1,6 +1,7 @@
 
+import { parseResponse } from '../util';
+
 export async function loginUser(email, password) {
-  try {
     const response = await fetch('/api/users/login', {
       method: 'POST',
       headers: {
@@ -8,11 +9,7 @@ export async function loginUser(email, password) {
       },
       body: JSON.stringify({ email, password }),
     });
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    throw new Error('Invalid username or password');
-  }
+    return parseResponse(response, 'Invalid email or password');
 }
 
 
@@ -34,7 +31,6 @@ export async function register(username, email, password) {
 }
 
 export const updateProfile = async (userInfo, username, email, password, repass) => {
-  try {
     const response = await fetch('/api/users/profile', {
       method: 'PUT',
       headers: {
@@ -49,18 +45,5 @@ export const updateProfile = async (userInfo, username, email, password, repass)
         repass: repass
       })
     });
-
-    if (!response.ok) {
-      throw new Error(response.message);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    throw new Error(err.message);
-  }
+    return parseResponse(response, 'Unable to update profile');
 };
-
-
-
-

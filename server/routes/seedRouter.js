@@ -6,6 +6,9 @@ import testProducts from "../data/testProducts.js";
 const seedRouter = express.Router();
 
 seedRouter.post('/products', expressAsyncHandler(async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).send({ message: 'Not found' });
+  }
   const replacedDemoSlugs = [
     'bacardi-oro',
     'hendricks-gin',

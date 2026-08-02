@@ -60,9 +60,6 @@ function EditItemPage() {
             };
 
             const result = await updateItem(id, e.target.slug.value, data, userInfo.token);
-            if (result.status === 409){
-                throw new Error(result.message)
-            }
             dispatch({ type: 'UPDATE_ITEM_SUCCESS', payload: result });
             navigate(`/product/${result._id}/${result.slug}`);
             toast.success('The Item has been updated successfully');

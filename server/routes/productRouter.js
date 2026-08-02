@@ -1,7 +1,7 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
-import { auth } from '../utils.js';
+import { admin, auth } from '../utils.js';
 
 const productRouter = express.Router();
 
@@ -15,20 +15,15 @@ productRouter.get('/', async (req, res) => {
 //     res.send('Hello World!');
 //   });
 
-productRouter.get('/products', (req, res) => {
+productRouter.get('/products', expressAsyncHandler(async (req, res) => {
     const perPage = 5;
     const page = parseInt(req.query.page) || 1;
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedPosts = posts.slice(start, end);
-    const totalPages = Math.ceil(posts.length / perPage);
-
-    res.json({
-        posts: paginatedPosts,
-        page,
-        totalPages,
-    });
-});
+    const [products, count] = await Promise.all([
+        Product.find().skip((page - 1) * perPage).limit(perPage),
+        Product.countDocuments(),
+    ]);
+    res.json({ products, page, totalPages: Math.ceil(count / perPage) });
+}));
 
 
 
@@ -120,22 +115,16 @@ productRouter.get('/:id', async (req, res) => {
     }
 });
 
-productRouter.post('/create', expressAsyncHandler(async (req, res) => {
-
-    const currProduct = await Product.find({});
-
-    if (currProduct) {
-        const nameExists = currProduct.find(x => x.name === req.body.name);
-
-        if (nameExists) {
-            res.send({ message: 'Product with the same Name already in the list!', status: 409  });
-        }
-
-        const slugExists = currProduct.find(x => x.slug === req.body.slug);
-
-        if (slugExists) {
-            res.send({ message: 'Product with the same Slug already in the list!', status: 409 });
-        }
+productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) => {
+    const duplicate = await Product.findOne({
+        $or: [{ name: req.body.name }, { slug: req.body.slug }],
+    }).collation({ locale: 'en', strength: 2 });
+    if (duplicate) {
+        return res.status(409).send({
+            message: duplicate.name === req.body.name
+                ? 'A product with this name already exists'
+                : 'A product with this slug already exists',
+        });
     }
 
     const newProduct = new Product({
@@ -153,7 +142,7 @@ productRouter.post('/create', expressAsyncHandler(async (req, res) => {
     });
 
     const product = await newProduct.save();
-    res.send({
+    res.status(201).send({
         _id: product._id,
         name: product.name,
         slug: product.slug,
@@ -168,28 +157,31 @@ productRouter.post('/create', expressAsyncHandler(async (req, res) => {
     });
 }));
 
-productRouter.delete('/:id', async (req, res) => {
+productRouter.delete('/:id', auth, admin, expressAsyncHandler(async (req, res) => {
     const id = req.params.id
-    await Product.findByIdAndDelete(id)
+    const product = await Product.findByIdAndDelete(id)
+
+    if (!product) return res.status(404).send({ message: 'Item Not Found' });
 
     res.send({ message: 'Item Deleted' })
-});
+}));
 
-productRouter.put('/:id/editItem/:slug', auth, expressAsyncHandler(async (req, res) => {
+productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async (req, res) => {
     const item = await Product.findById(req.params.id);
-    const currProduct = await Product.find({});
-    if (currProduct) {
-        const nameExists = currProduct.find(x => x.name === req.body.name);
+    if (!item) return res.status(404).send({ message: 'Item Not Found' });
 
-        if (nameExists) {
-            res.send({message:'Product with the same Name already in the list!', status: 409});
-        }
-
-        const slugExists = currProduct.find(x => x.slug === req.body.slug);
-
-        if (slugExists) {
-            res.send({message:'Product with the same Slug already in the list!', status: 409});
-        }
+    const nextName = req.body.name || item.name;
+    const nextSlug = req.body.slug || item.slug;
+    const duplicate = await Product.findOne({
+        _id: { $ne: item._id },
+        $or: [{ name: nextName }, { slug: nextSlug }],
+    }).collation({ locale: 'en', strength: 2 });
+    if (duplicate) {
+        return res.status(409).send({
+            message: duplicate.name === nextName
+                ? 'A product with this name already exists'
+                : 'A product with this slug already exists',
+        });
     }
 
     if (item) {
@@ -200,10 +192,10 @@ productRouter.put('/:id/editItem/:slug', auth, expressAsyncHandler(async (req, r
         item.brand = req.body.brand || item.brand;
         item.category = req.body.category || item.category;
         item.description = req.body.description || item.description;
-        item.price = req.body.price || item.price;
-        item.countMany = req.body.countMany || item.countMany;
-        item.rating = req.body.rating || item.rating;
-        item.numReviews = req.body.numReviews || item.numReviews;
+        item.price = req.body.price === '' || req.body.price === undefined ? item.price : req.body.price;
+        item.countMany = req.body.countMany === '' || req.body.countMany === undefined ? item.countMany : req.body.countMany;
+        item.rating = req.body.rating === '' || req.body.rating === undefined ? item.rating : req.body.rating;
+        item.numReviews = req.body.numReviews === '' || req.body.numReviews === undefined ? item.numReviews : req.body.numReviews;
 
         const updatedItem = await item.save();
 
@@ -222,8 +214,6 @@ productRouter.put('/:id/editItem/:slug', auth, expressAsyncHandler(async (req, r
             // token:generateToken(updatedItem)
         });
 
-    } else {
-        res.status(404).send({ message: 'Item Not Found' })
     }
 }));
 

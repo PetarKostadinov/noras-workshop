@@ -37,13 +37,19 @@ function reducer(state, action) {
             return { ...state, cart: { ...state.cart, cartItems } };
         };
         case 'CART_CLEAR':
+            localStorage.removeItem('cartItems');
             return { ...state, cart: { ...state.cart, cartItems: [] } };
         case 'USER_LOGIN':
             return { ...state, userInfo: action.payload };
         case 'USER_REGISTER':
             return { ...state, userInfo: action.payload };
         case 'USER_LOGOUT':
-            return { ...state, userInfo: null, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '', productsOnList: {} }, localStorage: {} };
+            localStorage.removeItem('userInfo');
+            localStorage.removeItem('cartItems');
+            localStorage.removeItem('shippingInfo');
+            localStorage.removeItem('paymentMethod');
+            localStorage.removeItem('currItem');
+            return { ...state, userInfo: null, currItem: {}, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '' } };
         case 'SAVE_SHIPPING_INFO':
             return {
                 ...state, cart: { ...state.cart, shippingInfo: action.payload }

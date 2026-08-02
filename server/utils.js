@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import User from './models/userModel.js';
 
 export const generateToken = (user) => {
     return jwt.sign(
@@ -33,6 +34,18 @@ export const auth = (req, res, next) => {
     } else {
         res.status(401).send({ message: 'No Token' });
     }
+};
+
+export const admin = (req, res, next) => {
+    User.findById(req.user?._id).select('isAdmin')
+        .then((user) => {
+            if (!user?.isAdmin) {
+                res.status(403).send({ message: 'Admin access required' });
+                return;
+            }
+            next();
+        })
+        .catch(next);
 };
 
 

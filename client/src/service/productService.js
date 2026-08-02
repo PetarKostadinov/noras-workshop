@@ -1,4 +1,6 @@
 
+import { parseResponse } from '../util';
+
 export async function fetchProducts(page, limit) {
     const response = await fetch(`/api/products?page=${page}&limit=${limit}`);
     if (!response.ok) {
@@ -9,7 +11,6 @@ export async function fetchProducts(page, limit) {
   }
   
 export const createProduct = async (userInfo, item) => {
-  try {
     const response = await fetch('/api/products/create', {
       method: 'POST',
       body: JSON.stringify(item),
@@ -18,28 +19,15 @@ export const createProduct = async (userInfo, item) => {
         'Authorization': `Bearer ${userInfo.token}`
       }
     });
-
-    if (!response.ok) {
-      throw new Error(response.message);
-    }
-
-    const data = await response.json();
-    return data;
-
-  } catch (err) {
-    throw new Error(err);
-  }
+    return parseResponse(response, 'Unable to create product');
 }
 
-export const deleteProduct = async (id) => {
+export const deleteProduct = async (id, token) => {
   const response = await fetch(`/api/products/${id}`, {
       method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
   });
-  if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  const data = await response.json();
-  return data;
+  return parseResponse(response, 'Unable to delete product');
 }
 
 export const fetchProduct = async (id) => {
@@ -61,12 +49,7 @@ export const updateItem = async (id, slug, data, token) => {
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    //const message = `An error has occurred: ${response.status}`;
-    throw new Error(response);
-  }
-
-  return response.json();
+  return parseResponse(response, 'Unable to update product');
 };
 
 export async function getCategories() {
@@ -92,4 +75,3 @@ export const getProduct = async (id) => {
 
 
 
-  

@@ -31,7 +31,13 @@ app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 
 app.use((err, req, res, next) => {
-  res.status(500).send({ message: err.message });
+  if (err?.code === 11000) {
+    return res.status(409).send({ message: 'A record with that unique value already exists' });
+  }
+  if (err?.name === 'ValidationError' || err?.name === 'CastError') {
+    return res.status(400).send({ message: err.message });
+  }
+  res.status(err.status || 500).send({ message: err.message || 'Internal server error' });
 });
 
 const startServer = async () => {

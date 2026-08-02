@@ -8,6 +8,8 @@ import { createProduct } from '../service/productService';
 import { toast } from 'react-toastify';
 import getError from '../util';
 
+const IMAGE_URL_PATTERN = /^https?:\/\/.+/i;
+
 function CreateItem() {
     const navigate = useNavigate();
     const { search } = useLocation();
@@ -26,11 +28,10 @@ function CreateItem() {
     const [numReviews, setNumReviews] = useState('');
     const { state, dispatch: ctxDispatch } = useContext(Store);
     const { productsOnList, userInfo } = state;
-    const regex = /http(s)?:\/\/./i; 
     const [isValidUrl, setIsValidUrl] = useState(false);
 
     useEffect(() => {
-        setIsValidUrl(prevIsValidUrl => regex.test(image)); 
+        setIsValidUrl(IMAGE_URL_PATTERN.test(image));
       
     },[image])
     const submitHandler = async (e) => {
@@ -66,10 +67,6 @@ function CreateItem() {
             };
             const data = await createProduct(userInfo, item);
            
-            if(data.status === 409) {
-                
-                throw new Error(data.message)
-            }
             ctxDispatch({ type: 'PRODUCT_CREATE', payload: data });
             navigate(redirect);
 

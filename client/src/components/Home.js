@@ -42,7 +42,7 @@ function Home() {
 
         setCurrentPage(page);
         fetchData();
-    }, [currentPage, productsToShow, page]);
+    }, [currentPage, page]);
 
     const indexOfLastProduct = currentPage * productsToShow;
     const indexOfFirstProduct = indexOfLastProduct - productsToShow;

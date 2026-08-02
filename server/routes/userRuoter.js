@@ -68,19 +68,28 @@ userRouter.put('/profile', auth, expressAsyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
-
-        const emailExists = await User.findOne({ email: req.body.email });
-
-        if (emailExists) {
-            res.send({ message: 'Email exists!', status: 409 });
+        const username = req.body.username?.trim();
+        const email = req.body.email?.trim().toLowerCase();
+        const password = req.body.password;
+        if (!username || !email) {
+            return res.status(400).send({ message: 'Name and email are required' });
+        }
+        if (password && password.length < 6) {
+            return res.status(400).send({ message: 'Password must be at least 6 characters' });
         }
 
-        user.username = req.body.username || user.username;
-        user.email = req.body.email || user.email;
-        user.password = req.body.password || user.password;
-        user.repass = req.body.repass || user.repass;
-        if (req.body.password) {
-            user.password = bcrypt.hashSync(req.body.password, 8);
+        const emailExists = await User.findOne({
+            _id: { $ne: user._id },
+            email,
+        }).collation({ locale: 'en', strength: 2 });
+        if (emailExists) {
+            return res.status(409).send({ message: 'An account with this email already exists' });
+        }
+
+        user.username = username;
+        user.email = email;
+        if (password) {
+            user.password = bcrypt.hashSync(password, 8);
         }
 
         const updatedUser = await user.save();
@@ -88,8 +97,6 @@ userRouter.put('/profile', auth, expressAsyncHandler(async (req, res) => {
             _id: updatedUser._id,
             username: updatedUser.username,
             email: updatedUser.email,
-            password: updatedUser.password,
-            repass: updatedUser.repass,
             isAdmin: updatedUser.isAdmin,
             token: generateToken(updatedUser)
         });

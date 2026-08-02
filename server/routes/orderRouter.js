@@ -8,6 +8,16 @@ import { auth } from '../utils.js';
 const orderRouter = express.Router();
 const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
 
+const restoreInventory = async (reservedItems) => {
+    if (reservedItems.length === 0) return;
+    await Product.bulkWrite(reservedItems.map(({ productId, quantity }) => ({
+        updateOne: {
+            filter: { _id: productId },
+            update: { $inc: { countMany: quantity } },
+        },
+    })));
+};
+
 const getOwnedOrder = async (orderId, user) => {
     if (!mongoose.isValidObjectId(orderId)) return null;
     const filter = user.isAdmin ? { _id: orderId } : { _id: orderId, user: user._id };
@@ -118,13 +128,6 @@ orderRouter.post('/', auth, expressAsyncHandler(async (req, res) => {
         return res.status(400).send({ message: 'One or more products are no longer available' });
     }
 
-    const unavailableProduct = products.find((product) => quantities.get(String(product._id)) > product.countMany);
-    if (unavailableProduct) {
-        return res.status(400).send({
-            message: `Only ${unavailableProduct.countMany} of “${unavailableProduct.name}” are currently available`,
-        });
-    }
-
     const orderItems = products.map((product) => ({
             product: product._id,
             slug: product.slug,
@@ -139,20 +142,43 @@ orderRouter.post('/', auth, expressAsyncHandler(async (req, res) => {
     const taxPrice = roundMoney(itemsPrice * 0.15);
     const totalPrice = roundMoney(itemsPrice + shippingPrice + taxPrice);
 
-    const newOrder = new Order({
-        orderItems,
-        shippingInfo: req.body.shippingInfo,
-        paymentMethod: 'PayPal',
-        itemsPrice,
-        shippingPrice,
-        taxPrice,
-        totalPrice,
-        user: req.user._id,
-        paymentStatus: 'pending',
-        fulfillmentStatus: 'awaiting_payment',
-    });
-    const order = await newOrder.save();
-    res.status(201).send({ message: 'Order created and awaiting payment', order });
+    const reservedItems = [];
+    try {
+        for (const product of products) {
+            const quantity = quantities.get(String(product._id));
+            const reservation = await Product.updateOne(
+                { _id: product._id, countMany: { $gte: quantity } },
+                { $inc: { countMany: -quantity } }
+            );
+            if (reservation.modifiedCount !== 1) {
+                const stockError = new Error(`“${product.name}” no longer has enough stock for this order`);
+                stockError.status = 409;
+                throw stockError;
+            }
+            reservedItems.push({ productId: product._id, quantity });
+        }
+
+        const newOrder = new Order({
+            orderItems,
+            shippingInfo: req.body.shippingInfo,
+            paymentMethod: 'PayPal',
+            itemsPrice,
+            shippingPrice,
+            taxPrice,
+            totalPrice,
+            user: req.user._id,
+            paymentStatus: 'pending',
+            fulfillmentStatus: 'awaiting_payment',
+        });
+        const order = await newOrder.save();
+        res.status(201).send({ message: 'Order created and awaiting payment', order });
+    } catch (error) {
+        await restoreInventory(reservedItems);
+        if (error.status === 409) {
+            return res.status(409).send({ message: error.message });
+        }
+        throw error;
+    }
 }));
 
 orderRouter.get('/mine', auth, expressAsyncHandler(async (req, res) => {

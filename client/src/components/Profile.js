@@ -37,9 +37,6 @@ function Profile() {
         repass
       );
 
-      if (data.status === 409) {
-        throw new Error(data.message);
-      }
       setLoadingUpdate(false);
       ctxDispatch({ type: 'USER_LOGIN', payload: data });
       toast.success('User updated successfully');
