@@ -9,6 +9,7 @@ import MessageComponent from '../helpersComponents/MessageComponent';
 import Product from './Product';
 import Rating from '../helpersComponents/Rating';
 import { getCategories, getProducts } from '../service/searchService';
+import { useTranslation } from 'react-i18next';
 
 const prices = [
     { name: 'Under $50', value: '1-50' },
@@ -34,6 +35,7 @@ const getPaginationItems = (currentPage, totalPages) => {
 };
 
 function SearchPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { search } = useLocation();
     const params = new URLSearchParams(search);
@@ -118,28 +120,25 @@ function SearchPage() {
             <Helmet><title>Shop all | Nora’s Atelier</title></Helmet>
 
             <header className="catalog-heading">
-                <span>Explore the atelier</span>
-                <h1>{category === 'all' ? 'Shop all creations' : category}</h1>
-                <p>Handmade gifts and styling details for celebrations, events, and photography studios.</p>
+                <span>{t('Explore the atelier')}</span>
+                <h1>{category === 'all' ? t('Shop all creations') : t(category)}</h1>
+                <p>{t('Handmade gifts and styling details for celebrations, events, and photography studios.')}</p>
             </header>
 
             <div className="catalog-toolbar">
                 <div className="catalog-results">
-                    <strong>{countProducts}</strong> {countProducts === 1 ? 'creation' : 'creations'}
+                    <strong>{countProducts}</strong> {t(countProducts === 1 ? 'creation' : 'creations')}
                     {query !== 'all' && <span> matching “{query}”</span>}
                 </div>
                 <div className="catalog-toolbar-actions">
                     <Button className="catalog-filter-toggle" onClick={() => setFiltersOpen(true)}>
                         <i className="fas fa-sliders-h" aria-hidden="true"></i>
-                        Filters
+                        {t('Filters')}
                     </Button>
                     <label className="catalog-sort">
-                        <span>Sort by</span>
+                        <span>{t('Sort by')}</span>
                         <select value={order} onChange={(e) => navigate(getFilterUrl({ order: e.target.value }))}>
-                            <option value="newest">Newest</option>
-                            <option value="lowest">Price: low to high</option>
-                            <option value="highest">Price: high to low</option>
-                            <option value="toprated">Top rated</option>
+                            <option value="newest">{t('Newest')}</option><option value="lowest">{t('Price: low to high')}</option><option value="highest">{t('Price: high to low')}</option><option value="toprated">{t('Top rated')}</option>
                         </select>
                     </label>
                 </div>
@@ -151,27 +150,26 @@ function SearchPage() {
                 <aside className={'catalog-filters' + (filtersOpen ? ' open' : '')} aria-label="Product filters">
                     <div className="catalog-filters-header">
                         <div>
-                            <span>Refine results</span>
-                            <h2>Filters</h2>
+                            <span>{t('Refine results')}</span><h2>{t('Filters')}</h2>
                         </div>
                         <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close filters">&times;</button>
                     </div>
 
                     <div className="catalog-filter-group">
-                        <h3>Category</h3>
-                        {filterLink('All categories', 'category', 'all', category === 'all')}
-                        {categories.map((item) => filterLink(item, 'category', item, category === item))}
+                        <h3>{t('Category')}</h3>
+                        {filterLink(t('All categories'), 'category', 'all', category === 'all')}
+                        {categories.map((item) => filterLink(t(item), 'category', item, category === item))}
                     </div>
 
                     <div className="catalog-filter-group">
-                        <h3>Price</h3>
-                        {filterLink('Any price', 'price', 'all', price === 'all')}
+                        <h3>{t('Price')}</h3>
+                        {filterLink(t('Any price'), 'price', 'all', price === 'all')}
                         {prices.map((item) => filterLink(item.name, 'price', item.value, price === item.value))}
                     </div>
 
                     <div className="catalog-filter-group">
-                        <h3>Customer rating</h3>
-                        {filterLink('Any rating', 'rating', 'all', rating === 'all')}
+                        <h3>{t('Customer rating')}</h3>
+                        {filterLink(t('Any rating'), 'rating', 'all', rating === 'all')}
                         {ratings.map((value) => filterLink(
                             value + ' stars & up',
                             'rating',
@@ -184,7 +182,7 @@ function SearchPage() {
                     {hasFilters && (
                         <Button variant="link" className="catalog-clear-filters" onClick={() => navigate('/search')}>
                             <i className="fas fa-times" aria-hidden="true"></i>
-                            Clear all filters
+                            {t('Clear all filters')}
                         </Button>
                     )}
                 </aside>
@@ -197,9 +195,7 @@ function SearchPage() {
                     ) : products.length === 0 ? (
                         <div className="catalog-empty">
                             <i className="fas fa-search" aria-hidden="true"></i>
-                            <h2>No creations found</h2>
-                            <p>Try removing a filter or browsing the full collection.</p>
-                            <Button onClick={() => navigate('/search')}>Clear filters</Button>
+                            <h2>{t('No creations found')}</h2><p>{t('Try removing a filter or browsing the full collection.')}</p><Button onClick={() => navigate('/search')}>{t('Clear filters')}</Button>
                         </div>
                     ) : (
                         <Row className="g-4">
@@ -220,12 +216,12 @@ function SearchPage() {
                                     aria-label="Go to previous page"
                                 >
                                     <i className="fas fa-chevron-left" aria-hidden="true"></i>
-                                    <span>Previous</span>
+                                    <span>{t('Previous')}</span>
                                 </Link>
                             ) : (
                                 <span className="catalog-pagination-step disabled" aria-disabled="true">
                                     <i className="fas fa-chevron-left" aria-hidden="true"></i>
-                                    <span>Previous</span>
+                                    <span>{t('Previous')}</span>
                                 </span>
                             )}
 
@@ -251,12 +247,12 @@ function SearchPage() {
                                     className="catalog-pagination-step"
                                     aria-label="Go to next page"
                                 >
-                                    <span>Next</span>
+                                    <span>{t('Next')}</span>
                                     <i className="fas fa-chevron-right" aria-hidden="true"></i>
                                 </Link>
                             ) : (
                                 <span className="catalog-pagination-step disabled" aria-disabled="true">
-                                    <span>Next</span>
+                                    <span>{t('Next')}</span>
                                     <i className="fas fa-chevron-right" aria-hidden="true"></i>
                                 </span>
                             )}

@@ -5,8 +5,10 @@ import { toast } from 'react-toastify';
 import getError from '../util';
 import { Store } from '../helpersComponents/Store';
 import { updateProfile } from '../service/userService';
+import { useTranslation } from 'react-i18next';
 
 function Profile() {
+  const { t } = useTranslation();
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
   const [username, setUsername] = useState(userInfo.username);
@@ -58,30 +60,27 @@ function Profile() {
 
       <div className="profile-shell">
         <aside className="profile-summary">
-          <span className="profile-eyebrow">Your account</span>
+          <span className="profile-eyebrow">{t('Your account')}</span>
           <div className="profile-avatar" aria-hidden="true">{initials}</div>
           <h1>{username}</h1>
           <p>{email}</p>
           <div className="profile-summary-note">
             <i className="fas fa-shield-alt" aria-hidden="true"></i>
             <div>
-              <strong>Your details are private</strong>
-              <span>We use them only to manage your account and orders.</span>
+              <strong>{t('Your details are private')}</strong><span>{t('We use them only to manage your account and orders.')}</span>
             </div>
           </div>
         </aside>
 
         <div className="profile-card">
           <header className="profile-heading">
-            <span>Account details</span>
-            <h2>Keep your profile up to date</h2>
-            <p>Update your contact information or choose a new password.</p>
+            <span>{t('Account details')}</span><h2>{t('Keep your profile up to date')}</h2><p>{t('Update your contact information or choose a new password.')}</p>
           </header>
 
           <Form onSubmit={submitHandler} className="profile-form">
             <div className="profile-form-grid">
               <Form.Group controlId="profile-username">
-                <Form.Label>Username</Form.Label>
+                <Form.Label>{t('Username')}</Form.Label>
                 <Form.Control
                   autoComplete="username"
                   required
@@ -90,7 +89,7 @@ function Profile() {
                 />
               </Form.Group>
               <Form.Group controlId="profile-email">
-                <Form.Label>Email address</Form.Label>
+                <Form.Label>{t('Email address')}</Form.Label>
                 <Form.Control
                   type="email"
                   autoComplete="email"
@@ -104,28 +103,27 @@ function Profile() {
             <div className="profile-password-section">
               <div className="profile-section-heading">
                 <div>
-                  <h3>Change password</h3>
-                  <p>Leave both fields blank to keep your current password.</p>
+                  <h3>{t('Change password')}</h3><p>{t('Leave both fields blank to keep your current password.')}</p>
                 </div>
                 <i className="fas fa-key" aria-hidden="true"></i>
               </div>
               <div className="profile-form-grid">
                 <Form.Group controlId="profile-password">
-                  <Form.Label>New password</Form.Label>
+                  <Form.Label>{t('New password')}</Form.Label>
                   <Form.Control
                     type="password"
                     autoComplete="new-password"
-                    placeholder="Enter a new password"
+                    placeholder={t('Enter a new password')}
                     onChange={(e) => setPassword(e.target.value)}
                     value={password}
                   />
                 </Form.Group>
                 <Form.Group controlId="profile-password-confirmation">
-                  <Form.Label>Confirm new password</Form.Label>
+                  <Form.Label>{t('Confirm new password')}</Form.Label>
                   <Form.Control
                     type="password"
                     autoComplete="new-password"
-                    placeholder="Repeat the new password"
+                    placeholder={t('Repeat password')}
                     onChange={(e) => setRepass(e.target.value)}
                     value={repass}
                   />
@@ -134,12 +132,12 @@ function Profile() {
             </div>
 
             <div className="profile-actions">
-              <span><i className="fas fa-lock" aria-hidden="true"></i> Secure account update</span>
+              <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure account update')}</span>
               <Button type="submit" className="profile-submit" disabled={loadingUpdate}>
                 {loadingUpdate ? (
-                  <><span className="profile-button-spinner" aria-hidden="true"></span> Saving changes…</>
+                  <><span className="profile-button-spinner" aria-hidden="true"></span> {t('Saving changes…')}</>
                 ) : (
-                  <>Save changes <i className="fas fa-arrow-right" aria-hidden="true"></i></>
+                  <>{t('Save changes')} <i className="fas fa-arrow-right" aria-hidden="true"></i></>
                 )}
               </Button>
             </div>

@@ -6,9 +6,11 @@ import { Store } from '../helpersComponents/Store';
 import { getProduct } from '../service/productService';
 import { toast } from 'react-toastify';
 import getError from '../util';
+import { useTranslation } from 'react-i18next';
 
 function Product({ product }) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { t } = useTranslation();
   const { cart: { cartItems } } = state;
   const productUrl = '/product/' + product._id + '/' + product.slug;
 
@@ -35,28 +37,28 @@ function Product({ product }) {
         <Link to={productUrl} aria-label={'View ' + product.name}>
           <img src={product.image} className="card-img-top" alt={product.name} />
         </Link>
-        <span className="product-category">{product.category}</span>
+          <span className="product-category">{t(product.category)}</span>
         {product.countMany > 0 && product.countMany <= 5 && (
-          <span className="product-stock">Only {product.countMany} left</span>
+          <span className="product-stock">{t('Only {{count}} left', { count: product.countMany })}</span>
         )}
       </div>
       <Card.Body className="product-card-body">
         <div className="product-card-content">
           <span className="product-brand">{product.brand}</span>
           <Link className="product-title-link" to={productUrl}>
-            <Card.Title>{product.name}</Card.Title>
+            <Card.Title>{t(product.name)}</Card.Title>
           </Link>
           <Rating rating={product.rating} numReviews={product.numReviews} />
-          <Card.Text className="product-card-description">{product.description}</Card.Text>
+          <Card.Text className="product-card-description">{t(product.description)}</Card.Text>
         </div>
         <div className="product-card-footer">
           <Card.Text className="price">{'$' + product.price.toFixed(2)}</Card.Text>
           {product.countMany === 0
-            ? <Button disabled variant="light" className="product-card-button">Out of stock</Button>
+            ? <Button disabled variant="light" className="product-card-button">{t('Out of stock')}</Button>
             : (
               <Button onClick={() => addToCartHandler(product)} className="product-card-button" aria-label={'Add ' + product.name + ' to cart'}>
                 <i className="fas fa-shopping-bag" aria-hidden="true"></i>
-                <span>Add to cart</span>
+                <span>{t('Add to cart')}</span>
               </Button>
             )
           }

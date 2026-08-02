@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { Store } from '../helpersComponents/Store';
 import { getDashboardSummary } from '../service/adminService';
 import getError from '../util';
+import { useTranslation } from 'react-i18next';
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const date = new Intl.DateTimeFormat('en', { dateStyle: 'medium' });
@@ -13,6 +14,7 @@ const date = new Intl.DateTimeFormat('en', { dateStyle: 'medium' });
 const statusLabel = (status) => status?.replaceAll('_', ' ') || 'Unknown';
 
 function DashboardPage() {
+    const { t } = useTranslation();
     const { state } = useContext(Store);
     const { userInfo } = state;
     const [dashboard, setDashboard] = useState(null);
@@ -34,15 +36,13 @@ function DashboardPage() {
     }, [userInfo.token]);
 
     if (loading) {
-        return <div className="admin-dashboard-loading"><Spinner animation="border" /><span>Preparing your dashboard…</span></div>;
+        return <div className="admin-dashboard-loading"><Spinner animation="border" /><span>{t('Preparing your dashboard…')}</span></div>;
     }
 
     if (!dashboard) {
         return (
             <div className="admin-dashboard-empty">
-                <h1>Dashboard unavailable</h1>
-                <p>The store summary could not be loaded. Check that the server is running and try again.</p>
-                <Button onClick={() => window.location.reload()}>Try again</Button>
+                <h1>{t('Dashboard unavailable')}</h1><p>{t('The store summary could not be loaded. Check that the server is running and try again.')}</p><Button onClick={() => window.location.reload()}>{t('Try again')}</Button>
             </div>
         );
     }
@@ -60,12 +60,10 @@ function DashboardPage() {
             <Helmet><title>Admin Dashboard | Nora's Atelier</title></Helmet>
             <div className="admin-dashboard-hero">
                 <div>
-                    <span>Store overview</span>
-                    <h1>Welcome back, {userInfo.username}</h1>
-                    <p>Here is what is happening at Nora’s Atelier.</p>
+                    <span>{t('Store overview')}</span><h1>{t('Welcome back, {{name}}', { name: userInfo.username })}</h1><p>{t('Here is what is happening at Nora’s Atelier.')}</p>
                 </div>
                 <Link className="admin-dashboard-primary-action" to="/create">
-                    <i className="fas fa-plus" aria-hidden="true"></i> Add product
+                    <i className="fas fa-plus" aria-hidden="true"></i> {t('Add product')}
                 </Link>
             </div>
 
@@ -73,22 +71,21 @@ function DashboardPage() {
                 {cards.map((card) => (
                     <article className="admin-metric-card" key={card.label}>
                         <span className={`admin-metric-icon ${card.tone}`}><i className={`fas ${card.icon}`} aria-hidden="true"></i></span>
-                        <div><span>{card.label}</span><strong>{card.value}</strong></div>
+                        <div><span>{t(card.label)}</span><strong>{card.value}</strong></div>
                     </article>
                 ))}
             </div>
 
             <div className="admin-attention-bar">
-                <div><i className="far fa-clock" aria-hidden="true"></i><span><strong>{summary.pendingPaymentCount}</strong> awaiting payment</span></div>
-                <div><i className="fas fa-shipping-fast" aria-hidden="true"></i><span><strong>{summary.activeFulfillmentCount}</strong> active fulfillments</span></div>
-                <Link to="/search">View storefront <i className="fas fa-arrow-right" aria-hidden="true"></i></Link>
+                <div><i className="far fa-clock" aria-hidden="true"></i><span><strong>{summary.pendingPaymentCount}</strong> {t('awaiting payment')}</span></div>
+                <div><i className="fas fa-shipping-fast" aria-hidden="true"></i><span><strong>{summary.activeFulfillmentCount}</strong> {t('active fulfillments')}</span></div>
+                <Link to="/search">{t('View storefront')} <i className="fas fa-arrow-right" aria-hidden="true"></i></Link>
             </div>
 
             <div className="admin-dashboard-grid">
                 <section className="admin-dashboard-panel">
                     <div className="admin-panel-heading">
-                        <div><span>Inventory watch</span><h2>Low-stock products</h2></div>
-                        <Link to="/create">Add new</Link>
+                        <div><span>{t('Inventory watch')}</span><h2>{t('Low-stock products')}</h2></div><Link to="/create">{t('Add new')}</Link>
                     </div>
                     {lowStockProducts.length ? (
                         <div className="admin-stock-list">
@@ -104,7 +101,7 @@ function DashboardPage() {
                 </section>
 
                 <section className="admin-dashboard-panel">
-                    <div className="admin-panel-heading"><div><span>Latest activity</span><h2>Recent orders</h2></div></div>
+                    <div className="admin-panel-heading"><div><span>{t('Latest activity')}</span><h2>{t('Recent orders')}</h2></div></div>
                     {recentOrders.length ? (
                         <div className="admin-order-list">
                             {recentOrders.map((order) => (

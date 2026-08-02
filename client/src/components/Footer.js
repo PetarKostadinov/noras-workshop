@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   return (
     <footer className="site-footer">
@@ -14,12 +16,11 @@ function Footer() {
               <img src="/images/noras-atelier-logo.png" alt="" />
               <span>
                 <strong>Nora’s Atelier</strong>
-                <small>Handmade gifts &amp; décor</small>
+                <small>{t('Handmade gifts & décor')}</small>
               </span>
             </Link>
             <p>
-              Handmade gifts and thoughtful décor created for weddings,
-              celebrations, photography studios, and every meaningful moment.
+              {t('Handmade gifts and thoughtful décor created for weddings, celebrations, photography studios, and every meaningful moment.')}
             </p>
             <div className="footer-socials" aria-label="Social links">
               <a href="https://www.linkedin.com/in/petar-kostadinov-759ba8213/" target="_blank" rel="noreferrer" aria-label="LinkedIn">
@@ -32,42 +33,42 @@ function Footer() {
           </div>
 
           <nav className="footer-column" aria-label="Shop">
-            <h2>Shop</h2>
-            <Link to="/search">All products</Link>
-            <Link to="/search?category=Handmade%20Gifts">Handmade gifts</Link>
-            <Link to="/search?category=Wedding%20Decor">Wedding décor</Link>
-            <Link to="/search?category=Event%20Decor">Event décor</Link>
-            <Link to="/search?category=Studio%20Decor">Studio backdrops</Link>
+            <h2>{t('Shop')}</h2>
+            <Link to="/search">{t('All products')}</Link>
+            <Link to="/search?category=Handmade%20Gifts">{t('Handmade gifts')}</Link>
+            <Link to="/search?category=Wedding%20Decor">{t('Wedding décor')}</Link>
+            <Link to="/search?category=Event%20Decor">{t('Event décor')}</Link>
+            <Link to="/search?category=Studio%20Decor">{t('Studio backdrops')}</Link>
           </nav>
 
           <nav className="footer-column" aria-label="Your account">
-            <h2>Your account</h2>
-            <Link to="/login">Sign in</Link>
-            <Link to="/register">Create account</Link>
-            <Link to="/cart">Shopping cart</Link>
-            <Link to="/profile">Profile</Link>
-            <Link to="/orderhistory">Order history</Link>
+            <h2>{t('Your account')}</h2>
+            <Link to="/login">{t('Sign in')}</Link>
+            <Link to="/register">{t('Create account')}</Link>
+            <Link to="/cart">{t('Shopping cart')}</Link>
+            <Link to="/profile">{t('Profile')}</Link>
+            <Link to="/orderhistory">{t('Order history')}</Link>
           </nav>
 
           <div className="footer-column footer-contact">
-            <h2>Let’s create something</h2>
-            <p>Questions about a gift, event setup, or custom studio styling?</p>
+            <h2>{t('Let’s create something')}</h2>
+            <p>{t('Questions about a gift, event setup, or custom studio styling?')}</p>
             <a href="mailto:petar_vs@outlook.com">
               <i className="far fa-envelope" aria-hidden="true"></i>
               petar_vs@outlook.com
             </a>
             <span>
               <i className="fas fa-map-marker-alt" aria-hidden="true"></i>
-              Burgas, Bulgaria
+              {t('Burgas, Bulgaria')}
             </span>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© {currentYear} Nora’s Atelier. Portfolio ecommerce project.</p>
+          <p>© {currentYear} Nora’s Atelier. {t('Portfolio ecommerce project.')}</p>
           <div>
-            <span><i className="fas fa-lock" aria-hidden="true"></i> Secure shopping</span>
-            <span><i className="fas fa-leaf" aria-hidden="true"></i> Thoughtfully made</span>
+            <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure shopping')}</span>
+            <span><i className="fas fa-leaf" aria-hidden="true"></i> {t('Thoughtfully made')}</span>
           </div>
         </div>
       </div>

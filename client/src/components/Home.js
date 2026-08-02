@@ -9,6 +9,7 @@ import { fetchProducts } from '../service/productService';
 import { useLocation } from 'react-router-dom';
 import { generatePaginationLinks } from '../service/paginationService';
 import getError from '../util';
+import { useTranslation } from 'react-i18next';
 
 const productsToShow = 6;
 
@@ -17,6 +18,7 @@ function useQuery() {
 }
 
 function Home() {
+    const { t } = useTranslation();
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -64,9 +66,9 @@ function Home() {
                 </Helmet>
 
                 <div className="collection-heading">
-                    <span>Made with intention</span>
-                    <h2>Shop the collection</h2>
-                    <p>Handcrafted pieces for gifting, gathering, and creating beautiful photographs.</p>
+                    <span>{t('Made with intention')}</span>
+                    <h2>{t('Shop the collection')}</h2>
+                    <p>{t('Handcrafted pieces for gifting, gathering, and creating beautiful photographs.')}</p>
                 </div>
                 <div className="products">
                     {loading ? (

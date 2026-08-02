@@ -7,6 +7,7 @@ import { Store } from '../helpersComponents/Store';
 import { getAdminCollection } from '../service/adminService';
 import { deleteProduct } from '../service/productService';
 import getError from '../util';
+import { useTranslation } from 'react-i18next';
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const date = new Intl.DateTimeFormat('en', { dateStyle: 'medium' });
@@ -19,6 +20,7 @@ const pageCopy = {
 };
 
 function AdminManagementPage({ collection }) {
+    const { t } = useTranslation();
     const { state } = useContext(Store);
     const { userInfo } = state;
     const [searchParams, setSearchParams] = useSearchParams();
@@ -71,55 +73,55 @@ function AdminManagementPage({ collection }) {
         <section className="admin-management-page">
             <Helmet><title>{copy.title} | Nora's Atelier Admin</title></Helmet>
             <header className="admin-management-heading">
-                <div><span>{copy.eyebrow}</span><h1>{copy.title}</h1><p>{copy.description}</p></div>
-                {collection === 'products' && <Link to="/create"><i className="fas fa-plus" aria-hidden="true"></i> Add product</Link>}
+                <div><span>{t(copy.eyebrow)}</span><h1>{t(copy.title)}</h1><p>{t(copy.description)}</p></div>
+                {collection === 'products' && <Link to="/create"><i className="fas fa-plus" aria-hidden="true"></i> {t('Add product')}</Link>}
             </header>
 
             <nav className="admin-section-nav" aria-label="Admin sections">
-                <Link to="/admin/dashboard">Overview</Link>
-                <Link className={collection === 'products' ? 'active' : ''} to="/admin/productlist">Products</Link>
-                <Link className={collection === 'orders' ? 'active' : ''} to="/admin/orderlist">Orders</Link>
-                <Link className={collection === 'users' ? 'active' : ''} to="/admin/userlist">Users</Link>
+                <Link to="/admin/dashboard">{t('Overview')}</Link>
+                <Link className={collection === 'products' ? 'active' : ''} to="/admin/productlist">{t('Products')}</Link>
+                <Link className={collection === 'orders' ? 'active' : ''} to="/admin/orderlist">{t('Orders')}</Link>
+                <Link className={collection === 'users' ? 'active' : ''} to="/admin/userlist">{t('Users')}</Link>
             </nav>
 
             <div className="admin-table-card">
                 {activeLoading ? (
-                    <div className="admin-table-feedback"><Spinner animation="border" /><span>Loading {collection}…</span></div>
+                    <div className="admin-table-feedback"><Spinner animation="border" /><span>{t('Loading {{name}}…', { name: t(copy.title).toLowerCase() })}</span></div>
                 ) : !activeResult ? (
-                    <div className="admin-table-feedback">Unable to load this section.</div>
+                    <div className="admin-table-feedback">{t('Unable to load this section.')}</div>
                 ) : activeResult.items.length === 0 ? (
-                    <div className="admin-table-feedback">No {collection} found.</div>
+                    <div className="admin-table-feedback">{t('No {{name}} found.', { name: t(copy.title).toLowerCase() })}</div>
                 ) : (
                     <div className="admin-table-scroll">
-                        {collection === 'products' && <ProductsTable products={activeResult.items} deletingId={deletingId} onDelete={deleteHandler} />}
-                        {collection === 'orders' && <OrdersTable orders={activeResult.items} />}
-                        {collection === 'users' && <UsersTable users={activeResult.items} />}
+                        {collection === 'products' && <ProductsTable products={activeResult.items} deletingId={deletingId} onDelete={deleteHandler} t={t} />}
+                        {collection === 'orders' && <OrdersTable orders={activeResult.items} t={t} />}
+                        {collection === 'users' && <UsersTable users={activeResult.items} t={t} />}
                     </div>
                 )}
             </div>
 
             {activeResult && activeResult.pages > 1 && (
                 <div className="admin-pagination">
-                    <Button variant="light" disabled={page === 1 || activeLoading} onClick={() => setPage(page - 1)}>Previous</Button>
-                    <span>Page <strong>{activeResult.page}</strong> of {activeResult.pages} · {activeResult.count} total</span>
-                    <Button variant="light" disabled={page === activeResult.pages || activeLoading} onClick={() => setPage(page + 1)}>Next</Button>
+                    <Button variant="light" disabled={page === 1 || activeLoading} onClick={() => setPage(page - 1)}>{t('Previous')}</Button>
+                    <span>{t('Page')} <strong>{activeResult.page}</strong> {t('of')} {activeResult.pages} · {activeResult.count} {t('total')}</span>
+                    <Button variant="light" disabled={page === activeResult.pages || activeLoading} onClick={() => setPage(page + 1)}>{t('Next')}</Button>
                 </div>
             )}
         </section>
     );
 }
 
-function ProductsTable({ products, deletingId, onDelete }) {
-    return <table className="admin-data-table"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Inventory</th><th><span className="visually-hidden">Actions</span></th></tr></thead><tbody>{products.map((product) => <tr key={product._id}>
+function ProductsTable({ products, deletingId, onDelete, t }) {
+    return <table className="admin-data-table"><thead><tr><th>{t('Product')}</th><th>{t('Category')}</th><th>{t('Price')}</th><th>{t('Inventory')}</th><th><span className="visually-hidden">{t('Actions')}</span></th></tr></thead><tbody>{products.map((product) => <tr key={product._id}>
         <td><div className="admin-product-cell"><img src={product.image} alt="" /><div><strong>{product.name}</strong><span>{product.slug}</span></div></div></td>
         <td>{product.category}</td><td>{currency.format(product.price)}</td>
         <td><span className={`admin-stock-pill ${product.countMany === 0 ? 'empty' : product.countMany <= 5 ? 'low' : ''}`}>{product.countMany === 0 ? 'Out of stock' : product.countMany}</span></td>
-        <td><div className="admin-row-actions"><Link to={`/product/${product._id}/${product.slug}`}>View / edit</Link><Button variant="link" disabled={deletingId === product._id} onClick={() => onDelete(product)}>{deletingId === product._id ? 'Deleting…' : 'Delete'}</Button></div></td>
+        <td><div className="admin-row-actions"><Link to={`/product/${product._id}/${product.slug}`}>{t('View / edit')}</Link><Button variant="link" disabled={deletingId === product._id} onClick={() => onDelete(product)}>{t(deletingId === product._id ? 'Deleting…' : 'Delete')}</Button></div></td>
     </tr>)}</tbody></table>;
 }
 
-function OrdersTable({ orders }) {
-    return <table className="admin-data-table"><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Total</th><th>Payment</th><th>Fulfillment</th></tr></thead><tbody>{orders.map((order) => <tr key={order._id}>
+function OrdersTable({ orders, t }) {
+    return <table className="admin-data-table"><thead><tr><th>{t('Order')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Total')}</th><th>{t('Payment')}</th><th>{t('Fulfillment')}</th></tr></thead><tbody>{orders.map((order) => <tr key={order._id}>
         <td><Link className="admin-id-link" to={`/order/${order._id}`}>#{order._id.slice(-8).toUpperCase()}</Link><small>{order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'}</small></td>
         <td><strong>{order.user?.username || 'Deleted user'}</strong><small>{order.user?.email || 'Account unavailable'}</small></td>
         <td>{date.format(new Date(order.createdAt))}</td><td>{currency.format(order.totalPrice)}</td>
@@ -128,10 +130,10 @@ function OrdersTable({ orders }) {
     </tr>)}</tbody></table>;
 }
 
-function UsersTable({ users }) {
-    return <table className="admin-data-table"><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Registered</th></tr></thead><tbody>{users.map((user) => <tr key={user._id}>
+function UsersTable({ users, t }) {
+    return <table className="admin-data-table"><thead><tr><th>{t('User')}</th><th>{t('Email address')}</th><th>{t('Role')}</th><th>{t('Registered')}</th></tr></thead><tbody>{users.map((user) => <tr key={user._id}>
         <td><strong>{user.username}</strong><small>#{user._id.slice(-8).toUpperCase()}</small></td><td>{user.email}</td>
-        <td><span className={`admin-role-pill ${user.isAdmin ? 'admin' : ''}`}>{user.isAdmin ? 'Administrator' : 'Customer'}</span></td>
+        <td><span className={`admin-role-pill ${user.isAdmin ? 'admin' : ''}`}>{t(user.isAdmin ? 'Administrator' : 'Customer account')}</span></td>
         <td>{date.format(new Date(user.createdAt))}</td>
     </tr>)}</tbody></table>;
 }

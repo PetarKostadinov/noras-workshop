@@ -4,8 +4,10 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import CheckoutSteps from './CheckoutSteps';
 import { Store } from '../helpersComponents/Store';
+import { useTranslation } from 'react-i18next';
 
 function Payment() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { state, dispatch: ctxDispatch } = useContext(Store);
     const { cart: { shippingInfo, paymentMethod, cartItems } } = state;
@@ -31,9 +33,7 @@ function Payment() {
             <CheckoutSteps step1 step2 step3 />
 
             <div className="checkout-heading">
-                <span>Secure checkout</span>
-                <h1>Choose payment</h1>
-                <p>Select how you would like to pay for your order.</p>
+                <span>{t('Secure checkout')}</span><h1>{t('Choose payment')}</h1><p>{t('Select how you would like to pay for your order.')}</p>
             </div>
 
             <div className="payment-layout">
@@ -41,8 +41,7 @@ function Payment() {
                     <div className="checkout-form-heading">
                         <div className="checkout-form-icon"><i className="fas fa-wallet" aria-hidden="true"></i></div>
                         <div>
-                            <h2>Payment method</h2>
-                            <p>Your payment details are handled securely.</p>
+                            <h2>{t('Payment method')}</h2><p>{t('Your payment details are handled securely.')}</p>
                         </div>
                     </div>
 
@@ -59,7 +58,7 @@ function Payment() {
                             <span className="payment-option-icon paypal"><i className="fab fa-paypal" aria-hidden="true"></i></span>
                             <span className="payment-option-copy">
                                 <strong>PayPal</strong>
-                                <small>Review your order, then confirm it securely with PayPal.</small>
+                                <small>{t('Review your order, then confirm it securely with PayPal.')}</small>
                             </span>
                             <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
                         </label>
@@ -75,8 +74,8 @@ function Payment() {
                             />
                             <span className="payment-option-icon"><i className="far fa-credit-card" aria-hidden="true"></i></span>
                             <span className="payment-option-copy">
-                                <strong>Credit or debit card</strong>
-                                <small>Pay securely with Visa or another supported card through Stripe.</small>
+                                <strong>{t('Credit or debit card')}</strong>
+                                <small>{t('Pay securely with Visa or another supported card through Stripe.')}</small>
                             </span>
                             <i className="fas fa-check-circle payment-option-check" aria-hidden="true"></i>
                         </label>
@@ -84,15 +83,15 @@ function Payment() {
                         <div className="payment-security-note">
                             <i className="fas fa-shield-alt" aria-hidden="true"></i>
                             <span>
-                                <strong>Protected payment</strong>
+                                <strong>{t('Protected payment')}</strong>
                                 You’ll complete payment securely through {selectedMethod === 'Card' ? 'Stripe Checkout' : 'PayPal'}.
                             </span>
                         </div>
 
                         <div className="checkout-form-actions">
-                            <Link to="/shipping"><i className="fas fa-arrow-left" aria-hidden="true"></i> Back to delivery</Link>
+                            <Link to="/shipping"><i className="fas fa-arrow-left" aria-hidden="true"></i> {t('Back to delivery')}</Link>
                             <Button type="submit">
-                                Review order
+                                {t('Review order')}
                                 <i className="fas fa-arrow-right" aria-hidden="true"></i>
                             </Button>
                         </div>
@@ -100,22 +99,22 @@ function Payment() {
                 </div>
 
                 <aside className="payment-summary">
-                    <span>Order snapshot</span>
-                    <h2>{itemCount} {itemCount === 1 ? 'item' : 'items'} in your cart</h2>
+                    <span>{t('Order snapshot')}</span>
+                    <h2>{t(itemCount === 1 ? '{{count}} item in your cart' : '{{count}} items in your cart', { count: itemCount })}</h2>
                     <div className="payment-summary-products">
                         {cartItems.slice(0, 3).map((item) => (
                             <div key={item._id}>
                                 <img src={item.image} alt="" />
-                                <p><strong>{item.name}</strong><small>Quantity {item.quantity}</small></p>
+                                <p><strong>{item.name}</strong><small>{t('Quantity {{count}}', { count: item.quantity })}</small></p>
                                 <span>{'$' + (item.price * item.quantity).toFixed(2)}</span>
                             </div>
                         ))}
                     </div>
                     <div className="payment-summary-total">
-                        <span>Cart subtotal</span>
+                        <span>{t('Cart subtotal')}</span>
                         <strong>{'$' + subtotal.toFixed(2)}</strong>
                     </div>
-                    <p>Shipping and tax are calculated in the final order review.</p>
+                    <p>{t('Shipping and tax are calculated in the final order review.')}</p>
                 </aside>
             </div>
         </section>

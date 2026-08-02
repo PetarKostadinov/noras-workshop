@@ -24,6 +24,7 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | --- | --- |
 | Browser | React 18, Create React App, React Router 6, React Bootstrap/Bootstrap |
 | State | React Context + `useReducer`; selected auth/cart/checkout/product state persists in `localStorage` |
+| Localization | `react-i18next` with English fallback, Bulgarian UI translations, and a persistent `language` local-storage preference |
 | API access | A mix of Fetch API and Axios; client uses relative `/api/...` URLs |
 | Development routing | CRA client on port 3000 proxies to Express on port 5000 |
 | API | Node/Express using ES modules (`server/package.json` has `type: module`) |
@@ -46,6 +47,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 - `shippingInfo`: checkout delivery address;
 - `paymentMethod`: selected payment method;
 - `currItem`: most recently fetched product detail.
+- `language`: selected interface language (`en` or `bg`), owned by i18next rather than the global store.
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. When changing API contracts, search both `service/` and components.
 

@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { Store } from '../helpersComponents/Store';
 import { createProduct, uploadProductImage } from '../service/productService';
 import getError from '../util';
+import { useTranslation } from 'react-i18next';
 
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -17,6 +18,7 @@ const slugify = (value) => value
     .replace(/^-+|-+$/g, '');
 
 function CreateItem() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { state, dispatch } = useContext(Store);
     const { userInfo } = state;
@@ -133,49 +135,47 @@ function CreateItem() {
 
             <div className="product-editor-heading">
                 <div>
-                    <span>Admin workspace</span>
-                    <h1>Create a product</h1>
-                    <p>Add the details customers need to discover and purchase this item.</p>
+                    <span>{t('Admin workspace')}</span><h1>{t('Create a product')}</h1><p>{t('Add the details customers need to discover and purchase this item.')}</p>
                 </div>
-                <Link className="product-editor-back" to="/">Back to shop</Link>
+                <Link className="product-editor-back" to="/">{t('Back to shop')}</Link>
             </div>
 
             <Form noValidate validated={validated} onSubmit={submitHandler}>
                 <Row className="g-4 align-items-start">
                     <Col lg={8}>
                         <div className="product-editor-card">
-                            <h2>Product details</h2>
+                            <h2>{t('Product details')}</h2>
                             <Row className="g-3">
                                 <Col md={7}>
                                     <Form.Group controlId="create-name">
-                                        <Form.Label>Name</Form.Label>
+                                        <Form.Label>{t('Name')}</Form.Label>
                                         <Form.Control value={form.name} onChange={(e) => updateField('name', e.target.value)} placeholder="Personalized keepsake box" required />
                                         <Form.Control.Feedback type="invalid">Enter a product name.</Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col md={5}>
                                     <Form.Group controlId="create-slug">
-                                        <Form.Label>URL slug</Form.Label>
+                                        <Form.Label>{t('URL slug')}</Form.Label>
                                         <Form.Control value={form.slug} onChange={(e) => { setSlugEdited(true); updateField('slug', slugify(e.target.value)); }} placeholder="personalized-keepsake-box" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required />
-                                        <Form.Text>Generated from the name; you can edit it.</Form.Text>
+                                        <Form.Text>{t('Generated from the name; you can edit it.')}</Form.Text>
                                         <Form.Control.Feedback type="invalid">Use lowercase letters, numbers, and single hyphens.</Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="create-brand">
-                                        <Form.Label>Brand</Form.Label>
+                                        <Form.Label>{t('Brand')}</Form.Label>
                                         <Form.Control value={form.brand} onChange={(e) => updateField('brand', e.target.value)} required />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="create-category">
-                                        <Form.Label>Category</Form.Label>
+                                        <Form.Label>{t('Category')}</Form.Label>
                                         <Form.Control value={form.category} onChange={(e) => updateField('category', e.target.value)} placeholder="Handmade Gifts" required />
                                     </Form.Group>
                                 </Col>
                                 <Col xs={12}>
                                     <Form.Group controlId="create-description">
-                                        <Form.Label>Description</Form.Label>
+                                        <Form.Label>{t('Description')}</Form.Label>
                                         <Form.Control as="textarea" rows={5} value={form.description} onChange={(e) => updateField('description', e.target.value)} placeholder="Describe the materials, finish, and what makes this item special." required />
                                     </Form.Group>
                                 </Col>
@@ -183,29 +183,29 @@ function CreateItem() {
                         </div>
 
                         <div className="product-editor-card mt-4">
-                            <h2>Pricing and inventory</h2>
+                            <h2>{t('Pricing and inventory')}</h2>
                             <Row className="g-3">
                                 <Col sm={6} md={3}>
                                     <Form.Group controlId="create-price">
-                                        <Form.Label>Price (USD)</Form.Label>
+                                        <Form.Label>{t('Price (USD)')}</Form.Label>
                                         <Form.Control type="number" min="0" step="0.01" value={form.price} onChange={(e) => updateField('price', e.target.value)} placeholder="0.00" required />
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6} md={3}>
                                     <Form.Group controlId="create-count">
-                                        <Form.Label>Inventory</Form.Label>
+                                        <Form.Label>{t('Inventory')}</Form.Label>
                                         <Form.Control type="number" min="0" step="1" value={form.countMany} onChange={(e) => updateField('countMany', e.target.value)} placeholder="0" required />
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6} md={3}>
                                     <Form.Group controlId="create-rating">
-                                        <Form.Label>Rating</Form.Label>
+                                        <Form.Label>{t('Rating')}</Form.Label>
                                         <Form.Control type="number" min="0" max="5" step="0.1" value={form.rating} onChange={(e) => updateField('rating', e.target.value)} required />
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6} md={3}>
                                     <Form.Group controlId="create-reviews">
-                                        <Form.Label>Reviews</Form.Label>
+                                        <Form.Label>{t('Reviews')}</Form.Label>
                                         <Form.Control type="number" min="0" step="1" value={form.numReviews} onChange={(e) => updateField('numReviews', e.target.value)} required />
                                     </Form.Group>
                                 </Col>
@@ -215,24 +215,24 @@ function CreateItem() {
 
                     <Col lg={4}>
                         <div className="product-editor-card product-image-panel">
-                            <h2>Product image</h2>
+                            <h2>{t('Product image')}</h2>
                             <div className={`product-image-preview ${previewUrl ? 'has-image' : ''}`}>
-                                {previewUrl ? <img src={previewUrl} alt="Selected product preview" /> : <span>Choose an image to preview it</span>}
+                                {previewUrl ? <img src={previewUrl} alt={t('Selected product preview')} /> : <span>{t('Choose an image to preview it')}</span>}
                             </div>
                             <Form.Group controlId="create-image">
-                                <Form.Label>Upload from your computer</Form.Label>
+                                <Form.Label>{t('Upload from your computer')}</Form.Label>
                                 <Form.Control className="product-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={imageChangeHandler} disabled={uploading || submitting} required={!form.image} />
                                 <Form.Text>JPG, PNG, WebP, or GIF. Maximum 5 MB.</Form.Text>
                             </Form.Group>
-                            {uploading && <div className="product-upload-status"><Spinner size="sm" animation="border" /><span>Uploading image…</span></div>}
+                            {uploading && <div className="product-upload-status"><Spinner size="sm" animation="border" /><span>{t('Uploading image…')}</span></div>}
                         </div>
 
                         <div className="product-editor-actions">
                             <Button type="submit" disabled={submitting || uploading}>
                                 {submitting && <Spinner size="sm" animation="border" aria-hidden="true" />}
-                                <span>{submitting ? 'Creating…' : 'Create product'}</span>
+                                <span>{t(submitting ? 'Creating…' : 'Create product')}</span>
                             </Button>
-                            <Link to="/">Cancel</Link>
+                            <Link to="/">{t('Cancel')}</Link>
                         </div>
                     </Col>
                 </Row>

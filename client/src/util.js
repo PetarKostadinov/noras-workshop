@@ -1,3 +1,5 @@
+import i18n from './i18n';
+
 const FRIENDLY_MESSAGES = [
     { pattern: /failed to fetch|network request failed|network response was not ok|load failed|econnrefused/i, message: 'We couldn’t reach the server. Check your connection and try again.' },
     { pattern: /invalid token|jwt expired|no token/i, message: 'Your session has expired. Please sign in again.' },
@@ -15,7 +17,7 @@ const FRIENDLY_MESSAGES = [
 const addPunctuation = (message) => /[.!?…]$/.test(message) ? message : `${message}.`;
 
 export default function getError(error, fallback = 'Something went wrong. Please try again.') {
-    if (!error) return fallback;
+    if (!error) return i18n.t(fallback);
 
     const status = error.status || error.response?.status;
     const rawMessage = error.response?.data?.message
@@ -25,14 +27,14 @@ export default function getError(error, fallback = 'Something went wrong. Please
 
     if (error.name === 'AbortError') return '';
     if (status === 401 && !/invalid email or password/i.test(rawMessage)) {
-        return 'Your session has expired. Please sign in again.';
+        return i18n.t('Your session has expired. Please sign in again.');
     }
-    if (status === 403) return 'You don’t have permission to perform this action.';
-    if (status >= 500 && !rawMessage) return 'Something went wrong on our side. Please try again in a moment.';
+    if (status === 403) return i18n.t('You don’t have permission to perform this action.');
+    if (status >= 500 && !rawMessage) return i18n.t('Something went wrong on our side. Please try again in a moment.');
 
     const friendly = FRIENDLY_MESSAGES.find(({ pattern }) => pattern.test(rawMessage));
-    if (friendly) return friendly.message;
-    if (!rawMessage || rawMessage === 'Error') return fallback;
+    if (friendly) return i18n.t(friendly.message);
+    if (!rawMessage || rawMessage === 'Error') return i18n.t(fallback);
     return addPunctuation(rawMessage);
 }
 

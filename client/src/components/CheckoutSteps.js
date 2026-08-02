@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 function CheckoutSteps({ step1, step2, step3, step4 }) {
+    const { t } = useTranslation();
     const steps = [
         { label: 'Account', active: step1 },
         { label: 'Delivery', active: step2 },
@@ -9,11 +11,11 @@ function CheckoutSteps({ step1, step2, step3, step4 }) {
     ];
 
     return (
-        <ol className="checkout-steps" aria-label="Checkout progress">
+        <ol className="checkout-steps" aria-label={t('Checkout progress')}>
             {steps.map((step, index) => (
                 <li className={step.active ? 'active' : ''} key={step.label} aria-current={step.active && !steps[index + 1]?.active ? 'step' : undefined}>
                     <span>{step.active ? <i className="fas fa-check" aria-hidden="true"></i> : index + 1}</span>
-                    <strong>{step.label}</strong>
+                    <strong>{t(step.label)}</strong>
                 </li>
             ))}
         </ol>

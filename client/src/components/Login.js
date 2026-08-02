@@ -6,8 +6,10 @@ import { Store } from '../helpersComponents/Store';
 import { toast } from 'react-toastify';
 import { loginUser } from '../service/userService';
 import getError, { getSafeRedirect } from '../util';
+import { useTranslation } from 'react-i18next';
 
 function Login() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { search } = useLocation();
     const redirect = getSafeRedirect(search);
@@ -37,30 +39,29 @@ function Login() {
             <Helmet><title>Sign in | Nora’s Atelier</title></Helmet>
             <div className="auth-visual auth-visual-login" aria-hidden="true">
                 <div className="auth-visual-copy">
-                    <span>Crafted with care</span>
-                    <h2>Welcome back to your collection of beautiful moments.</h2>
+                    <span>{t('Crafted with care')}</span><h2>{t('Welcome back to your collection of beautiful moments.')}</h2>
                 </div>
             </div>
             <div className="auth-panel">
                 <div className="auth-heading">
                     <img src="/images/noras-atelier-logo.png" alt="" />
-                    <span>Welcome back</span>
-                    <h1>Sign in to your account</h1>
+                    <span>{t('Welcome back')}</span>
+                    <h1>{t('Sign in to your account')}</h1>
                     <p>{isCheckoutRedirect
-                        ? 'Sign in to continue securely with your checkout. Your cart is waiting for you.'
-                        : 'Continue shopping handmade gifts and thoughtful décor.'}</p>
+                        ? t('Sign in to continue securely with your checkout. Your cart is waiting for you.')
+                        : t('Continue shopping handmade gifts and thoughtful décor.')}</p>
                 </div>
                 <Form onSubmit={submitHandler} className="auth-form">
                     <Form.Group controlId="login-email">
-                        <Form.Label>Email address</Form.Label>
+                        <Form.Label>{t('Email address')}</Form.Label>
                         <Form.Control type="email" autoComplete="email" placeholder="you@example.com" required onChange={(e) => setEmail(e.target.value)} />
                     </Form.Group>
                     <Form.Group controlId="login-password">
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control type="password" autoComplete="current-password" placeholder="Enter your password" required onChange={(e) => setPassword(e.target.value)} />
+                        <Form.Label>{t('Password')}</Form.Label>
+                        <Form.Control type="password" autoComplete="current-password" placeholder={t('Enter your password')} required onChange={(e) => setPassword(e.target.value)} />
                     </Form.Group>
-                    <Button type="submit" className="auth-submit">Sign in</Button>
-                    <p className="auth-switch">New to Nora’s Atelier? <Link to={'/register?redirect=' + encodeURIComponent(redirect)}>Create an account</Link></p>
+                    <Button type="submit" className="auth-submit">{t('Sign in')}</Button>
+                    <p className="auth-switch">{t('New to Nora’s Atelier?')} <Link to={'/register?redirect=' + encodeURIComponent(redirect)}>{t('Create an account')}</Link></p>
                 </Form>
             </div>
         </section>

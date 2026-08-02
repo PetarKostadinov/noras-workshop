@@ -6,8 +6,10 @@ import { Store } from '../helpersComponents/Store';
 import { getProductById } from '../service/cartService';
 import getError, { getLoginUrl } from '../util';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 function CartScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart: { cartItems }, userInfo } = state;
@@ -40,17 +42,17 @@ function CartScreen() {
       <Helmet><title>Your cart | Nora’s Atelier</title></Helmet>
 
       <div className="cart-heading">
-        <span>Your selection</span>
-        <h1>Shopping cart</h1>
-        <p>{itemCount === 0 ? 'Your cart is ready for something meaningful.' : itemCount + (itemCount === 1 ? ' item' : ' items') + ' saved for your occasion.'}</p>
+        <span>{t('Your selection')}</span>
+        <h1>{t('Shopping cart')}</h1>
+        <p>{itemCount === 0 ? t('Your cart is ready for something meaningful.') : t(itemCount === 1 ? '{{count}} item saved for your occasion.' : '{{count}} items saved for your occasion.', { count: itemCount })}</p>
       </div>
 
       {cartItems.length === 0 ? (
         <div className="cart-empty">
           <div className="cart-empty-icon"><i className="fas fa-shopping-bag" aria-hidden="true"></i></div>
-          <h2>Your cart is empty</h2>
-          <p>Discover handmade gifts and décor created for life’s special moments.</p>
-          <Link to="/search" className="cart-shop-link">Explore the collection</Link>
+          <h2>{t('Your cart is empty')}</h2>
+          <p>{t('Discover handmade gifts and décor created for life’s special moments.')}</p>
+          <Link to="/search" className="cart-shop-link">{t('Explore the collection')}</Link>
         </div>
       ) : (
         <div className="cart-layout">
@@ -66,10 +68,10 @@ function CartScreen() {
                     <span>{item.category || item.brand}</span>
                     <Link to={productUrl}><h2>{item.name}</h2></Link>
                     <button className="cart-remove-mobile" type="button" onClick={() => removeItemHandler(item)}>
-                      Remove
+                      {t('Remove')}
                     </button>
                   </div>
-                  <div className="cart-quantity" aria-label={'Quantity for ' + item.name}>
+                  <div className="cart-quantity" aria-label={t('Quantity for {{name}}', { name: item.name })}>
                     <Button variant="link" onClick={() => updateCartHandler(item, item.quantity - 1)} disabled={item.quantity === 1} aria-label="Decrease quantity">
                       <i className="fas fa-minus" aria-hidden="true"></i>
                     </Button>
@@ -88,35 +90,35 @@ function CartScreen() {
           </div>
 
           <aside className="cart-summary">
-            <span className="cart-summary-eyebrow">Order summary</span>
-            <h2>Your total</h2>
+            <span className="cart-summary-eyebrow">{t('Order summary')}</span>
+            <h2>{t('Your total')}</h2>
             <div className="cart-summary-row">
-              <span>Subtotal · {itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
+              <span>{t('Subtotal')} · {t(itemCount === 1 ? '{{count}} item' : '{{count}} items', { count: itemCount })}</span>
               <strong>{'$' + subtotal.toFixed(2)}</strong>
             </div>
             <div className="cart-summary-row">
-              <span>Delivery</span>
-              <span>Calculated at checkout</span>
+              <span>{t('Delivery')}</span>
+              <span>{t('Calculated at checkout')}</span>
             </div>
             <div className="cart-summary-total">
-              <span>Total</span>
+              <span>{t('Total')}</span>
               <strong>{'$' + subtotal.toFixed(2)}</strong>
             </div>
             <Button type="button" onClick={checkoutHandler} className="cart-checkout">
-              Continue to checkout
+              {t('Continue to checkout')}
               <i className="fas fa-arrow-right" aria-hidden="true"></i>
             </Button>
             {!userInfo && (
               <div className="cart-account-note" role="note">
                 <i className="fas fa-user-lock" aria-hidden="true"></i>
-                <span><strong>Account required at checkout</strong>Your cart will stay saved while you sign in or create an account.</span>
+                <span><strong>{t('Account required at checkout')}</strong>{t('Your cart will stay saved while you sign in or create an account.')}</span>
               </div>
             )}
             <div className="cart-assurance">
-              <span><i className="fas fa-lock" aria-hidden="true"></i> Secure checkout</span>
-              <span><i className="fas fa-box" aria-hidden="true"></i> Carefully packaged</span>
+              <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure checkout')}</span>
+              <span><i className="fas fa-box" aria-hidden="true"></i> {t('Carefully packaged')}</span>
             </div>
-            <Link to="/search" className="cart-continue">Continue shopping</Link>
+            <Link to="/search" className="cart-continue">{t('Continue shopping')}</Link>
           </aside>
         </div>
       )}

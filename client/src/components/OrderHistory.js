@@ -7,6 +7,7 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
 import { fetchOrderHistory } from '../service/orderService';
+import { useTranslation } from 'react-i18next';
 
 const formatDate = (date) => date
     ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(date))
@@ -18,6 +19,7 @@ const formatPrice = (price) => new Intl.NumberFormat('en-US', {
 }).format(Number(price) || 0);
 
 function OrderHistory() {
+    const { t } = useTranslation();
     const { state } = useContext(Store);
     const { userInfo } = state;
     const navigate = useNavigate();
@@ -49,9 +51,7 @@ function OrderHistory() {
             <div className="order-history-shell">
                 <header className="order-history-heading">
                     <div>
-                        <span>Your account</span>
-                        <h1>Order history</h1>
-                        <p>Review your purchases and follow their payment and delivery status.</p>
+                        <span>{t('Your account')}</span><h1>{t('Order history')}</h1><p>{t('Review your purchases and follow their payment and delivery status.')}</p>
                     </div>
                     {!loading && !error && orders.length > 0 && (
                         <div className="order-history-count">
@@ -68,11 +68,9 @@ function OrderHistory() {
                 ) : orders.length === 0 ? (
                     <div className="order-history-empty">
                         <div className="order-history-empty-icon"><i className="fas fa-shopping-bag" aria-hidden="true"></i></div>
-                        <span>Your collection starts here</span>
-                        <h2>No orders yet</h2>
-                        <p>Explore handcrafted gifts and décor made for beautiful moments.</p>
+                        <span>{t('Your collection starts here')}</span><h2>{t('No orders yet')}</h2><p>{t('Explore handcrafted gifts and décor made for beautiful moments.')}</p>
                         <Button onClick={() => navigate('/search')}>
-                            Browse the collection <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                            {t('Browse the collection')} <i className="fas fa-arrow-right" aria-hidden="true"></i>
                         </Button>
                     </div>
                 ) : (
@@ -84,20 +82,20 @@ function OrderHistory() {
                                         <i className="fas fa-box-open"></i>
                                     </div>
                                     <div>
-                                        <span className="order-history-label">Order</span>
+                                        <span className="order-history-label">{t('Order')}</span>
                                         <h2>#{order._id.slice(-8).toUpperCase()}</h2>
                                         <p>Placed on {formatDate(order.createdAt)}</p>
                                     </div>
                                 </div>
 
                                 <div className="order-history-price">
-                                    <span>Total</span>
+                                    <span>{t('Total')}</span>
                                     <strong>{formatPrice(order.totalPrice)}</strong>
                                 </div>
 
                                 <div className="order-history-statuses">
                                     <div>
-                                        <span>Payment</span>
+                                        <span>{t('Payment')}</span>
                                         <strong className={`order-status ${order.isPaid ? 'complete' : 'pending'}`}>
                                             <i className={order.isPaid ? 'fas fa-check-circle' : 'far fa-clock'} aria-hidden="true"></i>
                                             {order.isPaid
@@ -106,7 +104,7 @@ function OrderHistory() {
                                         </strong>
                                     </div>
                                     <div>
-                                        <span>Delivery</span>
+                                        <span>{t('Delivery')}</span>
                                         <strong className={`order-status ${order.isDelivered ? 'complete' : 'pending'}`}>
                                             <i className={order.isDelivered ? 'fas fa-check-circle' : 'fas fa-truck'} aria-hidden="true"></i>
                                             {order.isDelivered

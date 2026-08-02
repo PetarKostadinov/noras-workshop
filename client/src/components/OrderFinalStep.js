@@ -8,6 +8,7 @@ import getError from '../util';
 import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
+import { useTranslation } from 'react-i18next';
 
 function reducer(state, action) {
     switch (action.type) {
@@ -29,6 +30,7 @@ function reducer(state, action) {
 }
 
 function OrderFinalStep() {
+    const { t, i18n } = useTranslation();
     const { id: orderId } = useParams();
     const { search } = useLocation();
     const navigate = useNavigate();
@@ -185,7 +187,7 @@ function OrderFinalStep() {
     }
 
     const placedDate = order.createdAt
-        ? new Intl.DateTimeFormat('en', { dateStyle: 'long' }).format(new Date(order.createdAt))
+        ? new Intl.DateTimeFormat(i18n.language === 'bg' ? 'bg-BG' : 'en-US', { dateStyle: 'long' }).format(new Date(order.createdAt))
         : '';
     const paymentProvider = order.paymentMethod === 'Card' ? 'Stripe' : 'PayPal';
 
@@ -198,21 +200,19 @@ function OrderFinalStep() {
                     <i className={order.isPaid ? 'fas fa-check' : 'far fa-clock'} aria-hidden="true"></i>
                 </div>
                 <div>
-                    <span>{order.isPaid ? 'Thank you for your order' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely'}</span>
-                    <h1>{order.isPaid ? 'Your order is confirmed' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm'}</h1>
+                    <span>{t(order.isPaid ? 'Thank you for your order' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely')}</span>
+                    <h1>{t(order.isPaid ? 'Your order is confirmed' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm')}</h1>
                     <p>{order.isPaid
                         ? 'We’ll begin preparing your handmade pieces with care.'
                         : order.paymentStatus === 'processing'
                             ? `${paymentProvider} is reviewing the transaction. We’ll confirm the order as soon as payment clears.`
                             : 'Your order is awaiting payment and will not be prepared until payment is confirmed.'}</p>
                 </div>
-                <Link to="/search">Continue shopping</Link>
+                <Link to="/search">{t('Continue shopping')}</Link>
             </div>
 
             <div className="order-meta">
-                <div><span>Order number</span><strong>{order._id}</strong></div>
-                <div><span>Order date</span><strong>{placedDate}</strong></div>
-                <div><span>Total</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
+                <div><span>{t('Order number')}</span><strong>{order._id}</strong></div><div><span>{t('Order date')}</span><strong>{placedDate}</strong></div><div><span>{t('Total')}</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
             </div>
 
             <div className="order-layout">
@@ -220,9 +220,9 @@ function OrderFinalStep() {
                     <section className="order-detail-card">
                         <div className="order-detail-heading">
                             <span className="order-detail-icon"><i className="fas fa-truck" aria-hidden="true"></i></span>
-                            <div><span>Delivery</span><h2>Shipping details</h2></div>
+                            <div><span>{t('Delivery')}</span><h2>{t('Shipping details')}</h2></div>
                             <span className={'order-status ' + (order.isDelivered ? 'complete' : 'pending')}>
-                                {order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : 'Awaiting payment'}
+                                {t(order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : 'Awaiting payment')}
                             </span>
                         </div>
                         <div className="order-address">
@@ -236,9 +236,9 @@ function OrderFinalStep() {
                     <section className="order-detail-card">
                         <div className="order-detail-heading">
                             <span className="order-detail-icon"><i className="fas fa-wallet" aria-hidden="true"></i></span>
-                            <div><span>Payment</span><h2>{order.paymentMethod}</h2></div>
+                            <div><span>{t('Payment')}</span><h2>{order.paymentMethod}</h2></div>
                             <span className={'order-status ' + (order.isPaid ? 'complete' : 'attention')}>
-                                {order.isPaid ? 'Paid' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due'}
+                                {t(order.isPaid ? 'Paid' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due')}
                             </span>
                         </div>
                         <p className="order-payment-copy">
@@ -253,7 +253,7 @@ function OrderFinalStep() {
                     <section className="order-detail-card">
                         <div className="order-detail-heading">
                             <span className="order-detail-icon"><i className="fas fa-shopping-bag" aria-hidden="true"></i></span>
-                            <div><span>Your selection</span><h2>Order items</h2></div>
+                            <div><span>{t('Your selection')}</span><h2>{t('Order items')}</h2></div>
                         </div>
                         <div className="order-items">
                             {order.orderItems.map((item) => {
@@ -262,8 +262,7 @@ function OrderFinalStep() {
                                     <article className="order-item" key={item._id}>
                                         <Link to={productUrl}><img src={item.image} alt={item.name} /></Link>
                                         <div>
-                                            <Link to={productUrl}><h3>{item.name}</h3></Link>
-                                            <span>Quantity {item.quantity}</span>
+                                            <Link to={productUrl}><h3>{t(item.name)}</h3></Link><span>{t('Quantity {{count}}', { count: item.quantity })}</span>
                                         </div>
                                         <strong>{'$' + (item.price * item.quantity).toFixed(2)}</strong>
                                     </article>
@@ -274,12 +273,8 @@ function OrderFinalStep() {
                 </div>
 
                 <aside className="order-summary-card">
-                    <span>Order summary</span>
-                    <h2>{order.isPaid ? 'Payment complete' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment'}</h2>
-                    <div className="order-summary-row"><span>Items</span><strong>{'$' + order.itemsPrice.toFixed(2)}</strong></div>
-                    <div className="order-summary-row"><span>Delivery</span><strong>{order.shippingPrice === 0 ? 'Free' : '$' + order.shippingPrice.toFixed(2)}</strong></div>
-                    <div className="order-summary-row"><span>Tax</span><strong>{'$' + order.taxPrice.toFixed(2)}</strong></div>
-                    <div className="order-summary-total"><span>Total</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
+                    <span>{t('Order summary')}</span><h2>{t(order.isPaid ? 'Payment complete' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment')}</h2>
+                    <div className="order-summary-row"><span>{t('Items')}</span><strong>{'$' + order.itemsPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Delivery')}</span><strong>{order.shippingPrice === 0 ? t('Free') : '$' + order.shippingPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Tax')}</span><strong>{'$' + order.taxPrice.toFixed(2)}</strong></div><div className="order-summary-total"><span>{t('Total')}</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
 
                     {!order.isPaid && order.paymentMethod === 'PayPal' && (
                         <div className="order-paypal">

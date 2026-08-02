@@ -6,8 +6,10 @@ import { toast } from 'react-toastify';
 import getError from '../util';
 import { Store } from '../helpersComponents/Store';
 import { updateItem } from '../service/productService';
+import { useTranslation } from 'react-i18next';
 
 function EditItemPage() {
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [slug, setSlug] = useState('');
     const [image, setImage] = useState('');
@@ -76,10 +78,10 @@ function EditItemPage() {
             <Helmet>
                 <title>Edit Item</title>
             </Helmet>
-            <h1 className="my-3">Edit Item</h1>
+            <h1 className="my-3">{t('Edit product')}</h1>
             <form onSubmit={submitHandler}>
                 <Form.Group className="mb-3" controlId="name">
-                    <Form.Label>Name</Form.Label>
+                    <Form.Label>{t('Name')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.name}
                         onChange={(e) => setName(e.target.value)}
@@ -87,7 +89,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="slug">
-                    <Form.Label>Slug</Form.Label>
+                    <Form.Label>{t('URL slug')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.slug}
                         onChange={(e) => setSlug(e.target.value)}
@@ -95,7 +97,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="image">
-                    <Form.Label>Image</Form.Label>
+                    <Form.Label>{t('Product image')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.image}
                         onChange={(e) => setImage(e.target.value)}
@@ -103,7 +105,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="brand">
-                    <Form.Label>Brand</Form.Label>
+                    <Form.Label>{t('Brand')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.brand}
                         onChange={(e) => setBrand(e.target.value)}
@@ -111,7 +113,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="category">
-                    <Form.Label>Category</Form.Label>
+                    <Form.Label>{t('Category')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.category}
                         onChange={(e) => setCategory(e.target.value)}
@@ -119,7 +121,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="description">
-                    <Form.Label>Description</Form.Label>
+                    <Form.Label>{t('Description')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -127,7 +129,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="price">
-                    <Form.Label>Price</Form.Label>
+                    <Form.Label>{t('Price')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.price}
                         onChange={(e) => setPrice(e.target.value)}
@@ -136,7 +138,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="countMany">
-                    <Form.Label>Count</Form.Label>
+                    <Form.Label>{t('Inventory')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.countMany}
                         onChange={(e) => setCountMany(e.target.value)}
@@ -145,7 +147,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="rating">
-                    <Form.Label>Rating</Form.Label>
+                    <Form.Label>{t('Rating')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.rating}
                         onChange={(e) => setRating(e.target.value)}
@@ -154,7 +156,7 @@ function EditItemPage() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="numReviews">
-                    <Form.Label>Number of Reviews</Form.Label>
+                    <Form.Label>{t('Reviews')}</Form.Label>
                     <Form.Control
                         defaultValue={currItem.numReviews}
                         onChange={(e) => setNumReviews(e.target.value)}
@@ -164,14 +166,14 @@ function EditItemPage() {
                 </Form.Group>
                 <div className="mb-3">
                     <Button type="submit">
-                        Edit
+                        {t('Save changes')}
                     </Button>{' '}
                 </div>
                 <div>
-                    Changed your mind?{' '}
+                    {t('Changed your mind?')}{' '}
                     <Link type="button"
                         to={`/product/${currItem._id}`}>
-                        Cansel
+                        {t('Cancel')}
                     </Link>
                 </div>
             </form>

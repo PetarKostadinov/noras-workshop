@@ -1,6 +1,8 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next';
 
 function Rating(props) {
+  const { t } = useTranslation();
   const { rating, numReviews, caption } = props;
   return (
     <div className="rating" >
@@ -22,7 +24,7 @@ function Rating(props) {
       {caption ? (
         <span>{caption}</span>
       ) : (
-        <span>{' ' + numReviews + ' reviews'}</span>
+        <span>{' ' + t(numReviews === 1 ? '{{count}} review' : '{{count}} reviews', { count: numReviews })}</span>
       )}
     </div>
   )

@@ -10,8 +10,10 @@ import getError from '../util';
 import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import Rating from '../helpersComponents/Rating';
+import { useTranslation } from 'react-i18next';
 
 function ProductScreen() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const params = useParams();
@@ -77,17 +79,17 @@ function ProductScreen() {
         : error ? (<MessageComponent variant="danger">{error}</MessageComponent>)
             : (<div>
                     <Row>
-                        <Col md={6}><img className="img-large" src={product.image} alt={product.name} /></Col>
+                        <Col md={6}><img className="img-large" src={product.image} alt={t(product.name)} /></Col>
                         <Col md={3}>
                             <ListGroup variant="flush">
                                 <ListGroup.Item>
                                     <Helmet>
-                                        <title>{product.name}</title>
+                                        <title>{t(product.name)}</title>
                                     </Helmet>
-                                    <h1>{product.name}</h1></ListGroup.Item>
+                                    <h1>{t(product.name)}</h1></ListGroup.Item>
                                 <ListGroup.Item><Rating rating={product.rating} numReviews={product.numReviews}></Rating></ListGroup.Item>
                                 <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
-                                <ListGroup.Item>Description: <p>{product.description}</p></ListGroup.Item>
+                                <ListGroup.Item>{t('Description')}: <p>{t(product.description)}</p></ListGroup.Item>
                                 {userInfo && userInfo.isAdmin && (
                                     <ListGroup.Item className="align-center">
                                         <Link to={`/${product._id}/editItem/${product.slug}`}>Edit</Link>{' '} 
@@ -113,8 +115,8 @@ function ProductScreen() {
                                                 <Col>Status:</Col>
                                                 <Col>
                                                     {product.countMany > 0 ?
-                                                        (<Badge bg="success">In Stock</Badge>)
-                                                        : (<Badge bg="danger">Unavailable</Badge>)}
+                                                        (<Badge bg="success">{t('In stock')}</Badge>)
+                                                        : (<Badge bg="danger">{t('Unavailable')}</Badge>)}
                                                 </Col>
                                             </Row>
                                         </ListGroup.Item>
@@ -122,7 +124,7 @@ function ProductScreen() {
                                             && (<ListGroup.Item>
                                                 <div className="d-grid">
                                                     <Button onClick={addToCartHandler} variant="primary">
-                                                        AddTo Cart
+                                                        {t('Add to cart')}
                                                     </Button>
                                                 </div>
                                             </ListGroup.Item>)}

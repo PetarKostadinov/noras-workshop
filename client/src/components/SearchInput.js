@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Search() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const submitHandler = (e) => {
         e.preventDefault();
@@ -16,8 +18,8 @@ function Search() {
                     type="text"
                     name="q" id="q"
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search gifts, décor and studio sets..."
-                    aria-label="Search Products"
+                    placeholder={t('Search gifts, décor and studio sets...')}
+                    aria-label={t('Search products')}
                     aria-describedby="button-search"
                 >
                 </FormControl>
