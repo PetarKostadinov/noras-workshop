@@ -200,8 +200,12 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
     const item = await Product.findById(req.params.id);
     if (!item) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
 
-    const nextName = req.body.name || item.name;
-    const nextSlug = req.body.slug || item.slug;
+    const requiredTextFields = ['name', 'slug', 'image', 'brand', 'category', 'description'];
+    const missingField = requiredTextFields.find((field) => typeof req.body[field] !== 'string' || !req.body[field].trim());
+    if (missingField) return res.status(400).send({ message: `${missingField} is required` });
+
+    const nextName = req.body.name.trim();
+    const nextSlug = req.body.slug.trim().toLowerCase();
     const duplicate = await Product.findOne({
         _id: { $ne: item._id },
         $or: [{ name: nextName }, { slug: nextSlug }],
@@ -214,22 +218,20 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
         });
     }
 
-    if (item) {
-        item._id = req.body._id || item._id
-        item.name = req.body.name || item.name;
-        item.slug = req.body.slug || item.slug;
-        item.image = req.body.image || item.image;
-        item.brand = req.body.brand || item.brand;
-        item.category = req.body.category || item.category;
-        item.description = req.body.description || item.description;
-        item.price = req.body.price === '' || req.body.price === undefined ? item.price : req.body.price;
-        item.countMany = req.body.countMany === '' || req.body.countMany === undefined ? item.countMany : req.body.countMany;
-        item.rating = req.body.rating === '' || req.body.rating === undefined ? item.rating : req.body.rating;
-        item.numReviews = req.body.numReviews === '' || req.body.numReviews === undefined ? item.numReviews : req.body.numReviews;
+    item.name = nextName;
+    item.slug = nextSlug;
+    item.image = req.body.image.trim();
+    item.brand = req.body.brand.trim();
+    item.category = req.body.category.trim();
+    item.description = req.body.description.trim();
+    item.price = req.body.price;
+    item.countMany = req.body.countMany;
+    item.rating = req.body.rating;
+    item.numReviews = req.body.numReviews;
 
-        const updatedItem = await item.save();
+    const updatedItem = await item.save();
 
-        res.send({
+    res.send({
             _id: updatedItem._id,
             name: updatedItem.name,
             slug: updatedItem.slug,
@@ -242,9 +244,7 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
             rating: updatedItem.rating,
             numReviews: updatedItem.numReviews,
             // token:generateToken(updatedItem)
-        });
-
-    }
+    });
 }));
 
 export default productRouter;

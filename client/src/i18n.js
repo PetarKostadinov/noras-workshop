@@ -150,6 +150,15 @@ const bg = {
   'Review your order, then confirm it securely with PayPal.': 'Прегледайте поръчката и я потвърдете сигурно с PayPal.',
   'Pay securely with Visa or another supported card through Stripe.': 'Платете сигурно с Visa или друга поддържана карта чрез Stripe.',
   'Edit product': 'Редактиране на продукт', 'Changed your mind?': 'Променихте решението си?',
+  'Update the product details, availability, and storefront image.': 'Актуализирайте данните, наличността и изображението на продукта.',
+  'Back to products': 'Назад към продуктите', 'Use lowercase letters, numbers, and hyphens.': 'Използвайте малки латински букви, цифри и тирета.',
+  'Replace image': 'Смяна на изображението', 'Product preview': 'Преглед на продукта',
+  'Loading product…': 'Зареждане на продукта…', 'Product unavailable': 'Продуктът не е достъпен',
+  'Admin product view': 'Администраторски изглед',
+  'Manage this listing without leaving the product page.': 'Управлявайте продукта, без да напускате страницата му.',
+  'Delete product': 'Изтрий продукта', 'About this piece': 'За този продукт',
+  'Crafted by': 'Изработено от', 'Availability': 'Наличност', 'Adding…': 'Добавяне…',
+  'Secure checkout with protected payments': 'Сигурно плащане със защитени разплащания',
 };
 
 const savedLanguage = localStorage.getItem('language');
