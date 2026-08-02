@@ -43,17 +43,21 @@ function ProductScreen() {
     }, [ctxDispatch, id]);
 
     const addToCartHandler = async () => {
-        const exists = cart.cartItems.find((x) => x._id === product._id);
-        const quantity = exists ? exists.quantity + 1 : 1;
-        const data = await fetchProduct(product._id);
+        try {
+            const exists = cart.cartItems.find((x) => x._id === product._id);
+            const quantity = exists ? exists.quantity + 1 : 1;
+            const data = await fetchProduct(product._id);
 
-        if (data.countMany < quantity) {
-            toast.error('Sorry. Product is out of stock')
-            return;
+            if (data.countMany < quantity) {
+                toast.error(`Only ${data.countMany} of “${product.name}” ${data.countMany === 1 ? 'is' : 'are'} currently available.`)
+                return;
+            }
+
+            ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
+            navigate('/cart');
+        } catch (error) {
+            toast.error(getError(error, 'We couldn’t add this product to your cart. Please try again.'));
         }
-
-        ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
-        navigate('/cart');
     };
 
     const deleteHandler = async () => {

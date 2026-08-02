@@ -31,19 +31,19 @@ function EditItemPage() {
 
         try {
             if (isNaN(e.target.price.value) === true || e.target.price.value < 1) {
-                throw new Error('Price should be a Positive Number');
+                throw new Error('Price must be greater than zero.');
             } else if (
                 isNaN(e.target.countMany.value) === true ||
                 e.target.countMany.value < 0
             ) {
-                throw new Error('Count should be a Positive Number or 0');
+                throw new Error('Inventory must be a whole number of zero or more.');
             } else if (
                 isNaN(e.target.rating.value) === true ||
                 e.target.rating.value < 0
             ) {
-                throw new Error('Rating should be a Positive Number or 0');
+                throw new Error('Rating must be between zero and five.');
             } else if (isNaN(e.target.numReviews.value) === true || e.target.numReviews.value < 0) {
-                throw new Error('Number of Reviews should be a Positive Number or 0');
+                throw new Error('Reviews must be a whole number of zero or more.');
             }
 
             const data = {

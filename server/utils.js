@@ -24,7 +24,7 @@ export const auth = (req, res, next) => {
             process.env.JWT_SECRET,
             (err, decode) => {
                 if (err) {
-                    res.status(401).send({ message: 'Invalid Token' });
+                    res.status(401).send({ message: 'Your session is no longer valid. Please sign in again.' });
                 } else {
                     req.user = decode;
                     next();
@@ -32,7 +32,7 @@ export const auth = (req, res, next) => {
             }
         );
     } else {
-        res.status(401).send({ message: 'No Token' });
+        res.status(401).send({ message: 'Please sign in to continue.' });
     }
 };
 
@@ -40,7 +40,7 @@ export const admin = (req, res, next) => {
     User.findById(req.user?._id).select('isAdmin')
         .then((user) => {
             if (!user?.isAdmin) {
-                res.status(403).send({ message: 'Admin access required' });
+                res.status(403).send({ message: 'Administrator access is required for this action.' });
                 return;
             }
             next();

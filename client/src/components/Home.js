@@ -8,6 +8,7 @@ import MessageComponent from '../helpersComponents/MessageComponent';
 import { fetchProducts } from '../service/productService';
 import { useLocation } from 'react-router-dom';
 import { generatePaginationLinks } from '../service/paginationService';
+import getError from '../util';
 
 const productsToShow = 6;
 
@@ -35,7 +36,7 @@ function Home() {
                 setTotalPages(Math.ceil(data.length / productsToShow));
                 setLoading(false);
             } catch (err) {
-                setError(err.message);
+                setError(getError(err, 'We couldn’t load the collection. Please try again.'));
                 setLoading(false);
             }
         };

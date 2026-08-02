@@ -25,7 +25,7 @@ function Profile() {
 
     try {
       if (password !== repass) {
-        throw new Error('Passwords don\'t match!');
+        throw new Error('The passwords don’t match. Please enter them again.');
       }
       setLoadingUpdate(true);
 
@@ -39,7 +39,7 @@ function Profile() {
 
       setLoadingUpdate(false);
       ctxDispatch({ type: 'USER_LOGIN', payload: data });
-      toast.success('User updated successfully');
+      toast.success('Your profile has been updated.');
     } catch (err) {
       setLoadingUpdate(false);
       toast.error(getError(err) || err);

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import Rating from '../helpersComponents/Rating';
 import { Store } from '../helpersComponents/Store';
 import { getProduct } from '../service/productService';
+import { toast } from 'react-toastify';
+import getError from '../util';
 
 function Product({ product }) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -11,16 +13,20 @@ function Product({ product }) {
   const productUrl = '/product/' + product._id + '/' + product.slug;
 
   const addToCartHandler = async (item) => {
-    const exists = cartItems.find((x) => x._id === product._id);
-    const quantity = exists ? exists.quantity + 1 : 1;
-    const data = await getProduct(item._id);
+    try {
+      const exists = cartItems.find((x) => x._id === product._id);
+      const quantity = exists ? exists.quantity + 1 : 1;
+      const data = await getProduct(item._id);
 
-    if (data.countMany < quantity) {
-      window.alert('Sorry. Product is out of stock');
-      return;
+      if (data.countMany < quantity) {
+        toast.error(`Only ${data.countMany} of “${item.name}” ${data.countMany === 1 ? 'is' : 'are'} currently available.`);
+        return;
+      }
+
+      ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+    } catch (error) {
+      toast.error(getError(error, 'We couldn’t add this product to your cart. Please try again.'));
     }
-
-    ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
 
   return (

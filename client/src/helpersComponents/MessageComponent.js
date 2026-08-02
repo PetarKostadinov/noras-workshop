@@ -1,11 +1,23 @@
+import { Alert } from 'react-bootstrap';
 
-import { Alert } from 'react-bootstrap'
+const messageMeta = {
+    danger: { icon: 'fa-exclamation-circle', title: 'We couldn’t complete that' },
+    warning: { icon: 'fa-exclamation-triangle', title: 'Please check this' },
+    success: { icon: 'fa-check-circle', title: 'All set' },
+    info: { icon: 'fa-info-circle', title: 'Good to know' },
+};
 
-function MessageComponent(props) {
+function MessageComponent({ variant = 'info', title, children }) {
+    const meta = messageMeta[variant] || messageMeta.info;
     return (
-
-        <Alert variant={props.variant || 'info'}>{props.children}</Alert>
-    )
+        <Alert className="friendly-message" variant={variant} role={variant === 'danger' ? 'alert' : 'status'}>
+            <i className={`fas ${meta.icon}`} aria-hidden="true"></i>
+            <div>
+                <strong>{title || meta.title}</strong>
+                <div>{children}</div>
+            </div>
+        </Alert>
+    );
 }
 
-export default MessageComponent
+export default MessageComponent;

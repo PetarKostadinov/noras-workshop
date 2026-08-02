@@ -62,6 +62,7 @@ Mounted route groups:
 | `/api/products` | Catalog listing, search/filter/sort, categories, detail, product management, and admin image uploads |
 | `/api/users` | Registration, login, and authenticated profile update |
 | `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
+| `/api/admin` | Current-admin-only dashboard totals plus paginated product, order, and user management lists |
 | `/api/stripe/webhook` | Signed Stripe Checkout completion events (raw request body) |
 | `/api/seed` | Repeatable development product seeding |
 | `/api/keys/paypal` | Returns only the public PayPal client ID when server credentials are configured |

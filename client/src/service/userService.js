@@ -22,12 +22,7 @@ export async function register(username, email, password) {
     body: JSON.stringify({ username, email, password }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message);
-  }
-
-  return await response.json();
+  return parseResponse(response, 'Unable to create your account');
 }
 
 export const updateProfile = async (userInfo, username, email, password, repass) => {

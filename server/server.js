@@ -7,6 +7,7 @@ import seedRouter from "./routes/seedRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRuoter.js";
 import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
+import adminRouter from "./routes/adminRouter.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/seed", seedRouter);
 app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((err, req, res, next) => {
   if (err?.code === 11000) {

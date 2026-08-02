@@ -102,7 +102,7 @@ userRouter.put('/profile', auth, expressAsyncHandler(async (req, res) => {
         });
 
     } else {
-        res.status(404).send({ message: 'User Not Found' })
+        res.status(404).send({ message: 'We could not find that account.' })
     }
 }));
 

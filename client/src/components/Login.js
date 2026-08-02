@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { toast } from 'react-toastify';
 import { loginUser } from '../service/userService';
-import { getSafeRedirect } from '../util';
+import getError, { getSafeRedirect } from '../util';
 
 function Login() {
     const navigate = useNavigate();
@@ -24,7 +24,7 @@ function Login() {
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (error) {
-            toast.error(error.message);
+            toast.error(getError(error, 'We couldn’t sign you in. Please try again.'));
         }
     };
 

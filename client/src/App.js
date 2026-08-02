@@ -22,6 +22,7 @@ import CreateItem from "./components/CreateItem";
 import EditItemPage from "./components/EditItemPage";
 import CarouselComponent from "./helpersComponents/Carousel";
 import Footer from "./components/Footer";
+import AdminManagementPage from "./components/AdminManagementPage";
 
 function AppContent() {
   const { pathname } = useLocation();
@@ -30,7 +31,7 @@ function AppContent() {
   return (
     <>
       <div className="d-flex flex-column site-container">
-        <ToastContainer position="bottom-center" limit={1} />
+        <ToastContainer position="bottom-center" limit={2} autoClose={5000} hideProgressBar closeOnClick pauseOnFocusLoss className="atelier-toast-container" toastClassName="atelier-toast" />
         <Header />
         {showHomepageHero && <CarouselComponent />}
         <main>
@@ -53,6 +54,9 @@ function AppContent() {
                   <DashboardPage></DashboardPage>
                 </AdminRoute>}
               />
+              <Route path="/admin/productlist" element={<AdminRoute><AdminManagementPage key="products" collection="products" /></AdminRoute>} />
+              <Route path="/admin/orderlist" element={<AdminRoute><AdminManagementPage key="orders" collection="orders" /></AdminRoute>} />
+              <Route path="/admin/userlist" element={<AdminRoute><AdminManagementPage key="users" collection="users" /></AdminRoute>} />
               <Route path="/create"
                 element={<AdminRoute>
                   <CreateItem></CreateItem>

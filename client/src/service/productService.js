@@ -3,11 +3,7 @@ import { parseResponse } from '../util';
 
 export async function fetchProducts(page, limit) {
     const response = await fetch(`/api/products?page=${page}&limit=${limit}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch products');
-    }
-    const data = await response.json();
-    return data;
+    return parseResponse(response, 'Unable to load products');
   }
   
 export const createProduct = async (userInfo, item) => {
@@ -44,11 +40,7 @@ export const deleteProduct = async (id, token) => {
 
 export const fetchProduct = async (id) => {
   const response = await fetch(`/api/products/_id/${id}`);
-  if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  const data = await response.json();
-  return data;
+  return parseResponse(response, 'Unable to load product');
 }
 
 export const updateItem = async (id, slug, data, token) => {
@@ -66,23 +58,12 @@ export const updateItem = async (id, slug, data, token) => {
 
 export async function getCategories() {
   const response = await fetch(`/api/products/categories`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
+  return parseResponse(response, 'Unable to load categories');
 }
 
 export const getProduct = async (id) => {
-  try {
-    const response = await fetch(`/api/products/${id}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching product:', error);
-  }
+  const response = await fetch(`/api/products/${id}`);
+  return parseResponse(response, 'Unable to load product');
 };
 
 

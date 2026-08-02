@@ -4,7 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { getProductById } from '../service/cartService';
-import { getLoginUrl } from '../util';
+import getError, { getLoginUrl } from '../util';
+import { toast } from 'react-toastify';
 
 function CartScreen() {
   const navigate = useNavigate();
@@ -14,12 +15,16 @@ function CartScreen() {
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const updateCartHandler = async (item, quantity) => {
-    const data = await getProductById(item._id);
-    if (data.countMany < quantity) {
-      window.alert('Sorry. Product is out of stock');
-      return;
+    try {
+      const data = await getProductById(item._id);
+      if (data.countMany < quantity) {
+        toast.error(`Only ${data.countMany} of “${item.name}” ${data.countMany === 1 ? 'is' : 'are'} currently available.`);
+        return;
+      }
+      ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+    } catch (error) {
+      toast.error(getError(error, 'We couldn’t update the cart. Please try again.'));
     }
-    ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
 
   const removeItemHandler = (item) => {

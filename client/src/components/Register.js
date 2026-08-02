@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { toast } from 'react-toastify';
 import { register } from '../service/userService';
-import { getSafeRedirect } from '../util';
+import getError, { getSafeRedirect } from '../util';
 
 function Register() {
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ function Register() {
     const submitHandler = async (e) => {
         e.preventDefault();
         if (password !== repass) {
-            toast.error('Passwords do not match');
+            toast.error('The passwords don’t match. Please enter them again.');
             return;
         }
         try {
@@ -30,7 +30,7 @@ function Register() {
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (err) {
-            toast.error(err.message || 'Unable to create your account');
+            toast.error(getError(err, 'We couldn’t create your account. Please try again.'));
         }
     };
 

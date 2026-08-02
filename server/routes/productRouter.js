@@ -132,7 +132,7 @@ productRouter.get('/_id/:id', async (req, res) => {
     if (product) {
         res.send(product);
     } else {
-        res.status(404).send({ message: 'Product Not Found' });
+        res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
     }
 });
 
@@ -141,7 +141,7 @@ productRouter.get('/:id', async (req, res) => {
     if (product) {
         res.send(product);
     } else {
-        res.status(404).send({ message: 'Product Not Found' });
+        res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
     }
 });
 
@@ -191,14 +191,14 @@ productRouter.delete('/:id', auth, admin, expressAsyncHandler(async (req, res) =
     const id = req.params.id
     const product = await Product.findByIdAndDelete(id)
 
-    if (!product) return res.status(404).send({ message: 'Item Not Found' });
+    if (!product) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
 
     res.send({ message: 'Item Deleted' })
 }));
 
 productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async (req, res) => {
     const item = await Product.findById(req.params.id);
-    if (!item) return res.status(404).send({ message: 'Item Not Found' });
+    if (!item) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
 
     const nextName = req.body.name || item.name;
     const nextSlug = req.body.slug || item.slug;
