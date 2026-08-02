@@ -130,6 +130,7 @@ Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/seed/products
 ~~~
 
 The operation is repeatable: products are updated by slug instead of duplicated. The seed endpoint is intended for local development and should be disabled or protected before production deployment.
+The server returns 404 for this endpoint when `NODE_ENV=production`.
 
 ## Available scripts
 
@@ -176,8 +177,8 @@ Before deploying:
 - Use a strong production JWT_SECRET
 - Configure a production MongoDB URI
 - Configure the correct PayPal client ID, secret, and live environment
-- Protect or remove the development seed endpoint
-- Restrict product-management API routes to administrators
+- Set `NODE_ENV=production` so the development seed endpoint is disabled
+- Keep product-management API routes restricted to administrators
 - Set the frontend/API deployment URLs and CORS policy as required
 
 ## Author
