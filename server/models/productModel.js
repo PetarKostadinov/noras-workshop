@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const IMAGE_PATH_PATTERN = /^(https?:\/\/.+|\/(?:images|uploads)\/.+)/i;
+const IMAGE_PATH_PATTERN = /^https?:\/\/.+/i;
 const productSchema = new Schema(
     {
         name: { type: String, required: true, unique: true },

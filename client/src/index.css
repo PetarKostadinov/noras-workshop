@@ -2294,13 +2294,13 @@ main {
 .auth-visual-login {
   background-image:
     linear-gradient(180deg, transparent 35%, rgba(48, 31, 27, 0.78)),
-    url('../public/images/handmade-keepsake-box.jpg');
+    url('https://res.cloudinary.com/dsjxqcrfc/image/upload/v1785703257/noras-atelier/products/handmade-keepsake-box.jpg');
 }
 
 .auth-visual-register {
   background-image:
     linear-gradient(180deg, transparent 35%, rgba(48, 31, 27, 0.78)),
-    url('../public/images/wedding-welcome-decor.jpg');
+    url('https://res.cloudinary.com/dsjxqcrfc/image/upload/v1785703258/noras-atelier/products/wedding-welcome-decor.jpg');
 }
 
 .auth-visual-copy {

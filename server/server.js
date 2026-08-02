@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
-import seedRouter from "./routes/seedRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRuoter.js";
 import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
@@ -14,14 +13,11 @@ dotenv.config();
 const app = express();
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
 const serverDirectory = path.dirname(fileURLToPath(import.meta.url));
+const clientBuildDirectory = path.resolve(serverDirectory, "../client/build");
 
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(serverDirectory, 'uploads'), {
-  fallthrough: false,
-  setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff'),
-}));
 
 app.get("/api/keys/paypal", (req, res) => {
   const clientId = process.env.PAYPAL_CLIENT_ID;
@@ -34,11 +30,25 @@ app.get("/api/keys/paypal", (req, res) => {
   res.send(clientId);
 });
 
-app.use("/api/seed", seedRouter);
 app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);
+
+app.get("/api/health", (req, res) => {
+  res.status(200).send({ status: "ok" });
+});
+
+app.use("/api", (req, res) => {
+  res.status(404).send({ message: "API endpoint not found" });
+});
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(clientBuildDirectory));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildDirectory, "index.html"));
+  });
+}
 
 app.use((err, req, res, next) => {
   if (err?.code === 11000) {

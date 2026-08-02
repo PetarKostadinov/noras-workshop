@@ -32,6 +32,8 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | Authentication | 30-day bearer JWT containing user id, username, email, and `isAdmin` |
 | Payments | PayPal JS SDK plus Stripe-hosted card checkout; payment creation and verification remain server-side |
 
+For a single-service production deployment, `render.yaml` builds the CRA client and starts Express. When `NODE_ENV=production`, Express serves `client/build`, uses the same origin for browser and API traffic, and falls back to `index.html` for client-side routes. `/api/health` is the deployment health-check endpoint.
+
 The client provider order in `client/src/index.js` is `StoreProvider` -> `HelmetProvider` -> deferred `PayPalScriptProvider` -> `App`. PayPal's browser script is loaded only on the payment/order flow after the public client ID is fetched.
 
 Stripe uses hosted Checkout rather than a client provider. `server/server.js` mounts `/api/stripe/webhook` with `express.raw({ type: 'application/json' })` before `express.json()`. Preserve this middleware order: Stripe signature verification requires the untouched request body.
@@ -66,7 +68,6 @@ Mounted route groups:
 | `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
 | `/api/admin` | Current-admin-only dashboard totals plus paginated product, order, and user management lists |
 | `/api/stripe/webhook` | Signed Stripe Checkout completion events (raw request body) |
-| `/api/seed` | Repeatable development product seeding |
 | `/api/keys/paypal` | Returns only the public PayPal client ID when server credentials are configured |
 
 Relevant model vocabulary:
@@ -74,7 +75,7 @@ Relevant model vocabulary:
 - Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
 - Product edits submit the complete editable product record. Required text fields are trimmed and cannot be blank; numeric price, inventory, rating, and review constraints are enforced by the product schema.
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
-- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. Files are stored in `server/uploads/` and served from `/uploads`; deployments must provide persistent writable storage for that directory or replace it with durable object storage.
+- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. The server uploads them to the `noras-atelier/products` Cloudinary folder and returns `{ image: <secure URL> }`; only that URL is stored with the product. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
@@ -107,10 +108,13 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `PAYPAL_CLIENT_ID`
 - `PAYPAL_CLIENT_SECRET` (server-only)
 - `PAYPAL_ENVIRONMENT` (`sandbox` or `live`)
-- `NODE_ENV` (`production` disables the development seed endpoint)
+- `NODE_ENV`
 - `CLIENT_URL` (public client origin used for Stripe return URLs)
 - `STRIPE_SECRET_KEY` (server-only Stripe API key)
 - `STRIPE_WEBHOOK_SECRET` (server-only endpoint signing secret)
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET` (server-only)
 
 Use Node.js 18 or newer because server code relies on the built-in `fetch` implementation.
 
@@ -124,11 +128,12 @@ client tests once: npm test -- --watchAll=false
 local Stripe events: stripe listen --forward-to http://localhost:5000/api/stripe/webhook
 ```
 
+Render deployment uses `npm install --prefix server && npm install --prefix client && npm run build --prefix client` followed by `node server/server.js`. Render supplies `PORT`; the Blueprint requests the remaining production secrets. `CLIENT_URL` must be the final public origin used for Stripe return URLs.
+
 There is no meaningful server test suite at present; its `npm test` script is a failing placeholder.
 
 ## Known risks and legacy constraints
 
-- The development seed endpoint is intentionally available without authentication outside production and returns 404 when `NODE_ENV=production`. Do not broaden its production availability.
 - `server/routes/userRuoter.js` contains the existing filename typo. Imports depend on it; rename it only as a deliberate coordinated change.
 - Client API access is split between services, direct Fetch, and Axios. Avoid assuming a single data-access abstraction.
 - Inventory is reserved when an order is created, but there is no automatic expiry/cancellation workflow to return inventory from abandoned unpaid orders. Add an explicit lifecycle before introducing order cancellation or payment timeouts.

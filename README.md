@@ -52,7 +52,6 @@ shoppingCart/
 │       ├── helpersComponents/
 │       └── service/         # Client API and calculation helpers
 ├── server/
-│   ├── data/                # Development seed products
 │   ├── models/              # Mongoose schemas
 │   ├── routes/              # Express API routes
 │   └── server.js            # API and database entry point
@@ -89,6 +88,9 @@ PAYPAL_ENVIRONMENT="sandbox"
 CLIENT_URL="http://localhost:3000"
 STRIPE_SECRET_KEY="sk_test_replace_me"
 STRIPE_WEBHOOK_SECRET="whsec_replace_me"
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
 ~~~
 
 Generate a strong value for JWT_SECRET. Never commit server/.env.
@@ -121,21 +123,19 @@ npm start
 
 The client runs at http://localhost:3000 and proxies API requests to http://localhost:5000.
 
-## Add development products
+## Deploy to Render
 
-With the server running, seed the sample Nora's Atelier products:
+The repository includes `render.yaml` for a single Render Web Service. During deployment, Render installs both applications, builds the React client, and starts Express. In production, Express serves the React build and the `/api` routes from the same origin.
 
-~~~bash
-curl -X POST http://localhost:5000/api/seed/products
-~~~
+1. Push the repository to GitHub.
+2. Create a free MongoDB Atlas cluster and copy its connection string.
+3. In Render, choose **New > Blueprint**, connect the repository, and apply `render.yaml`.
+4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to the public Render URL (for example, `https://noras-atelier.onrender.com`), and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled.
+5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-PowerShell:
+Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-atelier/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.
 
-~~~powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/seed/products
-~~~
-
-The operation is repeatable: products are updated by slug instead of duplicated. The server returns 404 for this development-only endpoint when `NODE_ENV=production`.
+Render's free service can sleep when idle, so the first request after an idle period may be slow. This deployment is appropriate for a portfolio/demo; use a paid always-on service for a customer-facing store.
 
 ## Available scripts
 
@@ -172,7 +172,6 @@ npm start       # Start the API with nodemon
 | POST | /api/orders/:id/stripe-checkout | Create or resume Stripe-hosted card checkout |
 | PUT | /api/orders/:id/sync-stripe | Verify the current Stripe Checkout Session |
 | POST | /api/stripe/webhook | Receive signed Stripe payment events |
-| POST | /api/seed/products | Add or update development products |
 
 ## Payment notes
 
@@ -199,9 +198,10 @@ Before deploying:
 - Configure a production MongoDB URI
 - Configure the correct PayPal client ID, secret, and live environment
 - Configure live Stripe keys, the signed webhook endpoint, and the production `CLIENT_URL`
-- Set `NODE_ENV=production` so the development seed endpoint is disabled
+- Set `NODE_ENV=production`
 - Keep product-management API routes restricted to administrators
 - Set the frontend/API deployment URLs and CORS policy as required
+- Configure Cloudinary for durable admin-uploaded product images
 
 ## Author
 

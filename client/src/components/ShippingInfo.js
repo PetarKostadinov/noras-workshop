@@ -119,7 +119,7 @@ function ShippingInfo() {
                 </div>
 
                 <aside className="shipping-assurance">
-                    <img src="/images/handmade-keepsake-box.jpg" alt="" />
+                    <img src="https://res.cloudinary.com/dsjxqcrfc/image/upload/v1785703257/noras-atelier/products/handmade-keepsake-box.jpg" alt="" />
                     <div>
                         <span>{t('From our atelier to you')}</span><h2>{t('Prepared with care')}</h2><p>{t('Every order is checked and thoughtfully packaged before leaving the studio.')}</p>
                         <ul>

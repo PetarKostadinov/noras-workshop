@@ -1,22 +1,25 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
+import { v2 as cloudinary } from 'cloudinary';
 import Product from '../models/productModel.js';
 import { admin, auth } from '../utils.js';
-import crypto from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const productRouter = express.Router();
-const routeDirectory = path.dirname(fileURLToPath(import.meta.url));
-const uploadDirectory = path.resolve(routeDirectory, '..', 'uploads');
-const imageExtensions = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-    'image/gif': '.gif',
-};
+
+const uploadToCloudinary = (imageBuffer) => new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+        {
+            folder: 'noras-atelier/products',
+            resource_type: 'image',
+            unique_filename: true,
+            overwrite: false,
+        },
+        (error, result) => error ? reject(error) : resolve(result)
+    );
+
+    uploadStream.end(imageBuffer);
+});
 
 productRouter.get('/', async (req, res) => {
     const products = await Product.find();
@@ -99,15 +102,23 @@ productRouter.post(
     admin,
     express.raw({ type: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], limit: '5mb' }),
     expressAsyncHandler(async (req, res) => {
-        const extension = imageExtensions[req.headers['content-type']];
-        if (!extension || !Buffer.isBuffer(req.body) || req.body.length === 0) {
+        const acceptedContentTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!acceptedContentTypes.includes(req.headers['content-type']) || !Buffer.isBuffer(req.body) || req.body.length === 0) {
             return res.status(400).send({ message: 'Choose a JPG, PNG, WebP, or GIF image' });
         }
 
-        await mkdir(uploadDirectory, { recursive: true });
-        const filename = `${crypto.randomUUID()}${extension}`;
-        await writeFile(path.join(uploadDirectory, filename), req.body, { flag: 'wx' });
-        res.status(201).send({ image: `/uploads/${filename}` });
+        const cloudinaryConfiguration = {
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        };
+        if (Object.values(cloudinaryConfiguration).some((value) => !value)) {
+            return res.status(503).send({ message: 'Cloudinary image uploads are not configured' });
+        }
+
+        cloudinary.config({ ...cloudinaryConfiguration, secure: true });
+        const uploadedImage = await uploadToCloudinary(req.body);
+        res.status(201).send({ image: uploadedImage.secure_url });
     })
 );
 
