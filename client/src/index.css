@@ -808,6 +808,36 @@ main {
   border-color: #ad5849;
 }
 
+.cart-account-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.cart-account-note i {
+  margin-top: 0.15rem;
+  color: #e5a495;
+}
+
+.cart-account-note span,
+.cart-account-note strong {
+  display: block;
+}
+
+.cart-account-note strong {
+  margin-bottom: 0.1rem;
+  color: #fff;
+  font-size: 0.75rem;
+}
+
 .cart-assurance {
   display: flex;
   justify-content: center;

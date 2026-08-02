@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { getProductById } from '../service/cartService';
+import { getLoginUrl } from '../util';
 
 function CartScreen() {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ function CartScreen() {
   };
 
   const checkoutHandler = () => {
-    navigate(userInfo ? '/shipping' : '/login?redirect=/shipping');
+    navigate(userInfo ? '/shipping' : getLoginUrl('/shipping'));
   };
 
   return (
@@ -100,6 +101,12 @@ function CartScreen() {
               Continue to checkout
               <i className="fas fa-arrow-right" aria-hidden="true"></i>
             </Button>
+            {!userInfo && (
+              <div className="cart-account-note" role="note">
+                <i className="fas fa-user-lock" aria-hidden="true"></i>
+                <span><strong>Account required at checkout</strong>Your cart will stay saved while you sign in or create an account.</span>
+              </div>
+            )}
             <div className="cart-assurance">
               <span><i className="fas fa-lock" aria-hidden="true"></i> Secure checkout</span>
               <span><i className="fas fa-box" aria-hidden="true"></i> Carefully packaged</span>

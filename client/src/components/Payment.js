@@ -14,8 +14,9 @@ function Payment() {
     const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
     useEffect(() => {
-        if (!shippingInfo.address) navigate('/shipping');
-    }, [navigate, shippingInfo.address]);
+        if (cartItems.length === 0) navigate('/cart', { replace: true });
+        else if (!shippingInfo.address) navigate('/shipping', { replace: true });
+    }, [cartItems.length, navigate, shippingInfo.address]);
 
     const submitHandler = (event) => {
         event.preventDefault();

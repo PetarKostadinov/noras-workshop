@@ -28,12 +28,12 @@ function PreviewOrder() {
     }, [cart.cartItems]);
 
     useEffect(() => {
-        if (!cart.shippingInfo.address) {
+        if (cart.cartItems.length === 0) {
+            navigate('/cart', { replace: true });
+        } else if (!cart.shippingInfo.address) {
             navigate('/shipping');
         } else if (!cart.paymentMethod) {
             navigate('/payment');
-        } else if (cart.cartItems.length === 0) {
-            navigate('/cart');
         }
     }, [cart.cartItems.length, cart.paymentMethod, cart.shippingInfo.address, navigate]);
 

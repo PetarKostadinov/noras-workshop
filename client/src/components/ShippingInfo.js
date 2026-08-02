@@ -8,7 +8,7 @@ import { Store } from '../helpersComponents/Store';
 function ShippingInfo() {
     const navigate = useNavigate();
     const { state, dispatch: ctxDispatch } = useContext(Store);
-    const { userInfo, cart: { shippingInfo } } = state;
+    const { cart: { shippingInfo, cartItems } } = state;
     const [fullName, setFullName] = useState(shippingInfo.fullName || '');
     const [address, setAddress] = useState(shippingInfo.address || '');
     const [city, setCity] = useState(shippingInfo.city || '');
@@ -16,8 +16,8 @@ function ShippingInfo() {
     const [country, setCountry] = useState(shippingInfo.country || '');
 
     useEffect(() => {
-        if (!userInfo) navigate('/login?redirect=/shipping');
-    }, [navigate, userInfo]);
+        if (cartItems.length === 0) navigate('/cart', { replace: true });
+    }, [cartItems.length, navigate]);
 
     const submitHandler = (event) => {
         event.preventDefault();

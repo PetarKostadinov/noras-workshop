@@ -5,11 +5,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { toast } from 'react-toastify';
 import { register } from '../service/userService';
+import { getSafeRedirect } from '../util';
 
 function Register() {
     const navigate = useNavigate();
     const { search } = useLocation();
-    const redirect = new URLSearchParams(search).get('redirect') || '/';
+    const redirect = getSafeRedirect(search);
+    const isCheckoutRedirect = ['/shipping', '/payment', '/order'].includes(redirect);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -50,7 +52,9 @@ function Register() {
                     <img src="/images/noras-atelier-logo.png" alt="" />
                     <span>Join Nora’s Atelier</span>
                     <h1>Create your account</h1>
-                    <p>Save favorites and enjoy a smoother checkout experience.</p>
+                    <p>{isCheckoutRedirect
+                        ? 'Create your account to continue checkout. Everything in your cart will stay in place.'
+                        : 'Create an account for secure checkout and easy access to your orders.'}</p>
                 </div>
                 <Form onSubmit={submitHandler} className="auth-form">
                     <Form.Group controlId="register-username">
@@ -72,7 +76,7 @@ function Register() {
                         </Form.Group>
                     </div>
                     <Button type="submit" className="auth-submit">Create account</Button>
-                    <p className="auth-switch">Already have an account? <Link to={'/login?redirect=' + redirect}>Sign in</Link></p>
+                    <p className="auth-switch">Already have an account? <Link to={'/login?redirect=' + encodeURIComponent(redirect)}>Sign in</Link></p>
                 </Form>
             </div>
         </section>

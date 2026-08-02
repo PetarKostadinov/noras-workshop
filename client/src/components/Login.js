@@ -5,11 +5,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { toast } from 'react-toastify';
 import { loginUser } from '../service/userService';
+import { getSafeRedirect } from '../util';
 
 function Login() {
     const navigate = useNavigate();
     const { search } = useLocation();
-    const redirect = new URLSearchParams(search).get('redirect') || '/';
+    const redirect = getSafeRedirect(search);
+    const isCheckoutRedirect = ['/shipping', '/payment', '/order'].includes(redirect);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -44,7 +46,9 @@ function Login() {
                     <img src="/images/noras-atelier-logo.png" alt="" />
                     <span>Welcome back</span>
                     <h1>Sign in to your account</h1>
-                    <p>Continue shopping handmade gifts and thoughtful décor.</p>
+                    <p>{isCheckoutRedirect
+                        ? 'Sign in to continue securely with your checkout. Your cart is waiting for you.'
+                        : 'Continue shopping handmade gifts and thoughtful décor.'}</p>
                 </div>
                 <Form onSubmit={submitHandler} className="auth-form">
                     <Form.Group controlId="login-email">
@@ -56,7 +60,7 @@ function Login() {
                         <Form.Control type="password" autoComplete="current-password" placeholder="Enter your password" required onChange={(e) => setPassword(e.target.value)} />
                     </Form.Group>
                     <Button type="submit" className="auth-submit">Sign in</Button>
-                    <p className="auth-switch">New to Nora’s Atelier? <Link to={'/register?redirect=' + redirect}>Create an account</Link></p>
+                    <p className="auth-switch">New to Nora’s Atelier? <Link to={'/register?redirect=' + encodeURIComponent(redirect)}>Create an account</Link></p>
                 </Form>
             </div>
         </section>

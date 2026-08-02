@@ -10,6 +10,19 @@ export async function parseResponse(response, fallbackMessage) {
     return data;
 }
 
+export function getSafeRedirect(search, fallback = '/') {
+    const redirect = new URLSearchParams(search).get('redirect');
+    if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+        return fallback;
+    }
+    return redirect;
+}
+
+export function getLoginUrl(pathname, search = '') {
+    const destination = `${pathname}${search}`;
+    return `/login?redirect=${encodeURIComponent(destination)}`;
+}
+
 
 
 
