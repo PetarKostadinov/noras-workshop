@@ -46,8 +46,7 @@ function Header() {
                             </span>
                         </Navbar.Brand>
                     </LinkContainer>
-                    <Navbar.Toggle aria-controls="main-navbar-nav" className="navbar-toggle" />
-                    <Navbar.Collapse id="main-navbar-nav">
+                    <Navbar.Collapse id="main-navbar-nav" className="desktop-navigation">
                         <SearchInput />
                         <Nav className="header-actions ms-auto">
                             <Link to="/cart" className="nav-link header-action-link">
@@ -87,6 +86,62 @@ function Header() {
                             <LanguageSwitcher />
                         </Nav>
                     </Navbar.Collapse>
+                    <div className="mobile-header-actions">
+                        <Nav className="mobile-quick-links">
+                            {userInfo && userInfo.isAdmin && (
+                                <NavDropdown
+                                    title={<><i className="fas fa-tools" aria-hidden="true"></i><span>{t('Admin')}</span></>}
+                                    id="mobile-admin-nav-dropdown"
+                                    className="header-dropdown mobile-account-menu"
+                                >
+                                    <LinkContainer to="/create"><NavDropdown.Item>{t('Add product')}</NavDropdown.Item></LinkContainer>
+                                    <LinkContainer to="/admin/dashboard"><NavDropdown.Item>{t('Dashboard')}</NavDropdown.Item></LinkContainer>
+                                    <LinkContainer to="/admin/productlist"><NavDropdown.Item>{t('Products')}</NavDropdown.Item></LinkContainer>
+                                    <LinkContainer to="/admin/orderlist"><NavDropdown.Item>{t('Orders')}</NavDropdown.Item></LinkContainer>
+                                    <LinkContainer to="/admin/userlist"><NavDropdown.Item>{t('Users')}</NavDropdown.Item></LinkContainer>
+                                </NavDropdown>
+                            )}
+                            {userInfo ? (
+                                <NavDropdown
+                                    title={<><i className="far fa-user" aria-hidden="true"></i><span>{t('Profile')}</span></>}
+                                    id="mobile-account-nav-dropdown"
+                                    className="header-dropdown mobile-account-menu"
+                                >
+                                    <LinkContainer to="/profile"><NavDropdown.Item>{t('Profile')}</NavDropdown.Item></LinkContainer>
+                                    <LinkContainer to="/orderhistory"><NavDropdown.Item>{t('Order history')}</NavDropdown.Item></LinkContainer>
+                                    {userInfo.isAdmin && (
+                                        <>
+                                            <NavDropdown.Divider />
+                                            <LinkContainer to="/admin/dashboard"><NavDropdown.Item>{t('Admin')}</NavDropdown.Item></LinkContainer>
+                                            <LinkContainer to="/create"><NavDropdown.Item>{t('Add product')}</NavDropdown.Item></LinkContainer>
+                                        </>
+                                    )}
+                                    <NavDropdown.Divider />
+                                    <Link className="dropdown-item" to="#logout" onClick={logoutHandler}>{t('Logout')}</Link>
+                                </NavDropdown>
+                            ) : (
+                                <Link className="nav-link mobile-quick-link" to="/login">
+                                    <i className="far fa-user" aria-hidden="true"></i>
+                                    <span>{t('Sign in')}</span>
+                                </Link>
+                            )}
+                            <Link to="/cart" className="nav-link mobile-quick-link mobile-cart-link">
+                                <span className="mobile-icon-wrap">
+                                    <i className="fas fa-shopping-bag" aria-hidden="true"></i>
+                                    {cart.cartItems.length > 0 && (
+                                        <Badge pill className="cart-badge mobile-cart-badge">
+                                            {cart.cartItems.reduce((total, item) => total + item.quantity, 0)}
+                                        </Badge>
+                                    )}
+                                </span>
+                                <span>{t('Cart')}</span>
+                            </Link>
+                        </Nav>
+                    </div>
+                    <div className="mobile-search-row">
+                        <SearchInput />
+                        <LanguageSwitcher />
+                    </div>
                 </Container>
             </Navbar>
             <nav className="category-bar" aria-label="Product categories">

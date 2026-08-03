@@ -4106,6 +4106,8 @@ main {
 }
 
 .main-navbar {
+  position: relative;
+  z-index: 2;
   min-height: 78px;
   padding: 0.5rem 0;
   background: rgba(55, 42, 39, 0.97);
@@ -4120,6 +4122,8 @@ main {
 }
 
 .category-bar {
+  position: relative;
+  z-index: 1;
   min-height: 39px;
   background: rgba(255, 250, 246, 0.98);
   border-bottom: 1px solid rgba(112, 78, 67, 0.1);
@@ -4330,6 +4334,11 @@ main {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.mobile-header-actions,
+.mobile-search-row {
+  display: none;
+}
+
 .hero {
   position: relative;
   min-height: clamp(430px, 53vw, 690px);
@@ -4444,15 +4453,18 @@ main {
   }
 
   .main-navbar {
-    min-height: 72px;
+    min-height: 0;
+    padding: 0.5rem 0 0.65rem;
   }
 
   .category-bar {
-    display: none;
+    display: block;
   }
 
   .header-container {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.55rem 0.75rem;
   }
 
   .brand-lockup {
@@ -4464,23 +4476,131 @@ main {
     height: 44px;
   }
 
-  .main-navbar .navbar-collapse {
-    padding-top: 1rem;
+  .desktop-navigation {
+    display: none !important;
   }
 
-  .header-search {
-    width: 100%;
-    margin: 0 0 0.75rem;
+  .mobile-header-actions,
+  .mobile-search-row {
+    display: flex;
+    align-items: center;
   }
 
-  .header-actions {
-    align-items: stretch;
+  .mobile-header-actions {
+    justify-content: flex-end;
   }
 
-  .main-navbar .header-register-link {
-    display: inline-flex;
+  .mobile-quick-links {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .mobile-quick-link,
+  .main-navbar .mobile-account-menu > .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    margin: 0.25rem 0 0.5rem;
+    min-width: 54px;
+    min-height: 48px;
+    gap: 0.2rem;
+    padding: 0.25rem 0.4rem !important;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.67rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .mobile-quick-link i,
+  .main-navbar .mobile-account-menu > .nav-link i {
+    font-size: 1.08rem;
+  }
+
+  .main-navbar .mobile-account-menu > .nav-link::after {
+    display: none;
+  }
+
+  .mobile-account-menu {
+    position: relative;
+  }
+
+  .main-navbar .mobile-account-menu > .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    left: auto;
+    z-index: 1060;
+    min-width: 210px;
+    margin-top: 0;
+  }
+
+  .mobile-icon-wrap {
+    position: relative;
+  }
+
+  .mobile-cart-badge {
+    position: absolute;
+    top: -0.6rem;
+    right: -0.8rem;
+    min-width: 18px;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.61rem;
+  }
+
+  .mobile-search-row {
+    grid-column: 1 / -1;
+    gap: 0.65rem;
+  }
+
+  .mobile-search-row .header-search {
+    width: 100%;
+    margin: 0;
+  }
+
+  .mobile-search-row .header-search-group .form-control {
+    min-height: 42px;
+  }
+
+  .mobile-search-row .language-switcher {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .category-bar-inner {
+    max-width: 100%;
+    overflow-x: auto;
+    gap: 1.25rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    scrollbar-width: none;
+  }
+
+  .category-bar-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-bar-note {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-tagline {
+    display: none;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+
+  .brand-lockup {
+    gap: 0.4rem;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
   }
 }
 
