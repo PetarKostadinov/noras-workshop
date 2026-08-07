@@ -137,7 +137,7 @@ function EditItemPage() {
 
     return (
         <section className="product-editor-page">
-            <Helmet><title>Edit {form.name} | Nora's Atelier</title></Helmet>
+            <Helmet><title>Edit {form.name} | Nora's Workshop</title></Helmet>
             <div className="product-editor-heading">
                 <div><span>{t('Admin workspace')}</span><h1>{t('Edit product')}</h1><p>{t('Update the product details, availability, and storefront image.')}</p></div>
                 <Link className="product-editor-back" to="/admin/productlist">{t('Back to products')}</Link>

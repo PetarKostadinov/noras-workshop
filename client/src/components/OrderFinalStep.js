@@ -193,7 +193,7 @@ function OrderFinalStep() {
 
     return (
         <section className="order-page">
-            <Helmet><title>Order confirmation | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Order confirmation | Nora’s Workshop</title></Helmet>
 
             <div className="order-success-banner">
                 <div className="order-success-icon">
@@ -347,7 +347,7 @@ function OrderFinalStep() {
 
                     <div className="order-help">
                         <i className="far fa-envelope" aria-hidden="true"></i>
-                        <p><strong>Need help?</strong><a href="mailto:petar_vs@outlook.com">Contact the atelier</a></p>
+                        <p><strong>Need help?</strong><a href="mailto:petar_vs@outlook.com">Contact the workshop</a></p>
                     </div>
                 </aside>
             </div>

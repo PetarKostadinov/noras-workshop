@@ -45,7 +45,7 @@ function OrderHistory() {
     return (
         <section className="order-history-page">
             <Helmet>
-                <title>Order history | Nora’s Atelier</title>
+                <title>Order history | Nora’s Workshop</title>
             </Helmet>
 
             <div className="order-history-shell">

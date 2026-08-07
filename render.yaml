@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: noras-atelier
+    name: noras-workshop
     runtime: node
     plan: free
     buildCommand: npm install --prefix server && npm install --prefix client && npm run build --prefix client

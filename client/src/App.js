@@ -31,7 +31,7 @@ function AppContent() {
   return (
     <>
       <div className="d-flex flex-column site-container">
-        <ToastContainer position="bottom-center" limit={2} autoClose={5000} hideProgressBar closeOnClick pauseOnFocusLoss className="atelier-toast-container" toastClassName="atelier-toast" />
+        <ToastContainer position="bottom-center" limit={2} autoClose={5000} hideProgressBar closeOnClick pauseOnFocusLoss className="workshop-toast-container" toastClassName="workshop-toast" />
         <Header />
         {showHomepageHero && <CarouselComponent />}
         <main>

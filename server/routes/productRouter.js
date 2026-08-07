@@ -10,7 +10,7 @@ const productRouter = express.Router();
 const uploadToCloudinary = (imageBuffer) => new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
         {
-            folder: 'noras-atelier/products',
+            folder: 'noras-workshop/products',
             resource_type: 'image',
             unique_filename: true,
             overwrite: false,

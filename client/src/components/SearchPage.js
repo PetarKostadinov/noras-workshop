@@ -117,10 +117,10 @@ function SearchPage() {
 
     return (
         <section className="catalog-page">
-            <Helmet><title>Shop all | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Shop all | Nora’s Workshop</title></Helmet>
 
             <header className="catalog-heading">
-                <span>{t('Explore the atelier')}</span>
+                <span>{t('Explore the workshop')}</span>
                 <h1>{category === 'all' ? t('Shop all creations') : t(category)}</h1>
                 <p>{t('Handmade gifts and styling details for celebrations, events, and photography studios.')}</p>
             </header>

@@ -279,7 +279,7 @@ orderRouter.post('/:id/stripe-checkout', auth, expressAsyncHandler(async (req, r
             price_data: {
                 currency: 'usd',
                 unit_amount: Math.round(lockedOrder.totalPrice * 100),
-                product_data: { name: `Nora's Atelier order ${lockedOrder._id}` },
+                product_data: { name: `Nora's Workshop order ${lockedOrder._id}` },
             },
         }],
         success_url: `${getClientUrl()}/order/${lockedOrder._id}?stripe=success`,

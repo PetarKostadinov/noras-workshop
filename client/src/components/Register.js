@@ -42,7 +42,7 @@ function Register() {
 
     return (
         <section className="auth-page">
-            <Helmet><title>Create account | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Create account | Nora’s Workshop</title></Helmet>
             <div className="auth-visual auth-visual-register" aria-hidden="true">
                 <div className="auth-visual-copy">
                     <span>{t('Thoughtfully handmade')}</span><h2>{t('Find the details that turn occasions into lasting memories.')}</h2>
@@ -50,8 +50,8 @@ function Register() {
             </div>
             <div className="auth-panel">
                 <div className="auth-heading">
-                    <img src="/images/noras-atelier-logo.png" alt="" />
-                    <span>{t('Join Nora’s Atelier')}</span>
+                    <img src="/images/noras-workshop-logo.png" alt="" />
+                    <span>{t('Join Nora’s Workshop')}</span>
                     <h1>{t('Create your account')}</h1>
                     <p>{isCheckoutRedirect
                         ? t('Create your account to continue checkout. Everything in your cart will stay in place.')

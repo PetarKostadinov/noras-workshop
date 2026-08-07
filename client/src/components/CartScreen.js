@@ -39,7 +39,7 @@ function CartScreen() {
 
   return (
     <section className="cart-page">
-      <Helmet><title>Your cart | Nora’s Atelier</title></Helmet>
+      <Helmet><title>Your cart | Nora’s Workshop</title></Helmet>
 
       <div className="cart-heading">
         <span>{t('Your selection')}</span>

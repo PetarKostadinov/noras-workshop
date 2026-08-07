@@ -59,7 +59,7 @@ function PreviewOrder() {
 
     return (
         <section className="checkout-page review-page">
-            <Helmet><title>Review order | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Review order | Nora’s Workshop</title></Helmet>
             <CheckoutSteps step1 step2 step3 step4 />
 
             <div className="checkout-heading">

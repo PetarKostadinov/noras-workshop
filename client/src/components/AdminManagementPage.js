@@ -71,7 +71,7 @@ function AdminManagementPage({ collection }) {
 
     return (
         <section className="admin-management-page">
-            <Helmet><title>{copy.title} | Nora's Atelier Admin</title></Helmet>
+            <Helmet><title>{copy.title} | Nora's Workshop Admin</title></Helmet>
             <header className="admin-management-heading">
                 <div><span>{t(copy.eyebrow)}</span><h1>{t(copy.title)}</h1><p>{t(copy.description)}</p></div>
                 {collection === 'products' && <Link to="/create"><i className="fas fa-plus" aria-hidden="true"></i> {t('Add product')}</Link>}

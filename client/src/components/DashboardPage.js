@@ -57,10 +57,10 @@ function DashboardPage() {
 
     return (
         <section className="admin-dashboard-page">
-            <Helmet><title>Admin Dashboard | Nora's Atelier</title></Helmet>
+            <Helmet><title>Admin Dashboard | Nora's Workshop</title></Helmet>
             <div className="admin-dashboard-hero">
                 <div>
-                    <span>{t('Store overview')}</span><h1>{t('Welcome back, {{name}}', { name: userInfo.username })}</h1><p>{t('Here is what is happening at Nora’s Atelier.')}</p>
+                    <span>{t('Store overview')}</span><h1>{t('Welcome back, {{name}}', { name: userInfo.username })}</h1><p>{t('Here is what is happening at Nora’s Workshop.')}</p>
                 </div>
                 <Link className="admin-dashboard-primary-action" to="/create">
                     <i className="fas fa-plus" aria-hidden="true"></i> {t('Add product')}

@@ -88,7 +88,7 @@ function ProductScreen() {
 
     return (
         <section className="product-detail-page">
-            <Helmet><title>{t(product.name)} | Nora's Atelier</title></Helmet>
+            <Helmet><title>{t(product.name)} | Nora's Workshop</title></Helmet>
 
             <nav className="product-detail-breadcrumb" aria-label={t('Breadcrumb')}>
                 <Link to="/">{t('Shop')}</Link><i className="fas fa-chevron-right" aria-hidden="true"></i><span>{t(product.name)}</span>

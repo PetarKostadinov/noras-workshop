@@ -13,9 +13,9 @@ function Footer() {
         <div className="footer-main">
           <div className="footer-brand">
             <Link to="/" className="footer-brand-lockup">
-              <img src="/images/noras-atelier-logo.png" alt="" />
+              <img src="/images/noras-workshop-logo.png" alt="" />
               <span>
-                <strong>Nora’s Atelier</strong>
+                <strong>Nora’s Workshop</strong>
                 <small>{t('Handmade gifts & décor')}</small>
               </span>
             </Link>
@@ -65,7 +65,7 @@ function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {currentYear} Nora’s Atelier. {t('Portfolio ecommerce project.')}</p>
+          <p>© {currentYear} Nora’s Workshop. {t('Portfolio ecommerce project.')}</p>
           <div>
             <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure shopping')}</span>
             <span><i className="fas fa-leaf" aria-hidden="true"></i> {t('Thoughtfully made')}</span>

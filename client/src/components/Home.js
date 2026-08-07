@@ -62,7 +62,7 @@ function Home() {
         <>
             <div>
                 <Helmet>
-                    <title>Nora’s Atelier | Handmade Gifts &amp; Event Décor</title>
+                    <title>Nora’s Workshop | Handmade Gifts &amp; Event Décor</title>
                 </Helmet>
 
                 <div className="collection-heading">

@@ -39,9 +39,9 @@ function Header() {
                 <Container className="header-container">
                     <LinkContainer to="/">
                         <Navbar.Brand className="brand-lockup">
-                            <img src="/images/noras-atelier-logo.png" alt="" className="brand-mark" />
+                            <img src="/images/noras-workshop-logo.png" alt="" className="brand-mark" />
                             <span className="brand-copy">
-                                <span className="brand-name">Nora’s Atelier</span>
+                                <span className="brand-name">Nora’s Workshop</span>
                                 <span className="brand-tagline">{t('Handmade gifts & décor')}</span>
                             </span>
                         </Navbar.Brand>

@@ -7,7 +7,7 @@ function CarouselComponent() {
     <section className="hero" aria-labelledby="hero-title">
       <img
         className="hero-image"
-        src="/images/noras-atelier-hero.jpg"
+        src="/images/noras-workshop-hero.jpg"
         alt={t('Handmade gifts and artisan event decorations')}
       />
       <div className="hero-overlay">

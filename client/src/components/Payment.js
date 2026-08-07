@@ -29,7 +29,7 @@ function Payment() {
 
     return (
         <section className="checkout-page">
-            <Helmet><title>Payment method | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Payment method | Nora’s Workshop</title></Helmet>
             <CheckoutSteps step1 step2 step3 />
 
             <div className="checkout-heading">

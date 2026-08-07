@@ -1,4 +1,4 @@
-# Nora's Atelier project context
+# Nora's Workshop project context
 
 Last reviewed against the repository: 2026-08-02.
 
@@ -6,7 +6,7 @@ This file records durable facts that help future contributors make safe changes.
 
 ## Product and main flows
 
-Nora's Atelier is a responsive ecommerce portfolio application for handmade gifts, wedding/event decorations, and photography-studio decor. The primary user journey is:
+Nora's Workshop is a responsive ecommerce portfolio application for handmade gifts, wedding/event decorations, and photography-studio decor. The primary user journey is:
 
 1. Browse the home catalog or search/filter products.
 2. View a product and add an inventory-limited quantity to the cart.
@@ -75,7 +75,7 @@ Relevant model vocabulary:
 - Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
 - Product edits submit the complete editable product record. Required text fields are trimmed and cannot be blank; numeric price, inventory, rating, and review constraints are enforced by the product schema.
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
-- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. The server uploads them to the `noras-atelier/products` Cloudinary folder and returns `{ image: <secure URL> }`; only that URL is stored with the product. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
+- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; only that URL is stored with the product. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.

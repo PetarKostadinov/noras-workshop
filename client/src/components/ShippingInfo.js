@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import CheckoutSteps from './CheckoutSteps';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
+import keepsakeBoxImage from '../assets/noras-workshop-keepsake-box.jpg';
 
 function ShippingInfo() {
     const { t } = useTranslation();
@@ -37,7 +38,7 @@ function ShippingInfo() {
 
     return (
         <section className="checkout-page">
-            <Helmet><title>Delivery details | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Delivery details | Nora’s Workshop</title></Helmet>
             <CheckoutSteps step1 step2 />
 
             <div className="checkout-heading">
@@ -119,9 +120,9 @@ function ShippingInfo() {
                 </div>
 
                 <aside className="shipping-assurance">
-                    <img src="https://res.cloudinary.com/dsjxqcrfc/image/upload/v1785703257/noras-atelier/products/handmade-keepsake-box.jpg" alt="" />
+                    <img src={keepsakeBoxImage} alt="" />
                     <div>
-                        <span>{t('From our atelier to you')}</span><h2>{t('Prepared with care')}</h2><p>{t('Every order is checked and thoughtfully packaged before leaving the studio.')}</p>
+                        <span>{t('From our workshop to you')}</span><h2>{t('Prepared with care')}</h2><p>{t('Every order is checked and thoughtfully packaged before leaving the studio.')}</p>
                         <ul>
                             <li><i className="fas fa-check" aria-hidden="true"></i> {t('Secure address storage')}</li>
                             <li><i className="fas fa-check" aria-hidden="true"></i> {t('Carefully protected packaging')}</li>

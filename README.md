@@ -1,15 +1,15 @@
-# Nora's Atelier
+# Nora's Workshop
 
 Full-stack ecommerce application for handmade gifts, wedding and event decorations, and photography studio décor.
 
-Nora's Atelier is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and secure PayPal or card payment.
+Nora's Workshop is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and secure PayPal or card payment.
 
 ## Live application
 
-Nora's Atelier is deployed as a single React and Express service on Render:
+Nora's Workshop is deployed as a single React and Express service on Render:
 
-- **Application:** [https://noras-atelier.onrender.com](https://noras-atelier.onrender.com/)
-- **API health check:** [https://noras-atelier.onrender.com/api/health](https://noras-atelier.onrender.com/api/health)
+- **Application:** [https://noras-workshop.onrender.com](https://noras-workshop.onrender.com/)
+- **API health check:** [https://noras-workshop.onrender.com/api/health](https://noras-workshop.onrender.com/api/health)
 
 The free Render service may sleep when idle, so the first request can take approximately one minute while the server starts.
 
@@ -139,12 +139,12 @@ The repository includes `render.yaml` for a single Render Web Service. During de
 1. Push the repository to GitHub.
 2. Create a free MongoDB Atlas cluster and copy its connection string.
 3. In Render, choose **New > Blueprint**, connect the repository, and apply `render.yaml`.
-4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-atelier.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled.
+4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled.
 5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-atelier/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.
+Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-workshop/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.
 
-The deployed application is available at [https://noras-atelier.onrender.com](https://noras-atelier.onrender.com/). Render's free service can sleep when idle, so the first request after an idle period may be slow. This deployment is appropriate for a portfolio/demo; use a paid always-on service for a customer-facing store.
+The deployed application is available at [https://noras-workshop.onrender.com](https://noras-workshop.onrender.com/). Render's free service can sleep when idle, so the first request after an idle period may be slow. This deployment is appropriate for a portfolio/demo; use a paid always-on service for a customer-facing store.
 
 ## Available scripts
 

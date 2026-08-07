@@ -55,7 +55,7 @@ function Profile() {
   return (
     <section className="profile-page">
       <Helmet>
-        <title>My profile | Nora’s Atelier</title>
+        <title>My profile | Nora’s Workshop</title>
       </Helmet>
 
       <div className="profile-shell">

@@ -2,7 +2,7 @@
 
 ## Start here
 
-This repository is **Nora's Atelier**, a full-stack ecommerce portfolio application. Before making a non-trivial change, read [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md). Treat the code as the source of truth if documentation and implementation differ.
+This repository is **Nora's Workshop**, a full-stack ecommerce portfolio application. Before making a non-trivial change, read [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md). Treat the code as the source of truth if documentation and implementation differ.
 
 ## Working rules
 

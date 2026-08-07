@@ -36,7 +36,7 @@ function Login() {
 
     return (
         <section className="auth-page">
-            <Helmet><title>Sign in | Nora’s Atelier</title></Helmet>
+            <Helmet><title>Sign in | Nora’s Workshop</title></Helmet>
             <div className="auth-visual auth-visual-login" aria-hidden="true">
                 <div className="auth-visual-copy">
                     <span>{t('Crafted with care')}</span><h2>{t('Welcome back to your collection of beautiful moments.')}</h2>
@@ -44,7 +44,7 @@ function Login() {
             </div>
             <div className="auth-panel">
                 <div className="auth-heading">
-                    <img src="/images/noras-atelier-logo.png" alt="" />
+                    <img src="/images/noras-workshop-logo.png" alt="" />
                     <span>{t('Welcome back')}</span>
                     <h1>{t('Sign in to your account')}</h1>
                     <p>{isCheckoutRedirect
@@ -61,7 +61,7 @@ function Login() {
                         <Form.Control type="password" autoComplete="current-password" placeholder={t('Enter your password')} required onChange={(e) => setPassword(e.target.value)} />
                     </Form.Group>
                     <Button type="submit" className="auth-submit">{t('Sign in')}</Button>
-                    <p className="auth-switch">{t('New to Nora’s Atelier?')} <Link to={'/register?redirect=' + encodeURIComponent(redirect)}>{t('Create an account')}</Link></p>
+                    <p className="auth-switch">{t('New to Nora’s Workshop?')} <Link to={'/register?redirect=' + encodeURIComponent(redirect)}>{t('Create an account')}</Link></p>
                 </Form>
             </div>
         </section>

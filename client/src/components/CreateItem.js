@@ -27,7 +27,7 @@ function CreateItem() {
         name: '',
         slug: '',
         image: '',
-        brand: "Nora's Atelier",
+        brand: "Nora's Workshop",
         category: '',
         description: '',
         price: '',
@@ -131,7 +131,7 @@ function CreateItem() {
 
     return (
         <section className="product-editor-page">
-            <Helmet><title>Create Product | Nora's Atelier</title></Helmet>
+            <Helmet><title>Create Product | Nora's Workshop</title></Helmet>
 
             <div className="product-editor-heading">
                 <div>
