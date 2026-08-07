@@ -23,7 +23,6 @@ function Payment() {
     const submitHandler = (event) => {
         event.preventDefault();
         ctxDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: selectedMethod });
-        localStorage.setItem('paymentMethod', selectedMethod);
         navigate('/order');
     };
 

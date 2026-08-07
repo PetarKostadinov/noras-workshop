@@ -159,7 +159,9 @@ npm test        # Run the React test runner
 From server/:
 
 ~~~bash
-npm start       # Start the API with nodemon
+npm start       # Start the API
+npm run dev     # Start the API with nodemon and automatic restarts
+npm test        # Run server unit tests
 ~~~
 
 ## Main API routes

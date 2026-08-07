@@ -23,7 +23,6 @@ function Login() {
         try {
             const data = await loginUser(email, password);
             ctxDispatch({ type: 'USER_LOGIN', payload: data });
-            localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (error) {
             toast.error(getError(error, 'We couldn’t sign you in. Please try again.'));

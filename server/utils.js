@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from './models/userModel.js';
 
+export const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const generateToken = (user) => {
     return jwt.sign(
         {
@@ -17,8 +19,8 @@ export const generateToken = (user) => {
 
 export const auth = (req, res, next) => {
     const authorization = req.headers.authorization;
-    if (authorization) {
-        const token = authorization.slice(7, authorization.length); //Bearer XXXXXX
+    if (authorization?.startsWith('Bearer ')) {
+        const token = authorization.slice(7);
         jwt.verify(
             token,
             process.env.JWT_SECRET,
@@ -34,6 +36,34 @@ export const auth = (req, res, next) => {
     } else {
         res.status(401).send({ message: 'Please sign in to continue.' });
     }
+};
+
+export const createRateLimiter = ({ windowMs, max, message }) => {
+    const requests = new Map();
+
+    const cleanup = setInterval(() => {
+        const now = Date.now();
+        for (const [key, entry] of requests) {
+            if (entry.resetAt <= now) requests.delete(key);
+        }
+    }, windowMs);
+    cleanup.unref();
+
+    return (req, res, next) => {
+        const now = Date.now();
+        const key = req.ip;
+        const current = requests.get(key);
+        const entry = !current || current.resetAt <= now
+            ? { count: 1, resetAt: now + windowMs }
+            : { ...current, count: current.count + 1 };
+
+        requests.set(key, entry);
+        if (entry.count > max) {
+            res.set('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
+            return res.status(429).send({ message });
+        }
+        next();
+    };
 };
 
 export const admin = (req, res, next) => {

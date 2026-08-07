@@ -1,6 +1,6 @@
 import mongoose, { Schema, Types } from "mongoose";
 
-const EMAIL_PATTERN = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const userSchema = new Schema(
     {
@@ -13,9 +13,8 @@ const userSchema = new Schema(
                 message: 'Invalid Email'
             }
         },
-        password: { type: String, required: true },
+        password: { type: String, required: true, select: false },
         isAdmin: { type: Boolean, default: false, required: true },
-        itemsInCartDb: { type: Array, default: [] },
     },
     {
         timestamps: true
@@ -23,6 +22,7 @@ const userSchema = new Schema(
 );
 
 userSchema.index({ email: 1 }, {
+    unique: true,
     collation: {
         locale: 'en',
         strength: 2

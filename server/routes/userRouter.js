@@ -3,15 +3,22 @@ import User from "../models/userModel.js";
 import bcrypt from 'bcryptjs';
 
 import expressAsyncHandler from 'express-async-handler';
-import { auth, generateToken } from "../utils.js";
+import { auth, createRateLimiter, generateToken } from "../utils.js";
 
 
 const userRouter = express.Router();
+const accountRateLimiter = createRateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    message: 'Too many account requests. Please wait a few minutes and try again.',
+});
 
-userRouter.post('/login', expressAsyncHandler(async (req, res) => {
-    const user = await User.findOne({ email: req.body.email });
+userRouter.post('/login', accountRateLimiter, expressAsyncHandler(async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+    const user = email && password ? await User.findOne({ email }).select('+password') : null;
     if (user) {
-        if (bcrypt.compareSync(req.body.password, user.password)) {
+        if (await bcrypt.compare(password, user.password)) {
             res.send({
                 _id: user._id,
                 username: user.username,
@@ -26,7 +33,7 @@ userRouter.post('/login', expressAsyncHandler(async (req, res) => {
     res.status(401).send({ message: 'Invalid email or password', status: 401 });
 }));
 
-userRouter.post('/register', expressAsyncHandler(async (req, res) => {
+userRouter.post('/register', accountRateLimiter, expressAsyncHandler(async (req, res) => {
     const username = req.body.username?.trim();
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
@@ -50,7 +57,7 @@ userRouter.post('/register', expressAsyncHandler(async (req, res) => {
     const newUser = new User({
         username,
         email,
-        password: bcrypt.hashSync(password)
+        password: await bcrypt.hash(password, 10)
     });
     const user = await newUser.save();
     res.send({
@@ -58,7 +65,6 @@ userRouter.post('/register', expressAsyncHandler(async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
-        itemsInCartDb: user.itemsInCartDb,
         token: generateToken(user)
     });
 
@@ -89,7 +95,7 @@ userRouter.put('/profile', auth, expressAsyncHandler(async (req, res) => {
         user.username = username;
         user.email = email;
         if (password) {
-            user.password = bcrypt.hashSync(password, 8);
+            user.password = await bcrypt.hash(password, 10);
         }
 
         const updatedUser = await user.save();

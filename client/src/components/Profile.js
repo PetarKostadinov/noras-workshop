@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'react-toastify';
@@ -32,11 +32,10 @@ function Profile() {
       setLoadingUpdate(true);
 
       const data = await updateProfile(
-        userInfo,
+        userInfo.token,
         username,
         email,
-        password,
-        repass
+        password
       );
 
       setLoadingUpdate(false);
@@ -47,10 +46,6 @@ function Profile() {
       toast.error(getError(err) || err);
     }
   };
-
-  useEffect(() => {
-    localStorage.setItem('userInfo', JSON.stringify(state.userInfo));
-  }, [state.userInfo]);
 
   return (
     <section className="profile-page">

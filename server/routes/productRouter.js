@@ -3,7 +3,7 @@ import expressAsyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
 import Product from '../models/productModel.js';
-import { admin, auth } from '../utils.js';
+import { admin, auth, escapeRegex } from '../utils.js';
 
 const productRouter = express.Router();
 
@@ -21,11 +21,11 @@ const uploadToCloudinary = (imageBuffer) => new Promise((resolve, reject) => {
     uploadStream.end(imageBuffer);
 });
 
-productRouter.get('/', async (req, res) => {
+productRouter.get('/', expressAsyncHandler(async (req, res) => {
     const products = await Product.find();
 
     res.send(products);
-});
+}));
 
 const PAGE_SIZE = 3;
 productRouter.get('/search', expressAsyncHandler(async (req, res) => {
@@ -37,25 +37,30 @@ productRouter.get('/search', expressAsyncHandler(async (req, res) => {
         : PAGE_SIZE;
     const page = Number.isFinite(requestedPage) ? Math.max(requestedPage, 1) : 1;
     const category = query.category || '';
-    const brand = query.brand || '';
     const price = query.price || '';
     const rating = query.rating || '';
     const order = query.order || '';
-    const searchQuery = query.query || '';
+    const searchQuery = typeof query.query === 'string' ? query.query.trim().slice(0, 100) : '';
+    const escapedSearchQuery = escapeRegex(searchQuery);
+    const minimumRating = Number(rating);
+    const [minimumPrice, maximumPrice] = price.split('-').map(Number);
 
     const queryFilter = searchQuery && searchQuery !== 'all' ?
         {
             name: {
-                $regex: searchQuery,
+                $regex: escapedSearchQuery,
                 $options: 'i'
             }
         }
         : {};
 
     const categoryFilter = category && category !== 'all' ? { category } : {};
-    const ratingFilter = rating && rating !== 'all' ? { rating: { $gte: Number(rating) } } : {};
-    const priceFilter = price && price !== 'all' ?
-        { price: { $gte: Number(price.split('-')[0]), $lte: Number(price.split('-')[1]) } } : {};
+    const ratingFilter = rating && rating !== 'all' && Number.isFinite(minimumRating)
+        ? { rating: { $gte: Math.min(Math.max(minimumRating, 0), 5) } }
+        : {};
+    const priceFilter = price && price !== 'all' && Number.isFinite(minimumPrice) && Number.isFinite(maximumPrice)
+        ? { price: { $gte: Math.max(minimumPrice, 0), $lte: Math.max(maximumPrice, 0) } }
+        : {};
 
     const sortOrder =
         order === 'featured' ? { featured: -1 }

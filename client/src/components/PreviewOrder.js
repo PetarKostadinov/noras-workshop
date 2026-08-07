@@ -45,7 +45,6 @@ function PreviewOrder() {
             setPlacingOrder(true);
             const data = await createOrder({ ...cart, ...totals }, userInfo);
             ctxDispatch({ type: 'CART_CLEAR' });
-            localStorage.removeItem('cartItems');
             navigate('/order/' + data.order._id);
         } catch (err) {
             toast.error(getError(err));

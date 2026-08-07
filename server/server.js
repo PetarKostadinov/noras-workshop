@@ -4,13 +4,18 @@ import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
 import productRouter from "./routes/productRouter.js";
-import userRouter from "./routes/userRuoter.js";
+import userRouter from "./routes/userRouter.js";
 import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 import adminRouter from "./routes/adminRouter.js";
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required. Add it to server/.env before starting the server.');
+}
+
 const app = express();
+app.set('trust proxy', 1);
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
 const serverDirectory = path.dirname(fileURLToPath(import.meta.url));
 const clientBuildDirectory = path.resolve(serverDirectory, "../client/build");

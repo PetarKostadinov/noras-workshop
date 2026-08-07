@@ -32,7 +32,6 @@ function ShippingInfo() {
             country: country.trim(),
         };
         ctxDispatch({ type: 'SAVE_SHIPPING_INFO', payload: details });
-        localStorage.setItem('shippingInfo', JSON.stringify(details));
         navigate('/payment');
     };
 

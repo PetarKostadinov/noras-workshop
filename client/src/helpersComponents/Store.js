@@ -1,13 +1,26 @@
-import { createContext, useReducer } from 'react'
+import { createContext, useEffect, useMemo, useReducer } from 'react'
 
 export const Store = createContext();
 
+const readStoredJson = (key, fallback, isValid) => {
+    try {
+        const value = localStorage.getItem(key);
+        if (!value) return fallback;
+        const parsed = JSON.parse(value);
+        if (!isValid(parsed)) throw new Error('Invalid stored value');
+        return parsed;
+    } catch {
+        localStorage.removeItem(key);
+        return fallback;
+    }
+};
+
 const initialState = {
-    userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null,
+    userInfo: readStoredJson('userInfo', null, (value) => value === null || typeof value === 'object'),
     cart: {
-        shippingInfo: localStorage.getItem('shippingInfo') ? JSON.parse(localStorage.getItem('shippingInfo')) : {},
+        shippingInfo: readStoredJson('shippingInfo', {}, (value) => value !== null && !Array.isArray(value) && typeof value === 'object'),
         paymentMethod: localStorage.getItem('paymentMethod') || '',
-        cartItems: localStorage.getItem('cartItems') ? JSON.parse(localStorage.getItem('cartItems')) : []
+        cartItems: readStoredJson('cartItems', [], Array.isArray)
     }
 };
 
@@ -23,29 +36,20 @@ function reducer(state, action) {
                     newItem : x)
                 : [...state.cart.cartItems, newItem];
 
-            localStorage.setItem('cartItems', JSON.stringify(cartItems));
-
             return { ...state, cart: { ...state.cart, cartItems } };
 
         case 'CART_REMOVE_ITEM': {
             const cartItems = state.cart.cartItems.filter((item) => item._id !== action.payload._id);
 
-            localStorage.setItem('cartItems', JSON.stringify(cartItems));
-
             return { ...state, cart: { ...state.cart, cartItems } };
-        };
+        }
         case 'CART_CLEAR':
-            localStorage.removeItem('cartItems');
             return { ...state, cart: { ...state.cart, cartItems: [] } };
         case 'USER_LOGIN':
             return { ...state, userInfo: action.payload };
         case 'USER_REGISTER':
             return { ...state, userInfo: action.payload };
         case 'USER_LOGOUT':
-            localStorage.removeItem('userInfo');
-            localStorage.removeItem('cartItems');
-            localStorage.removeItem('shippingInfo');
-            localStorage.removeItem('paymentMethod');
             return { ...state, userInfo: null, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '' } };
         case 'SAVE_SHIPPING_INFO':
             return {
@@ -62,7 +66,21 @@ function reducer(state, action) {
 
 function StoreProvider(props) {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const value = { state, dispatch };
+
+    useEffect(() => {
+        const persist = (key, value, shouldRemove) => {
+            if (shouldRemove) localStorage.removeItem(key);
+            else localStorage.setItem(key, JSON.stringify(value));
+        };
+
+        persist('userInfo', state.userInfo, !state.userInfo);
+        persist('cartItems', state.cart.cartItems, state.cart.cartItems.length === 0);
+        persist('shippingInfo', state.cart.shippingInfo, Object.keys(state.cart.shippingInfo).length === 0);
+        if (state.cart.paymentMethod) localStorage.setItem('paymentMethod', state.cart.paymentMethod);
+        else localStorage.removeItem('paymentMethod');
+    }, [state]);
+
+    const value = useMemo(() => ({ state, dispatch }), [state]);
     return <Store.Provider value={value}>{props.children} </Store.Provider>
 }
 

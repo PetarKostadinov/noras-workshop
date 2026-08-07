@@ -25,19 +25,17 @@ export async function register(username, email, password) {
   return parseResponse(response, 'Unable to create your account');
 }
 
-export const updateProfile = async (userInfo, username, email, password, repass) => {
+export const updateProfile = async (token, username, email, password) => {
     const response = await fetch('/api/users/profile', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        userInfo: userInfo,
-        username: username,
-        email: email,
-        password: password,
-        repass: repass
+        username,
+        email,
+        ...(password ? { password } : {}),
       })
     });
     return parseResponse(response, 'Unable to update profile');

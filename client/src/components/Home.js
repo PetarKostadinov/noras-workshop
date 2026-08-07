@@ -19,7 +19,6 @@ function useQuery() {
 
 function Home() {
     const { t } = useTranslation();
-    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
@@ -27,36 +26,32 @@ function Home() {
    
 
     const query = useQuery();
-    const page = parseInt(query.get("page")) || 1;
+    const requestedPage = Number.parseInt(query.get('page'), 10);
+    const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
     useEffect(() => {
+        const controller = new AbortController();
         const fetchData = async () => {
             setLoading(true);
+            setError('');
             try {
-                const data = await fetchProducts(currentPage, productsToShow);
-                setProducts(data);
-                setTotalPages(Math.ceil(data.length / productsToShow));
-                setLoading(false);
+                const data = await fetchProducts(currentPage, productsToShow, controller.signal);
+                setProducts(data.products);
+                setTotalPages(data.pages);
             } catch (err) {
-                setError(getError(err, 'We couldn’t load the collection. Please try again.'));
-                setLoading(false);
+                if (err.name !== 'AbortError') {
+                    setError(getError(err, 'We couldn’t load the collection. Please try again.'));
+                }
+            } finally {
+                if (!controller.signal.aborted) setLoading(false);
             }
         };
 
-        setCurrentPage(page);
         fetchData();
-    }, [currentPage, page]);
-
-    const indexOfLastProduct = currentPage * productsToShow;
-    const indexOfFirstProduct = indexOfLastProduct - productsToShow;
-    const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+        return () => controller.abort();
+    }, [currentPage]);
 
     const paginationLinks = generatePaginationLinks(currentPage, totalPages);
-
-    const handleNextPageClick = () => {
-        setCurrentPage(currentPage + 1);
-        window.scrollTo(0, 0); // Scroll to top of window
-    }
 
     return (
         <>
@@ -78,7 +73,7 @@ function Home() {
                     ) : (
                         <>
                             <Row className="row pt-4 gy-4">
-                                {currentProducts.map((x) => (
+                                {products.map((x) => (
                                     <Col key={x._id} sm={6} lg={4} className="product-column">
                                         <Product product={x}></Product>
                                     </Col>
@@ -88,7 +83,7 @@ function Home() {
                     )}
                 </div>
                 <div className="d-flex justify-content-center mt-5">
-                    <div className="btn-group" onClick={() => handleNextPageClick()}>{paginationLinks}</div>
+                    <div className="btn-group">{paginationLinks}</div>
                 </div>
             </div>
         </>

@@ -29,7 +29,6 @@ function Register() {
         try {
             const data = await register(username, email, password);
             ctxDispatch({ type: 'USER_REGISTER', payload: data });
-            localStorage.setItem('userInfo', JSON.stringify(data));
             navigate(redirect);
         } catch (err) {
             toast.error(getError(err, 'We couldn’t create your account. Please try again.'));

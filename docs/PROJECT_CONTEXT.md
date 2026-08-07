@@ -50,7 +50,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 - `paymentMethod`: selected payment method;
 - `language`: selected interface language (`en` or `bg`), owned by i18next rather than the global store.
 
-Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. When changing API contracts, search both `service/` and components.
+Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
 
 `client/src/index.css` is a single large global stylesheet. Reuse existing layout variables/classes where practical and check desktop, tablet, and mobile behavior after broad UI changes.
 
@@ -78,9 +78,9 @@ Relevant model vocabulary:
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
-- Users have `isAdmin`; the JWT repeats this flag.
+- Users have `isAdmin`; the JWT repeats this flag. Password hashes are excluded from ordinary user queries and requested explicitly only during login.
 
-Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token.
+Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token. Login and registration share a per-client, in-memory request limit of 20 attempts per 15 minutes.
 
 ## Commerce and payment invariants
 
@@ -121,6 +121,7 @@ Common commands:
 
 ```text
 server: npm start
+server development watch mode: npm run dev
 client: npm start
 client production check: npm run build
 client tests once: npm test -- --watchAll=false
@@ -129,11 +130,10 @@ local Stripe events: stripe listen --forward-to http://localhost:5000/api/stripe
 
 Render deployment uses `npm install --prefix server && npm install --prefix client && npm run build --prefix client` followed by `node server/server.js`. Render supplies `PORT`; the Blueprint requests the remaining production secrets. `CLIENT_URL` must be the final public origin used for Stripe return URLs.
 
-There is no meaningful server test suite at present; its `npm test` script is a failing placeholder.
+The server uses Node's built-in test runner (`npm test`) for focused unit tests. Database-backed route coverage remains limited, so perform focused API smoke tests when MongoDB and integration credentials are available.
 
 ## Known risks and legacy constraints
 
-- `server/routes/userRuoter.js` contains the existing filename typo. Imports depend on it; rename it only as a deliberate coordinated change.
 - Client API access is split between services, direct Fetch, and Axios. Avoid assuming a single data-access abstraction.
 - Inventory is reserved when an order is created, but there is no automatic expiry/cancellation workflow to return inventory from abandoned unpaid orders. Add an explicit lifecycle before introducing order cancellation or payment timeouts.
 

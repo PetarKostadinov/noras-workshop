@@ -1,8 +1,8 @@
 
 import { parseResponse } from '../util';
 
-export async function fetchProducts(page, limit) {
-    const response = await fetch(`/api/products?page=${page}&limit=${limit}`);
+export async function fetchProducts(page, pageSize, signal) {
+    const response = await fetch(`/api/products/search?page=${page}&pageSize=${pageSize}`, { signal });
     return parseResponse(response, 'Unable to load products');
   }
   
