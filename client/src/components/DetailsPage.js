@@ -34,7 +34,6 @@ function ProductScreen() {
                 const result = await fetchProduct(id);
                 if (!active) return;
                 setProduct(result);
-                dispatch({ type: 'FETCH_SUCCESS_DETAILS', payload: result });
             } catch (err) {
                 if (active) setError(getError(err));
             } finally {
@@ -43,7 +42,7 @@ function ProductScreen() {
         };
         loadProduct();
         return () => { active = false; };
-    }, [dispatch, id]);
+    }, [id]);
 
     const addToCartHandler = async () => {
         setAdding(true);

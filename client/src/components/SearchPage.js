@@ -8,7 +8,8 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import Product from './Product';
 import Rating from '../helpersComponents/Rating';
-import { getCategories, getProducts } from '../service/searchService';
+import { getProducts } from '../service/searchService';
+import { getCategories } from '../service/productService';
 import { useTranslation } from 'react-i18next';
 
 const prices = [

@@ -4,8 +4,6 @@ export const Store = createContext();
 
 const initialState = {
     userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null,
-    currItem: localStorage.getItem('currItem') ? JSON.parse(localStorage.getItem('currItem')) : {},
-
     cart: {
         shippingInfo: localStorage.getItem('shippingInfo') ? JSON.parse(localStorage.getItem('shippingInfo')) : {},
         paymentMethod: localStorage.getItem('paymentMethod') || '',
@@ -48,8 +46,7 @@ function reducer(state, action) {
             localStorage.removeItem('cartItems');
             localStorage.removeItem('shippingInfo');
             localStorage.removeItem('paymentMethod');
-            localStorage.removeItem('currItem');
-            return { ...state, userInfo: null, currItem: {}, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '' } };
+            return { ...state, userInfo: null, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '' } };
         case 'SAVE_SHIPPING_INFO':
             return {
                 ...state, cart: { ...state.cart, shippingInfo: action.payload }
@@ -58,22 +55,6 @@ function reducer(state, action) {
             return {
                 ...state, cart: { ...state.cart, paymentMethod: action.payload }
             };
-        case 'PRODUCT_CREATE':
-            const newProduct = action.payload;
-            return { ...state, currItem: { ...state.currItem, newProduct } };
-        case 'UPDATE_ITEM_REQUEST':
-            return { ...state, loadingUpdate: true, itemToEditDb: action.payload };
-        case 'UPDATE_ITEM_SUCCESS':
-            return { ...state, itemToEditDb: action.payload, loadingUpdate: false };
-
-        case 'UPDATE_ITEM_FAIL':
-            return { ...state, loadingUpdate: false };
-
-        case 'FETCH_SUCCESS_DETAILS':
-            const currItem = action.payload
-            localStorage.setItem('currItem', JSON.stringify(currItem))
-            return { ...state, currItem: action.payload, loading: false };
-
         default:
             return state;
     }

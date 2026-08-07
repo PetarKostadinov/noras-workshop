@@ -39,7 +39,7 @@ export const deleteProduct = async (id, token) => {
 }
 
 export const fetchProduct = async (id) => {
-  const response = await fetch(`/api/products/_id/${id}`);
+  const response = await fetch(`/api/products/${id}`);
   return parseResponse(response, 'Unable to load product');
 }
 
@@ -60,11 +60,4 @@ export async function getCategories() {
   const response = await fetch(`/api/products/categories`);
   return parseResponse(response, 'Unable to load categories');
 }
-
-export const getProduct = async (id) => {
-  const response = await fetch(`/api/products/${id}`);
-  return parseResponse(response, 'Unable to load product');
-};
-
-
 

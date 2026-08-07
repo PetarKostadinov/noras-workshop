@@ -8,9 +8,4 @@ const getProducts = async (options) => {
   return parseResponse(response, 'Unable to load products');
 };
 
-const getCategories = async () => {
-  const response = await fetch('/api/products/categories');
-  return parseResponse(response, 'Unable to load categories');
-};
-
-export { getProducts, getCategories };
+export { getProducts };

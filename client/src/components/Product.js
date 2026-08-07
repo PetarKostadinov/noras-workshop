@@ -3,7 +3,7 @@ import { Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Rating from '../helpersComponents/Rating';
 import { Store } from '../helpersComponents/Store';
-import { getProduct } from '../service/productService';
+import { fetchProduct } from '../service/productService';
 import { toast } from 'react-toastify';
 import getError from '../util';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ function Product({ product }) {
     try {
       const exists = cartItems.find((x) => x._id === product._id);
       const quantity = exists ? exists.quantity + 1 : 1;
-      const data = await getProduct(item._id);
+      const data = await fetchProduct(item._id);
 
       if (data.countMany < quantity) {
         toast.error(`Only ${data.countMany} of “${item.name}” ${data.countMany === 1 ? 'is' : 'are'} currently available.`);

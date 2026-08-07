@@ -20,7 +20,7 @@ const slugify = (value) => value
 function CreateItem() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { state, dispatch } = useContext(Store);
+    const { state } = useContext(Store);
     const { userInfo } = state;
 
     const [form, setForm] = useState({
@@ -119,7 +119,6 @@ function CreateItem() {
                 numReviews,
             };
             const data = await createProduct(userInfo, item);
-            dispatch({ type: 'PRODUCT_CREATE', payload: data });
             toast.success('Product created successfully.');
             navigate(`/product/${data._id}/${data.slug}`);
         } catch (err) {

@@ -1,6 +1,6 @@
 # Nora's Workshop project context
 
-Last reviewed against the repository: 2026-08-02.
+Last reviewed against the repository: 2026-08-07.
 
 This file records durable facts that help future contributors make safe changes. It is not a backlog. Verify details in code when working in an affected area and keep this file synchronized with app-wide changes, as required by the root `AGENTS.md`.
 
@@ -48,7 +48,6 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 - `cartItems`: cart product snapshots and quantities;
 - `shippingInfo`: checkout delivery address;
 - `paymentMethod`: selected payment method;
-- `currItem`: most recently fetched product detail.
 - `language`: selected interface language (`en` or `bg`), owned by i18next rather than the global store.
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. When changing API contracts, search both `service/` and components.

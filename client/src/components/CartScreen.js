@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
-import { getProductById } from '../service/cartService';
+import { fetchProduct } from '../service/productService';
 import getError, { getLoginUrl } from '../util';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ function CartScreen() {
 
   const updateCartHandler = async (item, quantity) => {
     try {
-      const data = await getProductById(item._id);
+      const data = await fetchProduct(item._id);
       if (data.countMany < quantity) {
         toast.error(`Only ${data.countMany} of “${item.name}” ${data.countMany === 1 ? 'is' : 'are'} currently available.`);
         return;

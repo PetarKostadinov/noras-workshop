@@ -122,18 +122,6 @@ productRouter.post(
     })
 );
 
-productRouter.get('/_id/:id', expressAsyncHandler(async (req, res) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-        return res.status(400).send({ message: 'Invalid product ID' });
-    }
-    const product = await Product.findOne({ _id: req.params.id });
-    if (product) {
-        res.send(product);
-    } else {
-        res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
-    }
-}));
-
 productRouter.get('/:id', expressAsyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send({ message: 'Invalid product ID' });

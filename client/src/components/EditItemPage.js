@@ -25,7 +25,7 @@ function EditItemPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { id } = useParams();
-    const { state, dispatch } = useContext(Store);
+    const { state } = useContext(Store);
     const { userInfo } = state;
     const [form, setForm] = useState(EMPTY_FORM);
     const [loading, setLoading] = useState(true);
@@ -109,7 +109,6 @@ function EditItemPage() {
         if (!Number.isInteger(numReviews) || numReviews < 0) return toast.error('Reviews must be a whole number of 0 or more.');
 
         setSubmitting(true);
-        dispatch({ type: 'UPDATE_ITEM_REQUEST' });
         try {
             const payload = {
                 ...form,
@@ -118,11 +117,9 @@ function EditItemPage() {
                 price, countMany, rating, numReviews,
             };
             const result = await updateItem(id, payload.slug, payload, userInfo.token);
-            dispatch({ type: 'UPDATE_ITEM_SUCCESS', payload: result });
             toast.success('Product updated successfully.');
             navigate(`/product/${result._id}/${result.slug}`);
         } catch (err) {
-            dispatch({ type: 'UPDATE_ITEM_FAIL', payload: err.message });
             toast.error(getError(err));
         } finally {
             setSubmitting(false);
