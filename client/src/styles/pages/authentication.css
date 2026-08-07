@@ -1,0 +1,152 @@
+/* AUTHENTICATION */
+
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+  min-height: 680px;
+  margin: 2.5rem 0 4rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(108, 76, 65, 0.08);
+  border-radius: 1.5rem;
+  box-shadow: 0 28px 70px rgba(78, 52, 44, 0.14);
+}
+
+.auth-visual {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100%;
+  padding: clamp(2rem, 5vw, 4rem);
+  background-position: center;
+  background-size: cover;
+}
+
+.auth-visual-login {
+  background-image:
+    linear-gradient(180deg, transparent 35%, rgba(48, 31, 27, 0.78)),
+    url('../../assets/noras-workshop-keepsake-box.jpg');
+}
+
+.auth-visual-register {
+  background-image:
+    linear-gradient(180deg, transparent 35%, rgba(48, 31, 27, 0.78)),
+    url('../../assets/noras-workshop-wedding-decor.jpg');
+}
+
+.auth-visual-copy {
+  max-width: 520px;
+  color: var(--color-white);
+}
+
+.auth-visual-copy span,
+.auth-heading > span {
+  color: #efb5a7;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.auth-visual-copy h2 {
+  margin: 0.8rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 3.25rem);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+.auth-heading {
+  margin-bottom: 2rem;
+}
+
+.auth-heading img {
+  display: block;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 1.15rem;
+  object-fit: contain;
+}
+
+.auth-heading h1 {
+  margin: 0.65rem 0 0.65rem;
+  color: var(--color-heading);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 500;
+}
+
+.auth-heading p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.auth-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.auth-form .form-label {
+  color: #51403b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.auth-form .form-control {
+  min-height: 50px;
+  padding: 0.75rem 1rem;
+  color: var(--color-heading);
+  background: var(--color-surface);
+  border: 1px solid #e8dcd5;
+  border-radius: 0.7rem;
+  box-shadow: none;
+}
+
+.auth-form .form-control:focus {
+  background: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(198, 111, 93, 0.12);
+}
+
+.auth-submit {
+  min-height: 52px;
+  margin-top: 0.35rem;
+  color: var(--color-white);
+  font-weight: 700;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: 999px;
+}
+
+.auth-submit:hover,
+.auth-submit:focus {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.auth-switch {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+

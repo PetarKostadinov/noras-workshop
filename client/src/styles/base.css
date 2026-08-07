@@ -1,0 +1,70 @@
+:root {
+  --color-white: #fff;
+  --color-surface: #fffaf6;
+  --color-border: #eee3dd;
+  --color-primary: #c66f5d;
+  --color-primary-strong: #b85f4e;
+  --color-primary-dark: #ad5849;
+  --color-accent: #a75042;
+  --color-heading: #3f302c;
+  --color-heading-alt: #463531;
+  --color-text-muted: #806e68;
+  --color-dark: #3b2d29;
+  --font-display: Georgia, 'Times New Roman', serif;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #352b28;
+  background:
+    radial-gradient(circle at 10% 5%, rgba(210, 129, 110, 0.12), transparent 28rem),
+    linear-gradient(180deg, #fffaf5 0%, #f6eee7 100%);
+}
+
+.site-container {
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+
+}
+
+.btn-primary,
+.btn-outline-primary {
+  background-color: #1cc7e1;
+  color: #404040;
+
+}
+
+.card {
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 12px 35px rgba(88, 61, 52, 0.1);
+
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.price {
+  color: var(--color-accent);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.rating span {
+  color: #ffc000;
+}
+
+

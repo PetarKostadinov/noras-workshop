@@ -1,0 +1,103 @@
+@media (max-width: 991.98px) {
+  .shipping-layout {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+
+  .shipping-assurance {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+  }
+
+  .shipping-assurance > img {
+    height: 100%;
+    min-height: 280px;
+  }
+
+  .payment-layout {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+
+  .review-layout {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+
+  .review-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .checkout-page {
+    padding-top: 1.5rem;
+  }
+
+  .checkout-steps {
+    margin-bottom: 2.25rem;
+  }
+
+  .checkout-steps li strong {
+    font-size: 0.6rem;
+  }
+
+  .shipping-assurance {
+    display: block;
+  }
+
+  .shipping-assurance > img {
+    height: 210px;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .checkout-form-actions .btn {
+    width: 100%;
+  }
+
+  .checkout-form-actions > a {
+    justify-content: center;
+  }
+
+  .payment-option {
+    grid-template-columns: auto 42px minmax(0, 1fr);
+  }
+
+  .payment-option-check,
+  .payment-coming-soon {
+    display: none;
+  }
+
+  .review-section {
+    padding: 1.1rem;
+  }
+
+  .review-section-heading {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+
+  .review-item {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .review-item img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .review-item > strong {
+    grid-column: 2;
+  }
+}
+

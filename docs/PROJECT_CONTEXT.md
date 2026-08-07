@@ -1,6 +1,6 @@
 # Nora's Workshop project context
 
-Last reviewed against the repository: 2026-08-07.
+Last reviewed against the repository: 2026-08-08.
 
 This file records durable facts that help future contributors make safe changes. It is not a backlog. Verify details in code when working in an affected area and keep this file synchronized with app-wide changes, as required by the root `AGENTS.md`.
 
@@ -52,7 +52,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
 
-`client/src/index.css` is a single large global stylesheet. Reuse existing layout variables/classes where practical and check desktop, tablet, and mobile behavior after broad UI changes.
+`client/src/index.css` is the ordered stylesheet entry point. It imports global design tokens/foundations from `client/src/styles/base.css`, reusable component styles from `client/src/styles/components/`, and route-oriented styles from `client/src/styles/pages/`. Preserve the import order when rules depend on later overrides, reuse the shared custom properties in `:root`, and check desktop, tablet, and mobile behavior after broad UI changes.
 
 ## Server structure and API
 

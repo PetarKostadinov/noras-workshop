@@ -59,7 +59,8 @@ shoppingCart/
 │   └── src/
 │       ├── components/      # Pages and reusable UI components
 │       ├── helpersComponents/
-│       └── service/         # Client API and calculation helpers
+│       ├── service/         # Client API and calculation helpers
+│       └── styles/          # Design tokens and component/page styles
 ├── server/
 │   ├── models/              # Mongoose schemas
 │   ├── routes/              # Express API routes
