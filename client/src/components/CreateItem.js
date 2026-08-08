@@ -29,6 +29,9 @@ function CreateItem() {
         brand: "Nora's Workshop",
         category: '',
         description: '',
+        materials: '',
+        dimensions: '',
+        preparationTime: '',
         price: '',
         countMany: '',
     });
@@ -71,6 +74,9 @@ function CreateItem() {
                 brand: form.brand.trim(),
                 category: form.category.trim(),
                 description: form.description.trim(),
+                materials: form.materials.trim(),
+                dimensions: form.dimensions.trim(),
+                preparationTime: form.preparationTime.trim(),
                 price,
                 countMany,
             };
@@ -132,6 +138,25 @@ function CreateItem() {
                                     <Form.Group controlId="create-description">
                                         <Form.Label>{t('Description')}</Form.Label>
                                         <Form.Control as="textarea" rows={5} value={form.description} onChange={(e) => updateField('description', e.target.value)} placeholder="Describe the materials, finish, and what makes this item special." required />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="create-materials">
+                                        <Form.Label>{t('Materials')}</Form.Label>
+                                        <Form.Control value={form.materials} maxLength={200} onChange={(e) => updateField('materials', e.target.value)} placeholder="Wood, cotton, dried flowers…" />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="create-dimensions">
+                                        <Form.Label>{t('Dimensions')}</Form.Label>
+                                        <Form.Control value={form.dimensions} maxLength={120} onChange={(e) => updateField('dimensions', e.target.value)} placeholder="30 × 20 × 12 cm" />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="create-preparation-time">
+                                        <Form.Label>{t('Preparation time')}</Form.Label>
+                                        <Form.Control value={form.preparationTime} maxLength={120} onChange={(e) => updateField('preparationTime', e.target.value)} placeholder="Ready in 3–5 business days" />
+                                        <Form.Text>{t('Optional. Give customers a realistic estimate before dispatch.')}</Form.Text>
                                     </Form.Group>
                                 </Col>
                             </Row>

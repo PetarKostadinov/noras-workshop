@@ -110,6 +110,8 @@ function ProductScreen() {
         description: productDescription,
         brand: { '@type': 'Brand', name: product.brand },
         category: t(product.category),
+        ...(product.materials ? { material: product.materials } : {}),
+        ...(product.dimensions ? { size: product.dimensions } : {}),
         offers: {
             '@type': 'Offer',
             priceCurrency: 'USD',
@@ -181,6 +183,9 @@ function ProductScreen() {
                     <dl className="product-detail-meta">
                         <div><dt>{t('Crafted by')}</dt><dd>{product.brand}</dd></div>
                         <div><dt>{t('Availability')}</dt><dd className={!inStock ? 'unavailable' : lowStock ? 'low' : ''}><span></span>{!inStock ? t('Out of stock') : lowStock ? t('Only {{count}} left', { count: product.countMany }) : t('In stock')}</dd></div>
+                        {product.materials && <div><dt>{t('Materials')}</dt><dd>{product.materials}</dd></div>}
+                        {product.dimensions && <div><dt>{t('Dimensions')}</dt><dd>{product.dimensions}</dd></div>}
+                        {product.preparationTime && <div><dt>{t('Preparation time')}</dt><dd>{product.preparationTime}</dd></div>}
                     </dl>
                     <div className="product-detail-purchase">
                         <Button onClick={addToCartHandler} disabled={!inStock || adding}>

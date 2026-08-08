@@ -10,6 +10,7 @@ import getError from '../util';
 import ProductImageManager from './ProductImageManager';
 const EMPTY_FORM = {
     name: '', slug: '', image: '', images: [], brand: '', category: '', description: '',
+    materials: '', dimensions: '', preparationTime: '',
     price: '', countMany: '',
 };
 
@@ -44,6 +45,7 @@ function EditItemPage() {
                     name: product.name ?? '', slug: product.slug ?? '', image: product.image ?? '',
                     images: product.images?.length ? product.images : product.image ? [product.image] : [],
                     brand: product.brand ?? '', category: product.category ?? '', description: product.description ?? '',
+                    materials: product.materials ?? '', dimensions: product.dimensions ?? '', preparationTime: product.preparationTime ?? '',
                     price: String(product.price ?? ''), countMany: String(product.countMany ?? ''),
                 });
             } catch (err) {
@@ -92,6 +94,7 @@ function EditItemPage() {
                 ...form,
                 name: form.name.trim(), slug: form.slug.trim().toLowerCase(), image: form.images[0],
                 brand: form.brand.trim(), category: form.category.trim(), description: form.description.trim(),
+                materials: form.materials.trim(), dimensions: form.dimensions.trim(), preparationTime: form.preparationTime.trim(),
                 price, countMany,
             };
             const result = await updateItem(id, payload.slug, payload, userInfo.token);
@@ -128,6 +131,9 @@ function EditItemPage() {
                                 <Col md={6}><Form.Group controlId="edit-brand"><Form.Label>{t('Brand')}</Form.Label><Form.Control value={form.brand} onChange={(e) => updateField('brand', e.target.value)} required /></Form.Group></Col>
                                 <Col md={6}><Form.Group controlId="edit-category"><Form.Label>{t('Category')}</Form.Label><Form.Control value={form.category} onChange={(e) => updateField('category', e.target.value)} required /></Form.Group></Col>
                                 <Col xs={12}><Form.Group controlId="edit-description"><Form.Label>{t('Description')}</Form.Label><Form.Control as="textarea" rows={5} value={form.description} onChange={(e) => updateField('description', e.target.value)} required /></Form.Group></Col>
+                                <Col md={6}><Form.Group controlId="edit-materials"><Form.Label>{t('Materials')}</Form.Label><Form.Control value={form.materials} maxLength={200} onChange={(e) => updateField('materials', e.target.value)} /></Form.Group></Col>
+                                <Col md={6}><Form.Group controlId="edit-dimensions"><Form.Label>{t('Dimensions')}</Form.Label><Form.Control value={form.dimensions} maxLength={120} onChange={(e) => updateField('dimensions', e.target.value)} /></Form.Group></Col>
+                                <Col md={6}><Form.Group controlId="edit-preparation-time"><Form.Label>{t('Preparation time')}</Form.Label><Form.Control value={form.preparationTime} maxLength={120} onChange={(e) => updateField('preparationTime', e.target.value)} /><Form.Text>{t('Optional. Give customers a realistic estimate before dispatch.')}</Form.Text></Form.Group></Col>
                             </Row>
                         </div>
                         <div className="product-editor-card mt-4">

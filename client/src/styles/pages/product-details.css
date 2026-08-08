@@ -36,7 +36,7 @@
 .product-detail-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.35rem 0; }
 .product-detail-meta div { min-width: 0; }
 .product-detail-meta dt { margin-bottom: 0.3rem; color: #9a8780; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-.product-detail-meta dd { margin: 0; overflow: hidden; color: #4b3934; font-size: 0.84rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.product-detail-meta dd { margin: 0; color: #4b3934; font-size: 0.84rem; font-weight: 700; overflow-wrap: anywhere; }
 .product-detail-meta dd span { display: inline-block; width: 8px; height: 8px; margin-right: 0.4rem; background: #4e8066; border-radius: 50%; }
 .product-detail-meta dd.low { color: #9a6c25; }
 .product-detail-meta dd.low span { background: #b18739; }

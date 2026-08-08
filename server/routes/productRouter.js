@@ -29,6 +29,8 @@ const normalizeProductImages = (image, images) => {
         .map((value) => value.trim()))].slice(0, 6);
 };
 
+const optionalProductText = (value) => typeof value === 'string' ? value.trim() : '';
+
 const uploadToCloudinary = (imageBuffer) => new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -238,6 +240,9 @@ productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) 
         brand: req.body.brand,
         category: req.body.category,
         description: req.body.description,
+        materials: optionalProductText(req.body.materials),
+        dimensions: optionalProductText(req.body.dimensions),
+        preparationTime: optionalProductText(req.body.preparationTime),
         price: req.body.price,
         countMany: req.body.countMany,
         rating: 0,
@@ -255,6 +260,9 @@ productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) 
         brand: product.brand,
         category: product.category,
         description: product.description,
+        materials: product.materials,
+        dimensions: product.dimensions,
+        preparationTime: product.preparationTime,
         price: product.price,
         countMany: product.countMany,
         rating: product.rating,
@@ -303,6 +311,9 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
     item.brand = req.body.brand.trim();
     item.category = req.body.category.trim();
     item.description = req.body.description.trim();
+    item.materials = optionalProductText(req.body.materials);
+    item.dimensions = optionalProductText(req.body.dimensions);
+    item.preparationTime = optionalProductText(req.body.preparationTime);
     item.price = req.body.price;
     item.countMany = req.body.countMany;
 
@@ -317,6 +328,9 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
             brand: updatedItem.brand,
             category: updatedItem.category,
             description: updatedItem.description,
+            materials: updatedItem.materials,
+            dimensions: updatedItem.dimensions,
+            preparationTime: updatedItem.preparationTime,
             price: updatedItem.price,
             countMany: updatedItem.countMany,
             rating: updatedItem.rating,

@@ -31,6 +31,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Bilingual shipping, returns, and frequently asked questions pages
 - Bilingual workshop story and custom-project enquiry journey
 - Search-friendly product pages with structured product data, purchase reassurance, and custom-order enquiries
+- Optional product materials, dimensions, and preparation-time details managed by administrators
 - Product galleries with up to six administrator-managed images per product
 - Secure guest checkout with per-order browser access, alongside optional customer accounts
 - Account-based product reviews with verified-purchase labels and administrator moderation
