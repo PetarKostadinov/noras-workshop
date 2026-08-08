@@ -52,10 +52,10 @@ function AppContent() {
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Protected><Profile /></Protected>} />
               <Route path="/register" element={<Register />} />
-              <Route path="/shipping" element={<Protected><ShippingInfo /></Protected>} />
-              <Route path="/payment" element={<Protected><Payment /></Protected>} />
-              <Route path="/order" element={<Protected><PreviewOrder /></Protected>} />
-              <Route path="/order/:id" element={<Protected><OrderFinalStep /></Protected>} />
+              <Route path="/shipping" element={<ShippingInfo />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/order" element={<PreviewOrder />} />
+              <Route path="/order/:id" element={<OrderFinalStep />} />
               <Route path="/orderhistory" element={<Protected><OrderHistory /></Protected>} />
               <Route path="/product/:id/:slug" element={<DetailsPage />} />
               <Route path="/legal/:policy" element={<LegalPage />} />

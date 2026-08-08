@@ -1,14 +1,20 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 import Order from '../models/orderModel.js';
 import Product from '../models/productModel.js';
 import User from '../models/userModel.js';
-import { auth } from '../utils.js';
+import { auth, createRateLimiter, optionalAuth } from '../utils.js';
 import Stripe from 'stripe';
 
 const orderRouter = express.Router();
 const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+const checkoutLimiter = createRateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Too many checkout attempts. Please wait and try again.',
+});
 const getStripe = () => {
     if (!process.env.STRIPE_SECRET_KEY) {
         const error = new Error('Card payments are not configured');
@@ -19,6 +25,7 @@ const getStripe = () => {
 };
 
 const getClientUrl = () => (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/$/, '');
+const hashGuestToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 const restoreInventory = async (reservedItems) => {
     if (reservedItems.length === 0) return;
@@ -35,6 +42,14 @@ const getOwnedOrder = async (orderId, user) => {
     const isCurrentAdmin = await User.exists({ _id: user._id, isAdmin: true });
     const filter = isCurrentAdmin ? { _id: orderId } : { _id: orderId, user: user._id };
     return Order.findOne(filter);
+};
+
+const getAccessibleOrder = async (req) => {
+    if (!mongoose.isValidObjectId(req.params.id)) return null;
+    if (req.user) return getOwnedOrder(req.params.id, req.user);
+    const guestToken = req.headers['x-guest-order-token'];
+    if (typeof guestToken !== 'string' || guestToken.length < 32) return null;
+    return Order.findOne({ _id: req.params.id, user: null, guestAccessTokenHash: hashGuestToken(guestToken) });
 };
 
 const getPayPalBaseUrl = () => process.env.PAYPAL_ENVIRONMENT === 'live'
@@ -147,7 +162,7 @@ const applyStripeSession = async (order, session) => {
     return false;
 };
 
-orderRouter.post('/', auth, expressAsyncHandler(async (req, res) => {
+orderRouter.post('/', optionalAuth, checkoutLimiter, expressAsyncHandler(async (req, res) => {
     const requestedItems = Array.isArray(req.body.orderItems) ? req.body.orderItems : [];
     if (requestedItems.length === 0) {
         return res.status(400).send({ message: 'Your cart is empty' });
@@ -201,6 +216,13 @@ orderRouter.post('/', auth, expressAsyncHandler(async (req, res) => {
         const paymentMethod = ['PayPal', 'Card'].includes(req.body.paymentMethod)
             ? req.body.paymentMethod
             : 'PayPal';
+        const contactEmail = String(req.user?.email || req.body.contactEmail || '').trim().toLowerCase();
+        if (!/^\S+@\S+\.\S+$/.test(contactEmail)) {
+            const emailError = new Error('Enter a valid email address');
+            emailError.status = 400;
+            throw emailError;
+        }
+        const guestAccessToken = req.user ? null : crypto.randomBytes(32).toString('hex');
         const newOrder = new Order({
             orderItems,
             shippingInfo: req.body.shippingInfo,
@@ -209,16 +231,20 @@ orderRouter.post('/', auth, expressAsyncHandler(async (req, res) => {
             shippingPrice,
             taxPrice,
             totalPrice,
-            user: req.user._id,
+            user: req.user?._id || null,
+            contactEmail,
+            guestAccessTokenHash: guestAccessToken ? hashGuestToken(guestAccessToken) : undefined,
             paymentStatus: 'pending',
             fulfillmentStatus: 'awaiting_payment',
         });
         const order = await newOrder.save();
-        res.status(201).send({ message: 'Order created and awaiting payment', order });
+        const orderResponse = order.toObject();
+        delete orderResponse.guestAccessTokenHash;
+        res.status(201).send({ message: 'Order created and awaiting payment', order: orderResponse, ...(guestAccessToken ? { guestAccessToken } : {}) });
     } catch (error) {
         await restoreInventory(reservedItems);
-        if (error.status === 409) {
-            return res.status(409).send({ message: error.message });
+        if ([400, 409].includes(error.status)) {
+            return res.status(error.status).send({ message: error.message });
         }
         throw error;
     }
@@ -229,14 +255,14 @@ orderRouter.get('/mine', auth, expressAsyncHandler(async (req, res) => {
     res.send(orders);
 }));
 
-orderRouter.get('/:id', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.get('/:id', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     res.send(order);
 }));
 
-orderRouter.post('/:id/stripe-checkout', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.post('/:id/stripe-checkout', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     if (order.isPaid) return res.status(400).send({ message: 'This order is already paid' });
     if (order.paymentMethod !== 'Card') {
@@ -260,7 +286,7 @@ orderRouter.post('/:id/stripe-checkout', auth, expressAsyncHandler(async (req, r
         ? { $or: [{ stripeCheckoutAttempt: 0 }, { stripeCheckoutAttempt: { $exists: false } }] }
         : { stripeCheckoutAttempt: previousAttempt };
     const lockedOrder = await Order.findOneAndUpdate(
-        { _id: order._id, user: order.user, isPaid: false, ...attemptFilter },
+        { _id: order._id, isPaid: false, ...attemptFilter },
         { $inc: { stripeCheckoutAttempt: 1 } },
         { new: true }
     );
@@ -271,9 +297,9 @@ orderRouter.post('/:id/stripe-checkout', auth, expressAsyncHandler(async (req, r
     const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         payment_method_types: ['card'],
-        customer_email: req.user.email,
+        customer_email: order.contactEmail,
         client_reference_id: String(lockedOrder._id),
-        metadata: { orderId: String(lockedOrder._id), userId: String(lockedOrder.user) },
+        metadata: { orderId: String(lockedOrder._id), ...(lockedOrder.user ? { userId: String(lockedOrder.user) } : {}) },
         line_items: [{
             quantity: 1,
             price_data: {
@@ -293,8 +319,8 @@ orderRouter.post('/:id/stripe-checkout', auth, expressAsyncHandler(async (req, r
     res.status(201).send({ url: session.url });
 }));
 
-orderRouter.put('/:id/sync-stripe', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.put('/:id/sync-stripe', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (order.paymentMethod !== 'Card' || !order.stripeCheckoutSessionId) {
@@ -307,8 +333,8 @@ orderRouter.put('/:id/sync-stripe', auth, expressAsyncHandler(async (req, res) =
     res.send({ message: 'Card payment verified and order confirmed', order });
 }));
 
-orderRouter.post('/:id/paypal-order', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.post('/:id/paypal-order', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     if (order.isPaid) return res.status(400).send({ message: 'This order is already paid' });
     if (order.paymentMethod !== 'PayPal') return res.status(400).send({ message: 'PayPal is not selected for this order' });
@@ -331,8 +357,8 @@ orderRouter.post('/:id/paypal-order', auth, expressAsyncHandler(async (req, res)
     res.send({ id: paypalOrder.id });
 }));
 
-orderRouter.put('/:id/capture-paypal', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.put('/:id/capture-paypal', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (!order.paypalOrderId) return res.status(400).send({ message: 'No PayPal payment has been started' });
@@ -351,8 +377,8 @@ orderRouter.put('/:id/capture-paypal', auth, expressAsyncHandler(async (req, res
     res.send({ message: 'Payment verified and order confirmed', order });
 }));
 
-orderRouter.put('/:id/sync-paypal', auth, expressAsyncHandler(async (req, res) => {
-    const order = await getOwnedOrder(req.params.id, req.user);
+orderRouter.put('/:id/sync-paypal', optionalAuth, expressAsyncHandler(async (req, res) => {
+    const order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (!order.paypalOrderId) return res.status(400).send({ message: 'No PayPal payment has been started' });
@@ -368,7 +394,7 @@ orderRouter.put('/:id/sync-paypal', auth, expressAsyncHandler(async (req, res) =
     });
 }));
 
-orderRouter.put('/:id/pay', auth, (req, res) => {
+orderRouter.put('/:id/pay', optionalAuth, (req, res) => {
     res.status(410).send({ message: 'Client-reported payments are no longer accepted' });
 });
 

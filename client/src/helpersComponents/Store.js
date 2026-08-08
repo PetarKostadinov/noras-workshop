@@ -17,6 +17,7 @@ const readStoredJson = (key, fallback, isValid) => {
 
 const initialState = {
     userInfo: readStoredJson('userInfo', null, (value) => value === null || typeof value === 'object'),
+    guestOrderAccess: readStoredJson('guestOrderAccess', {}, (value) => value !== null && !Array.isArray(value) && typeof value === 'object'),
     cart: {
         shippingInfo: readStoredJson('shippingInfo', {}, (value) => value !== null && !Array.isArray(value) && typeof value === 'object'),
         paymentMethod: localStorage.getItem('paymentMethod') || '',
@@ -51,6 +52,8 @@ function reducer(state, action) {
             return { ...state, userInfo: action.payload };
         case 'USER_LOGOUT':
             return { ...state, userInfo: null, cart: { cartItems: [], shippingInfo: {}, paymentMethod: '' } };
+        case 'SAVE_GUEST_ORDER_ACCESS':
+            return { ...state, guestOrderAccess: { ...state.guestOrderAccess, [action.payload.orderId]: action.payload.token } };
         case 'SAVE_SHIPPING_INFO':
             return {
                 ...state, cart: { ...state.cart, shippingInfo: action.payload }
@@ -74,6 +77,7 @@ function StoreProvider(props) {
         };
 
         persist('userInfo', state.userInfo, !state.userInfo);
+        persist('guestOrderAccess', state.guestOrderAccess, Object.keys(state.guestOrderAccess).length === 0);
         persist('cartItems', state.cart.cartItems, state.cart.cartItems.length === 0);
         persist('shippingInfo', state.cart.shippingInfo, Object.keys(state.cart.shippingInfo).length === 0);
         if (state.cart.paymentMethod) localStorage.setItem('paymentMethod', state.cart.paymentMethod);

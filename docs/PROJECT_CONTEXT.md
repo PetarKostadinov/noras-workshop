@@ -10,7 +10,7 @@ Nora's Workshop is a responsive ecommerce portfolio application for handmade gif
 
 1. Browse the home catalog or search/filter products.
 2. View a product and add an inventory-limited quantity to the cart.
-3. Continue to checkout; guests must register or sign in, retain their cart, and return to the checkout step they requested.
+3. Continue to checkout as a guest or signed-in customer and provide contact and delivery details.
 4. Enter shipping details and select PayPal or debit/credit card.
 5. Review the order; the server reconstructs products and totals before saving it.
 6. Complete payment; the server verifies PayPal captures or Stripe Checkout through a signed webhook/server lookup.
@@ -41,7 +41,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 ## Client structure and state
 
-`client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, product details, the bilingual workshop story at `/about`, `/legal/privacy`, `/legal/cookies`, and the customer-care routes `/help/shipping`, `/help/returns`, and `/help/faq`. Guests may build and persist a cart, but checkout and order pages require an account. `Protected` safely preserves the requested internal route through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
+`client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, checkout, product and order details, the bilingual workshop story at `/about`, `/legal/privacy`, `/legal/cookies`, and the customer-care routes `/help/shipping`, `/help/returns`, and `/help/faq`. Guests may build a cart and complete checkout; accounts remain optional for order history and profile management. `Protected` safely preserves requested internal account routes through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
 
 Product-detail pages expose the stored product name, gallery images, description, brand, category, price, availability, and optional aggregate rating as schema.org `Product` structured data. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
 
@@ -54,6 +54,7 @@ Product-detail pages expose the stored product name, gallery images, description
 - `language`: selected interface language (`en` or `bg`), owned by i18next rather than the global store.
 - `analyticsConsent`: the visitor's explicit `granted` or `denied` analytics choice, owned by the analytics integration.
 - `analyticsTrackedPurchases`: a bounded list used to prevent duplicate GA4 purchase events after refreshes.
+- `guestOrderAccess`: per-order guest access tokens retained in the browser so a guest can return from Stripe or revisit an order without gaining access to any other order.
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
 
@@ -81,12 +82,12 @@ Relevant model vocabulary:
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
 - Admin product images are uploaded individually as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB each) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; the ordered secure URLs are stored with the product and the first is synchronized to the compatibility `image` cover field. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
 - Gallery changes for an existing product are persisted immediately through the admin-only `PATCH /api/products/:id/images` endpoint, preventing successful Cloudinary uploads from remaining unsaved when the editor is refreshed. New-product galleries are persisted with product creation.
-- An order embeds product display snapshots but retains a `product` ObjectId reference.
+- An order embeds product display snapshots but retains a `product` ObjectId reference. Its `user` reference is optional for guest orders; every new order stores a validated contact email. Guest access uses a random 256-bit token returned once to the browser while only its SHA-256 hash is stored with the order.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
 - Users have `isAdmin`; the JWT repeats this flag. Password hashes are excluded from ordinary user queries and requested explicitly only during login.
 
-Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token. Login and registration share a per-client, in-memory request limit of 20 attempts per 15 minutes.
+Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token. Guest order reads and payment actions require `X-Guest-Order-Token`; its hash must match that specific guest order. Account order history remains authenticated. Login and registration share a per-client, in-memory request limit of 20 attempts per 15 minutes; order creation is limited to 10 attempts per client per 15 minutes.
 
 ## Commerce and payment invariants
 

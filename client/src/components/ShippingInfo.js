@@ -12,7 +12,8 @@ function ShippingInfo() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { state, dispatch: ctxDispatch } = useContext(Store);
-    const { cart: { shippingInfo, cartItems } } = state;
+    const { cart: { shippingInfo, cartItems }, userInfo } = state;
+    const [email, setEmail] = useState(shippingInfo.email || userInfo?.email || '');
     const [fullName, setFullName] = useState(shippingInfo.fullName || '');
     const [address, setAddress] = useState(shippingInfo.address || '');
     const [city, setCity] = useState(shippingInfo.city || '');
@@ -26,6 +27,7 @@ function ShippingInfo() {
     const submitHandler = (event) => {
         event.preventDefault();
         const details = {
+            email: email.trim().toLowerCase(),
             fullName: fullName.trim(),
             address: address.trim(),
             city: city.trim(),
@@ -56,6 +58,11 @@ function ShippingInfo() {
                     </div>
 
                     <Form onSubmit={submitHandler} className="checkout-form">
+                        <Form.Group controlId="shipping-email">
+                            <Form.Label>{t('Email address')}</Form.Label>
+                            <Form.Control type="email" value={email} autoComplete="email" placeholder={t('Email address')} onChange={(event) => setEmail(event.target.value)} required />
+                            <Form.Text>{t('Used to identify your order during secure payment.')}</Form.Text>
+                        </Form.Group>
                         <Form.Group controlId="shipping-full-name">
                             <Form.Label>{t('Full name')}</Form.Label>
                             <Form.Control

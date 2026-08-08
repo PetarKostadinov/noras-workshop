@@ -15,6 +15,7 @@ export const fetchOrderHistory = async (token) => {
       orderItems: cart.cartItems,
       shippingInfo: cart.shippingInfo,
       paymentMethod: cart.paymentMethod,
+      contactEmail: cart.shippingInfo.email,
       itemsPrice: cart.itemsPrice,
       shippingPrice: cart.shippingPrice,
       taxPrice: cart.taxPrice,
@@ -25,7 +26,7 @@ export const fetchOrderHistory = async (token) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userInfo.token}`,
+        ...(userInfo?.token ? { Authorization: `Bearer ${userInfo.token}` } : {}),
       },
       body: JSON.stringify(order),
     });

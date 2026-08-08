@@ -44,6 +44,9 @@ function PreviewOrder() {
         try {
             setPlacingOrder(true);
             const data = await createOrder({ ...cart, ...totals }, userInfo);
+            if (data.guestAccessToken) {
+                ctxDispatch({ type: 'SAVE_GUEST_ORDER_ACCESS', payload: { orderId: data.order._id, token: data.guestAccessToken } });
+            }
             ctxDispatch({ type: 'CART_CLEAR' });
             navigate('/order/' + data.order._id);
         } catch (err) {
@@ -74,6 +77,7 @@ function PreviewOrder() {
                         </div>
                         <address className="review-address">
                             <strong>{address.fullName}</strong>
+                            <span>{address.email}</span>
                             <span>{address.address}</span>
                             <span>{address.city}, {address.postCode}</span>
                             <span>{address.country}</span>

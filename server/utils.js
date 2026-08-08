@@ -38,6 +38,20 @@ export const auth = (req, res, next) => {
     }
 };
 
+export const optionalAuth = (req, res, next) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) return next();
+    if (!authorization.startsWith('Bearer ')) {
+        return res.status(401).send({ message: 'Your session is no longer valid. Please sign in again.' });
+    }
+    try {
+        req.user = jwt.verify(authorization.slice(7), process.env.JWT_SECRET);
+        next();
+    } catch {
+        res.status(401).send({ message: 'Your session is no longer valid. Please sign in again.' });
+    }
+};
+
 export const createRateLimiter = ({ windowMs, max, message }) => {
     const requests = new Map();
 

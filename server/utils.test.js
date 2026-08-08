@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { auth, createRateLimiter, escapeRegex } from './utils.js';
+import { auth, createRateLimiter, escapeRegex, optionalAuth } from './utils.js';
 
 const createResponse = () => ({
     headers: {},
@@ -34,6 +34,20 @@ test('auth rejects headers that do not use the Bearer scheme', () => {
 
     auth({ headers: { authorization: 'Basic token' } }, response, () => { calledNext = true; });
 
+    assert.equal(response.statusCode, 401);
+    assert.equal(calledNext, false);
+});
+
+test('optionalAuth allows requests without an account token', () => {
+    let calledNext = false;
+    optionalAuth({ headers: {} }, createResponse(), () => { calledNext = true; });
+    assert.equal(calledNext, true);
+});
+
+test('optionalAuth rejects malformed authorization headers', () => {
+    const response = createResponse();
+    let calledNext = false;
+    optionalAuth({ headers: { authorization: 'Basic token' } }, response, () => { calledNext = true; });
     assert.equal(response.statusCode, 401);
     assert.equal(calledNext, false);
 });

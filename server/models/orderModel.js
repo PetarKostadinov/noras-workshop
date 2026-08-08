@@ -19,6 +19,7 @@ const orderSchema = new mongoose.Schema(
             postCode: { type: String, required: true },
             country: { type: String, required: true },
         },
+        contactEmail: { type: String, trim: true, lowercase: true },
         paymentMethod: { type: String, required: true },
         paymentResult: {
             id: String,
@@ -30,7 +31,8 @@ const orderSchema = new mongoose.Schema(
         shippingPrice: { type: Number, required: true },
         taxPrice: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+        guestAccessTokenHash: { type: String, select: false },
         paymentStatus: {
             type: String,
             enum: ['pending', 'processing', 'paid', 'failed', 'refunded'],

@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Helmet } from 'react-helmet-async';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import getError from '../util';
 import LoadingComponent from '../helpersComponents/LoadingComponent';
@@ -10,6 +10,10 @@ import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
 import { trackPurchase } from '../service/analyticsService';
+
+const getAccessHeaders = (userInfo, guestToken) => guestToken
+    ? { 'x-guest-order-token': guestToken }
+    : { authorization: `Bearer ${userInfo.token}` };
 
 function reducer(state, action) {
     switch (action.type) {
@@ -34,9 +38,10 @@ function OrderFinalStep() {
     const { t, i18n } = useTranslation();
     const { id: orderId } = useParams();
     const { search } = useLocation();
-    const navigate = useNavigate();
     const { state } = useContext(Store);
-    const { userInfo } = state;
+    const { userInfo, guestOrderAccess } = state;
+    const guestToken = guestOrderAccess[orderId];
+    const hasOrderAccess = Boolean(userInfo?.token || guestToken);
     const [paypalConfigError, setPaypalConfigError] = useState('');
     const [paypalLoadAttempt, setPaypalLoadAttempt] = useState(0);
     const [checkingPayment, setCheckingPayment] = useState(false);
@@ -56,16 +61,13 @@ function OrderFinalStep() {
     }, [order]);
 
     useEffect(() => {
-        if (!userInfo) {
-            navigate('/login');
-            return;
-        }
+        if (!hasOrderAccess) return dispatch({ type: 'FETCH_FAIL', payload: t('This guest order is not available in this browser.') });
 
         const fetchOrder = async () => {
             try {
                 dispatch({ type: 'FETCH_REQUEST' });
                 const { data } = await axios.get('/api/orders/' + orderId, {
-                    headers: { authorization: 'Bearer ' + userInfo.token },
+                    headers: getAccessHeaders(userInfo, guestToken),
                 });
                 dispatch({ type: 'FETCH_SUCCESS', payload: data });
             } catch (err) {
@@ -73,7 +75,7 @@ function OrderFinalStep() {
             }
         };
         fetchOrder();
-    }, [navigate, orderId, userInfo]);
+    }, [guestToken, hasOrderAccess, orderId, t, userInfo]);
 
     useEffect(() => {
         if (stripeReturnStatus !== 'success' || !order._id || order.isPaid || order.paymentMethod !== 'Card') return;
@@ -84,7 +86,7 @@ function OrderFinalStep() {
                 const response = await axios.put(
                     '/api/orders/' + order._id + '/sync-stripe',
                     {},
-                    { headers: { authorization: 'Bearer ' + userInfo.token } }
+                    { headers: getAccessHeaders(userInfo, guestToken) }
                 );
                 dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
                 if (response.data.order.isPaid) toast.success('Card payment verified. Your order is confirmed.');
@@ -96,10 +98,10 @@ function OrderFinalStep() {
             }
         };
         syncCardPayment();
-    }, [order._id, order.isPaid, order.paymentMethod, stripeReturnStatus, userInfo]);
+    }, [guestToken, order._id, order.isPaid, order.paymentMethod, stripeReturnStatus, userInfo]);
 
     useEffect(() => {
-        if (!order._id || order.isPaid || order.paymentMethod !== 'PayPal' || !userInfo) return;
+        if (!order._id || order.isPaid || order.paymentMethod !== 'PayPal' || !hasOrderAccess) return;
 
         const loadPayPal = async () => {
             try {
@@ -115,13 +117,13 @@ function OrderFinalStep() {
             }
         };
         loadPayPal();
-    }, [order._id, order.isPaid, order.paymentMethod, paypalDispatch, paypalLoadAttempt, userInfo]);
+    }, [hasOrderAccess, order._id, order.isPaid, order.paymentMethod, paypalDispatch, paypalLoadAttempt]);
 
     const createPayPalOrder = async () => {
         const { data } = await axios.post(
             '/api/orders/' + order._id + '/paypal-order',
             {},
-            { headers: { authorization: 'Bearer ' + userInfo.token } }
+            { headers: getAccessHeaders(userInfo, guestToken) }
         );
         return data.id;
     };
@@ -132,7 +134,7 @@ function OrderFinalStep() {
             const response = await axios.put(
                 '/api/orders/' + order._id + '/capture-paypal',
                 {},
-                { headers: { authorization: 'Bearer ' + userInfo.token } }
+                { headers: getAccessHeaders(userInfo, guestToken) }
             );
             dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
             if (response.data.order.isPaid) {
@@ -153,7 +155,7 @@ function OrderFinalStep() {
             const response = await axios.put(
                 '/api/orders/' + order._id + '/sync-paypal',
                 {},
-                { headers: { authorization: 'Bearer ' + userInfo.token } }
+                { headers: getAccessHeaders(userInfo, guestToken) }
             );
             dispatch({ type: 'PAY_SUCCESS', payload: response.data.order });
             if (response.data.order.isPaid) {
@@ -174,7 +176,7 @@ function OrderFinalStep() {
             const response = await axios.post(
                 '/api/orders/' + order._id + '/stripe-checkout',
                 {},
-                { headers: { authorization: 'Bearer ' + userInfo.token } }
+                { headers: getAccessHeaders(userInfo, guestToken) }
             );
             window.location.assign(response.data.url);
         } catch (err) {

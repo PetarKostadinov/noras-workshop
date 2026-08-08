@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store } from '../helpersComponents/Store';
 import { fetchProduct } from '../service/productService';
-import getError, { getLoginUrl } from '../util';
+import getError from '../util';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { trackCartEvent } from '../service/analyticsService';
@@ -41,7 +41,7 @@ function CartScreen() {
 
   const checkoutHandler = () => {
     trackCartEvent('begin_checkout', cartItems);
-    navigate(userInfo ? '/shipping' : getLoginUrl('/shipping'));
+    navigate('/shipping');
   };
 
   return (
@@ -117,8 +117,8 @@ function CartScreen() {
             </Button>
             {!userInfo && (
               <div className="cart-account-note" role="note">
-                <i className="fas fa-user-lock" aria-hidden="true"></i>
-                <span><strong>{t('Account required at checkout')}</strong>{t('Your cart will stay saved while you sign in or create an account.')}</span>
+                  <i className="fas fa-user-check" aria-hidden="true"></i>
+                  <span><strong>{t('Guest checkout available')}</strong>{t('No account is required. You can sign in for order history and easier checkout.')}</span>
               </div>
             )}
             <div className="cart-assurance">

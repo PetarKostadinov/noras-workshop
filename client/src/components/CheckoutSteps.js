@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 function CheckoutSteps({ step1, step2, step3, step4 }) {
     const { t } = useTranslation();
     const steps = [
-        { label: 'Account', active: step1 },
+        { label: 'Contact', active: step1 },
         { label: 'Delivery', active: step2 },
         { label: 'Payment', active: step3 },
         { label: 'Review', active: step4 },

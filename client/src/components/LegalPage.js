@@ -13,8 +13,8 @@ const policies = {
         ]],
         ['Information we collect', [
           'Account information: your name, email address, hashed password, account role, and authentication information.',
-          'Order information: purchased products, quantities, prices, delivery name and address, payment method, transaction references, payment status, and fulfillment status.',
-          'Shopping information stored in your browser: cart contents, delivery details, payment-method selection, language, and analytics preference.',
+          'Order information: contact email, purchased products, quantities, prices, delivery name and address, payment method, transaction references, payment status, and fulfillment status.',
+          'Shopping information stored in your browser: cart contents, delivery details, payment-method selection, language, analytics preference, and a random per-order access token when you check out as a guest.',
           'Usage information: page views and ecommerce interactions are sent to Google Analytics only after you allow analytics.',
           'We do not collect or store raw card numbers, expiry dates, or security codes. Card details are entered on Stripe-hosted Checkout, and PayPal credentials are handled by PayPal.',
         ]],
@@ -48,7 +48,7 @@ const policies = {
       intro: 'This policy describes the cookies and browser storage used by Nora’s Workshop and how you can control optional analytics.',
       sections: [
         ['Essential browser storage', [
-          'The shop uses first-party local storage for your cart, account session, delivery details, selected payment method, language, and analytics preference. These values make the features you request persist between pages and visits.',
+          'The shop uses first-party local storage for your cart, account session, guest-order access, delivery details, selected payment method, language, and analytics preference. These values make the features you request persist between pages and visits.',
           'Declining analytics does not prevent you from browsing, signing in, adding products to the cart, or completing checkout.',
         ]],
         ['Google Analytics', [
@@ -74,8 +74,8 @@ const policies = {
         ['Кой носи отговорност', ['Nora’s Workshop, базирана в Бургас, България, отговаря за личните данни, обработвани чрез този уебсайт. Въпроси и искания относно поверителността могат да бъдат изпращани на petar_vs@outlook.com.']],
         ['Каква информация събираме', [
           'Данни за профила: име, имейл адрес, хеширана парола, роля и информация за удостоверяване.',
-          'Данни за поръчката: продукти, количества, цени, име и адрес за доставка, начин на плащане, референции за транзакции и статус на плащането и изпълнението.',
-          'Информация в браузъра: съдържание на количката, данни за доставка, избран начин на плащане, език и избор за анализи.',
+          'Данни за поръчката: имейл за контакт, продукти, количества, цени, име и адрес за доставка, начин на плащане, референции за транзакции и статус на плащането и изпълнението.',
+          'Информация в браузъра: съдържание на количката, данни за доставка, избран начин на плащане, език, избор за анализи и случаен ключ за достъп до конкретна поръчка без профил.',
           'Данни за използването: прегледи на страници и действия в магазина се изпращат към Google Analytics само след разрешение.',
           'Не събираме и не съхраняваме номера на карти, срокове на валидност или кодове за сигурност. Картовите данни се въвеждат в Stripe Checkout, а данните за PayPal се обработват от PayPal.',
         ]],
@@ -109,7 +109,7 @@ const policies = {
       intro: 'Тази политика описва бисквитките и данните в браузъра, използвани от Nora’s Workshop, и управлението на незадължителните анализи.',
       sections: [
         ['Необходими данни в браузъра', [
-          'Магазинът използва локално хранилище за количката, сесията на профила, данните за доставка, избрания начин на плащане, езика и избора за анализи. Те запазват поисканите функции между страниците и посещенията.',
+          'Магазинът използва локално хранилище за количката, сесията на профила, достъпа до гост поръчки, данните за доставка, избрания начин на плащане, езика и избора за анализи. Те запазват поисканите функции между страниците и посещенията.',
           'Отказът от анализи не пречи на разглеждането, входа, количката или завършването на поръчка.',
         ]],
         ['Google Analytics', [

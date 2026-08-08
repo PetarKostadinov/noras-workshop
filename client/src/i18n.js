@@ -184,6 +184,9 @@ const bg = {
   'Uploading image {{completed}} of {{total}}…': 'Качване на изображение {{completed}} от {{total}}…',
   '{{count}} image(s) uploaded; some files could not be uploaded.': '{{count}} изображения са качени; някои файлове не можаха да бъдат качени.',
   'Gallery changes to existing products save automatically.': 'Промените в галерията на съществуващи продукти се запазват автоматично.', 'A product must keep at least one image.': 'Продуктът трябва да има поне едно изображение.',
+  'Guest checkout available': 'Поръчка без регистрация', 'No account is required. You can sign in for order history and easier checkout.': 'Не е необходим профил. Можете да влезете за история на поръчките и по-лесно плащане.',
+  'Contact': 'Контакт', 'Used to identify your order during secure payment.': 'Използва се за идентифициране на поръчката при сигурно плащане.',
+  'This guest order is not available in this browser.': 'Тази гост поръчка не е достъпна в този браузър.',
 };
 
 const savedLanguage = localStorage.getItem('language');
