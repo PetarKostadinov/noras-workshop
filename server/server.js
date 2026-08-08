@@ -10,7 +10,7 @@ import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 import adminRouter from "./routes/adminRouter.js";
 import Product from "./models/productModel.js";
 import Review from "./models/reviewModel.js";
-import { buildSitemap, injectSeoMetadata } from "./seo.js";
+import { buildMerchantFeed, buildSitemap, injectSeoMetadata } from "./seo.js";
 
 dotenv.config();
 
@@ -69,6 +69,18 @@ app.get('/sitemap.xml', async (req, res, next) => {
   try {
     const products = await Product.find().select('_id slug updatedAt').sort({ _id: 1 }).lean();
     res.type('application/xml').send(buildSitemap(getPublicOrigin(req), products));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/google-products.xml', async (req, res, next) => {
+  try {
+    const products = await Product.find()
+      .select('_id name slug description image images brand category price countMany')
+      .sort({ _id: 1 })
+      .lean();
+    res.type('application/xml').send(buildMerchantFeed(getPublicOrigin(req), products));
   } catch (error) {
     next(error);
   }

@@ -37,6 +37,8 @@ For a single-service production deployment, `render.yaml` builds the CRA client 
 
 Production HTML responses receive server-injected canonical, Open Graph, and Twitter metadata. Product routes use the stored cover image and product copy; private, checkout, search, and unknown routes receive `noindex, nofollow`. `/sitemap.xml` is generated from public static routes and current products using `CLIENT_URL` (or the request origin), while `/robots.txt` links to it and excludes account, admin, and order paths.
 
+`/google-products.xml` generates a Google Merchant RSS/XML feed from current products. It publishes USD prices, current inventory availability, canonical product URLs, the cover and additional images, `new` condition, stored brand, the stable product ID as the workshop-assigned MPN, and the catalog category as product type. Merchant Center owns target-country, shipping, returns, and refresh settings.
+
 When `GOOGLE_SITE_VERIFICATION` is configured, production HTML also receives an escaped Google Search Console ownership meta tag. Store only the HTML tag's `content` value in the environment variable and keep it configured so ownership remains verifiable.
 
 The client provider order in `client/src/index.js` is `StoreProvider` -> `HelmetProvider` -> deferred `PayPalScriptProvider` -> `App`. PayPal's browser script is loaded only on the payment/order flow after the public client ID is fetched.

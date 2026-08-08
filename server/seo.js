@@ -22,6 +22,36 @@ export const buildSitemap = (origin, products) => {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => `  <url>\n    <loc>${escapeMarkup(url.location)}</loc>${url.lastModified ? `\n    <lastmod>${escapeMarkup(url.lastModified)}</lastmod>` : ''}\n    <priority>${url.priority}</priority>\n  </url>`).join('\n')}\n</urlset>`;
 };
 
+export const buildMerchantFeed = (origin, products) => {
+  const baseUrl = normalizeOrigin(origin);
+  const items = products.map((product) => {
+    const productUrl = `${baseUrl}/product/${product._id}/${product.slug}`;
+    const images = product.images?.length ? product.images : [product.image];
+    const additionalImages = images
+      .filter((image) => image && image !== product.image)
+      .map((image) => `      <g:additional_image_link>${escapeMarkup(image)}</g:additional_image_link>`);
+
+    return [
+      '    <item>',
+      `      <g:id>${escapeMarkup(product._id)}</g:id>`,
+      `      <g:title>${escapeMarkup(String(product.name).slice(0, 150))}</g:title>`,
+      `      <g:description>${escapeMarkup(String(product.description).slice(0, 5000))}</g:description>`,
+      `      <g:link>${escapeMarkup(productUrl)}</g:link>`,
+      `      <g:image_link>${escapeMarkup(product.image)}</g:image_link>`,
+      ...additionalImages,
+      `      <g:availability>${product.countMany > 0 ? 'in_stock' : 'out_of_stock'}</g:availability>`,
+      `      <g:price>${Number(product.price).toFixed(2)} USD</g:price>`,
+      '      <g:condition>new</g:condition>',
+      `      <g:brand>${escapeMarkup(product.brand || "Nora's Workshop")}</g:brand>`,
+      `      <g:mpn>${escapeMarkup(product._id)}</g:mpn>`,
+      `      <g:product_type>${escapeMarkup(product.category)}</g:product_type>`,
+      '    </item>',
+    ].join('\n');
+  }).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">\n  <channel>\n    <title>Nora's Workshop</title>\n    <link>${escapeMarkup(baseUrl)}</link>\n    <description>Handmade gifts and décor from Nora's Workshop</description>\n${items}\n  </channel>\n</rss>`;
+};
+
 export const injectSeoMetadata = (html, metadata, googleSiteVerification = '') => {
   const title = escapeMarkup(metadata.title);
   const description = escapeMarkup(metadata.description);

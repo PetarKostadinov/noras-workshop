@@ -37,6 +37,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Secure guest checkout with per-order browser access, alongside optional customer accounts
 - Account-based product reviews with verified-purchase labels and administrator moderation
 - Dynamic XML sitemap, robots guidance, canonical URLs, and product-specific social sharing cards
+- Database-backed Google Merchant XML product feed for free-listing setup
 - Accessibility foundations including skip navigation, visible keyboard focus, route announcements, reduced-motion support, and accessible ratings
 - Deferred loading and asynchronous decoding for below-the-fold product and checkout images
 
@@ -208,6 +209,8 @@ npm test        # Run server unit tests
 | POST | /api/stripe/webhook | Receive signed Stripe payment events |
 
 Public SEO endpoints are available at `/sitemap.xml` and `/robots.txt`. In production, Express injects route-specific canonical, Open Graph, and Twitter metadata into the CRA HTML shell before sending it to crawlers and social platforms.
+
+The Google Merchant product feed is available at `/google-products.xml`. It is generated from current database products and includes stable IDs, canonical product links, images, USD prices, inventory availability, condition, brand, MPN, and product type. Configure shipping, returns, target country, and feed refresh scheduling in Merchant Center rather than in this endpoint.
 
 ### Google Search Console
 
