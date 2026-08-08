@@ -41,7 +41,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 ## Client structure and state
 
-`client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, and product details. Guests may build and persist a cart, but checkout and order pages require an account. `Protected` safely preserves the requested internal route through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
+`client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, product details, and `/legal/privacy` and `/legal/cookies`. Guests may build and persist a cart, but checkout and order pages require an account. `Protected` safely preserves the requested internal route through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
 
 `client/src/helpersComponents/Store.js` is the global store. Durable browser keys are:
 

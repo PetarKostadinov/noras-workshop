@@ -26,6 +26,7 @@ import Footer from "./components/Footer";
 import AdminManagementPage from "./components/AdminManagementPage";
 import AnalyticsConsent from "./helpersComponents/AnalyticsConsent";
 import { trackPageView } from "./service/analyticsService";
+import LegalPage from "./components/LegalPage";
 
 function AppContent() {
   const { pathname, search } = useLocation();
@@ -55,6 +56,7 @@ function AppContent() {
               <Route path="/order/:id" element={<Protected><OrderFinalStep /></Protected>} />
               <Route path="/orderhistory" element={<Protected><OrderHistory /></Protected>} />
               <Route path="/product/:id/:slug" element={<DetailsPage />} />
+              <Route path="/legal/:policy" element={<LegalPage />} />
               {/* Admin Routes */}
               <Route path="/admin/dashboard"
                 element={<AdminRoute>

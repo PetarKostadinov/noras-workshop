@@ -1,0 +1,23 @@
+/* PRIVACY AND COOKIE POLICIES */
+.legal-page { padding: 1.5rem 0 5rem; }
+.legal-heading { max-width: 820px; margin-bottom: 2.5rem; }
+.legal-heading > span { color: var(--color-primary-strong); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; }
+.legal-heading h1 { margin: 0.65rem 0 0.8rem; color: var(--color-heading); font-family: var(--font-display); font-size: clamp(2.3rem, 5vw, 4rem); font-weight: 500; }
+.legal-heading p { margin: 0 0 0.75rem; color: var(--color-text-muted); line-height: 1.75; }
+.legal-heading small { color: #9a8780; }
+.legal-layout { display: grid; grid-template-columns: 190px minmax(0, 820px); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+.legal-navigation { position: sticky; top: 120px; display: flex; padding: 0.55rem; flex-direction: column; background: rgba(255, 255, 255, 0.75); border: 1px solid var(--color-border); border-radius: 0.9rem; }
+.legal-navigation a { padding: 0.7rem 0.8rem; color: #6f5a54; border-radius: 0.65rem; font-size: 0.8rem; font-weight: 750; text-decoration: none; }
+.legal-navigation a.active { color: #8f5145; background: #f7e8e3; }
+.legal-content { padding: clamp(1.4rem, 4vw, 2.75rem); background: rgba(255, 255, 255, 0.92); border: 1px solid var(--color-border); border-radius: 1.15rem; box-shadow: 0 18px 45px rgba(88, 61, 52, 0.08); }
+.legal-content section + section { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--color-border); }
+.legal-content h2 { margin: 0 0 0.85rem; color: var(--color-heading-alt); font-family: var(--font-display); font-size: 1.35rem; }
+.legal-content p { margin: 0.65rem 0 0; color: #6d5953; font-size: 0.9rem; line-height: 1.75; }
+.legal-preferences-button { margin-top: 2rem; padding: 0.7rem 1rem; color: var(--color-white); background: var(--color-primary); border: 1px solid var(--color-primary); border-radius: 999px; font-weight: 800; }
+.legal-preferences-button:hover { background: var(--color-primary-dark); border-color: var(--color-primary-dark); }
+
+@media (max-width: 767.98px) {
+  .legal-layout { grid-template-columns: 1fr; gap: 1rem; }
+  .legal-navigation { position: static; flex-direction: row; }
+  .legal-navigation a { flex: 1; text-align: center; }
+}

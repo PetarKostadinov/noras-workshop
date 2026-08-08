@@ -161,6 +161,17 @@
   color: #e6aa99;
 }
 
+.footer-bottom a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
+.footer-bottom a:hover,
+.footer-bottom a:focus-visible {
+  color: var(--color-white);
+}
+
 .footer-privacy-button {
   padding: 0;
   color: inherit;

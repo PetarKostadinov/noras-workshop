@@ -27,6 +27,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Admin-facing product creation and editing screens
 - MongoDB-backed products, users, and orders
 - Responsive layouts for desktop, tablet, and mobile
+- Consent-gated ecommerce analytics with customer-facing privacy and cookie policies
 
 ## Technology
 

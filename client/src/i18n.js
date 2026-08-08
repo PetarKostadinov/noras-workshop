@@ -163,6 +163,7 @@ const bg = {
   'With your permission, shopping analytics help us understand which products and pages are useful. Advertising cookies stay disabled.': 'С ваше разрешение анализите на пазаруването ни помагат да разберем кои продукти и страници са полезни. Рекламните бисквитки остават изключени.',
   'Decline analytics': 'Отказвам анализите', 'Allow analytics': 'Разрешавам анализите',
   'Analytics settings': 'Настройки за анализи',
+  'Cookie details': 'Подробности за бисквитките', 'Privacy': 'Поверителност', 'Cookies': 'Бисквитки',
 };
 
 const savedLanguage = localStorage.getItem('language');
