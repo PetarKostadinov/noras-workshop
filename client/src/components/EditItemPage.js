@@ -5,13 +5,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { Store } from '../helpersComponents/Store';
-import { fetchProduct, updateItem, uploadProductImage } from '../service/productService';
+import { fetchProduct, updateItem } from '../service/productService';
 import getError from '../util';
-
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+import ProductImageManager from './ProductImageManager';
 const EMPTY_FORM = {
-    name: '', slug: '', image: '', brand: '', category: '', description: '',
+    name: '', slug: '', image: '', images: [], brand: '', category: '', description: '',
     price: '', countMany: '', rating: '', numReviews: '',
 };
 
@@ -32,7 +30,6 @@ function EditItemPage() {
     const [loadError, setLoadError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState('');
     const [validated, setValidated] = useState(false);
 
     useEffect(() => {
@@ -45,6 +42,7 @@ function EditItemPage() {
                 if (!active) return;
                 setForm({
                     name: product.name ?? '', slug: product.slug ?? '', image: product.image ?? '',
+                    images: product.images?.length ? product.images : product.image ? [product.image] : [],
                     brand: product.brand ?? '', category: product.category ?? '', description: product.description ?? '',
                     price: String(product.price ?? ''), countMany: String(product.countMany ?? ''),
                     rating: String(product.rating ?? ''), numReviews: String(product.numReviews ?? ''),
@@ -59,45 +57,13 @@ function EditItemPage() {
         return () => { active = false; };
     }, [id]);
 
-    useEffect(() => () => {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-    }, [previewUrl]);
-
     const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
-
-    const imageChangeHandler = async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-            toast.error('Choose a JPG, PNG, WebP, or GIF image.');
-            event.target.value = '';
-            return;
-        }
-        if (file.size > MAX_IMAGE_SIZE) {
-            toast.error('The image must be 5 MB or smaller.');
-            event.target.value = '';
-            return;
-        }
-
-        const nextPreviewUrl = URL.createObjectURL(file);
-        setPreviewUrl(nextPreviewUrl);
-        setUploading(true);
-        try {
-            const data = await uploadProductImage(userInfo.token, file);
-            updateField('image', data.image);
-        } catch (err) {
-            setPreviewUrl('');
-            event.target.value = '';
-            toast.error(getError(err));
-        } finally {
-            setUploading(false);
-        }
-    };
 
     const submitHandler = async (event) => {
         event.preventDefault();
         setValidated(true);
         if (!event.currentTarget.checkValidity()) return;
+        if (!form.images.length) return toast.error('Add at least one product image.');
 
         const price = Number(form.price);
         const countMany = Number(form.countMany);
@@ -112,7 +78,7 @@ function EditItemPage() {
         try {
             const payload = {
                 ...form,
-                name: form.name.trim(), slug: form.slug.trim().toLowerCase(), image: form.image.trim(),
+                name: form.name.trim(), slug: form.slug.trim().toLowerCase(), image: form.images[0],
                 brand: form.brand.trim(), category: form.category.trim(), description: form.description.trim(),
                 price, countMany, rating, numReviews,
             };
@@ -129,7 +95,6 @@ function EditItemPage() {
     if (loading) return <div className="admin-dashboard-loading"><Spinner animation="border" /><span>{t('Loading product…')}</span></div>;
     if (loadError) return <div className="admin-dashboard-empty"><h1>{t('Product unavailable')}</h1><p>{loadError}</p><Link className="product-editor-back" to="/admin/productlist">{t('Back to products')}</Link></div>;
 
-    const displayedImage = previewUrl || form.image;
     const productUrl = `/product/${id}/${form.slug}`;
 
     return (
@@ -165,10 +130,7 @@ function EditItemPage() {
                     </Col>
                     <Col lg={4}>
                         <div className="product-editor-card product-image-panel">
-                            <h2>{t('Product image')}</h2>
-                            <div className={`product-image-preview ${displayedImage ? 'has-image' : ''}`}>{displayedImage ? <img src={displayedImage} alt={t('Product preview')} /> : <span>{t('Choose an image to preview it')}</span>}</div>
-                            <Form.Group controlId="edit-image"><Form.Label>{t('Replace image')}</Form.Label><Form.Control className="product-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={imageChangeHandler} disabled={uploading || submitting} /><Form.Text>JPG, PNG, WebP, or GIF. Maximum 5 MB.</Form.Text></Form.Group>
-                            {uploading && <div className="product-upload-status"><Spinner size="sm" animation="border" /><span>{t('Uploading image…')}</span></div>}
+                            <ProductImageManager images={form.images} onChange={(images) => setForm((current) => ({ ...current, images, image: images[0] || '' }))} token={userInfo.token} uploading={uploading} setUploading={setUploading} disabled={submitting} />
                         </div>
                         <div className="product-editor-actions">
                             <Button type="submit" disabled={submitting || uploading}>{submitting && <Spinner size="sm" animation="border" aria-hidden="true" />}<span>{t(submitting ? 'Saving changes…' : 'Save changes')}</span></Button>

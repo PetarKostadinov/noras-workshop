@@ -1,15 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Store } from '../helpersComponents/Store';
-import { createProduct, uploadProductImage } from '../service/productService';
+import { createProduct } from '../service/productService';
 import getError from '../util';
 import { useTranslation } from 'react-i18next';
-
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+import ProductImageManager from './ProductImageManager';
 
 const slugify = (value) => value
     .toLowerCase()
@@ -27,6 +25,7 @@ function CreateItem() {
         name: '',
         slug: '',
         image: '',
+        images: [],
         brand: "Nora's Workshop",
         category: '',
         description: '',
@@ -38,12 +37,7 @@ function CreateItem() {
     const [slugEdited, setSlugEdited] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState('');
     const [validated, setValidated] = useState(false);
-
-    useEffect(() => () => {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-    }, [previewUrl]);
 
     const updateField = (field, value) => {
         setForm((current) => ({
@@ -53,42 +47,12 @@ function CreateItem() {
         }));
     };
 
-    const imageChangeHandler = async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-            toast.error('Choose a JPG, PNG, WebP, or GIF image.');
-            event.target.value = '';
-            return;
-        }
-        if (file.size > MAX_IMAGE_SIZE) {
-            toast.error('The image must be 5 MB or smaller.');
-            event.target.value = '';
-            return;
-        }
-
-        const nextPreviewUrl = URL.createObjectURL(file);
-        setPreviewUrl(nextPreviewUrl);
-        updateField('image', '');
-        setUploading(true);
-        try {
-            const data = await uploadProductImage(userInfo.token, file);
-            updateField('image', data.image);
-        } catch (err) {
-            setPreviewUrl('');
-            event.target.value = '';
-            toast.error(getError(err));
-        } finally {
-            setUploading(false);
-        }
-    };
-
     const submitHandler = async (event) => {
         event.preventDefault();
         setValidated(true);
 
         if (!event.currentTarget.checkValidity()) return;
-        if (!form.image) {
+        if (!form.images.length) {
             toast.error('Upload a product image before creating the product.');
             return;
         }
@@ -109,7 +73,7 @@ function CreateItem() {
                 ...form,
                 name: form.name.trim(),
                 slug: form.slug.trim().toLowerCase(),
-                image: form.image.trim(),
+                image: form.images[0],
                 brand: form.brand.trim(),
                 category: form.category.trim(),
                 description: form.description.trim(),
@@ -214,16 +178,7 @@ function CreateItem() {
 
                     <Col lg={4}>
                         <div className="product-editor-card product-image-panel">
-                            <h2>{t('Product image')}</h2>
-                            <div className={`product-image-preview ${previewUrl ? 'has-image' : ''}`}>
-                                {previewUrl ? <img src={previewUrl} alt={t('Selected product preview')} /> : <span>{t('Choose an image to preview it')}</span>}
-                            </div>
-                            <Form.Group controlId="create-image">
-                                <Form.Label>{t('Upload from your computer')}</Form.Label>
-                                <Form.Control className="product-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={imageChangeHandler} disabled={uploading || submitting} required={!form.image} />
-                                <Form.Text>JPG, PNG, WebP, or GIF. Maximum 5 MB.</Form.Text>
-                            </Form.Group>
-                            {uploading && <div className="product-upload-status"><Spinner size="sm" animation="border" /><span>{t('Uploading image…')}</span></div>}
+                            <ProductImageManager images={form.images} onChange={(images) => setForm((current) => ({ ...current, images, image: images[0] || '' }))} token={userInfo.token} uploading={uploading} setUploading={setUploading} disabled={submitting} />
                         </div>
 
                         <div className="product-editor-actions">

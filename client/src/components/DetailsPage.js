@@ -23,6 +23,7 @@ function ProductScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [product, setProduct] = useState(null);
+    const [selectedImage, setSelectedImage] = useState('');
     const [adding, setAdding] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
@@ -35,6 +36,7 @@ function ProductScreen() {
                 const result = await fetchProduct(id);
                 if (!active) return;
                 setProduct(result);
+                setSelectedImage(result.image);
             } catch (err) {
                 if (active) setError(getError(err));
             } finally {
@@ -96,12 +98,13 @@ function ProductScreen() {
     const isAdmin = Boolean(userInfo?.isAdmin);
     const inStock = product.countMany > 0;
     const lowStock = inStock && product.countMany <= 5;
+    const productImages = product.images?.length ? product.images : [product.image];
     const productDescription = t(product.description);
     const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
         name: t(product.name),
-        image: [product.image],
+        image: productImages,
         description: productDescription,
         brand: { '@type': 'Brand', name: product.brand },
         category: t(product.category),
@@ -145,7 +148,18 @@ function ProductScreen() {
             )}
 
             <div className="product-detail-layout">
-                <div className="product-detail-media"><img src={product.image} alt={t(product.name)} /></div>
+                <div className="product-detail-gallery">
+                    <div className="product-detail-media"><img src={selectedImage || product.image} alt={t(product.name)} /></div>
+                    {productImages.length > 1 && (
+                        <div className="product-detail-thumbnails" aria-label={t('Product images')}>
+                            {productImages.map((image, index) => (
+                                <button key={image} type="button" className={image === selectedImage ? 'active' : ''} onClick={() => setSelectedImage(image)} aria-label={t('View product image {{count}}', { count: index + 1 })} aria-pressed={image === selectedImage}>
+                                    <img src={image} alt="" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
                 <div className="product-detail-content">
                     <span className="product-detail-category">{t(product.category)}</span>
                     <h1>{t(product.name)}</h1>

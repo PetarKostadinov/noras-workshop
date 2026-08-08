@@ -6,10 +6,24 @@ const productSchema = new Schema(
         name: { type: String, required: true, unique: true },
         slug: { type: String, required: true, unique: true },
         image: {
-            type: String, validate: {
+            type: String, required: true, validate: {
                 validator: (value) => IMAGE_PATH_PATTERN.test(value),
                 message: 'Invalid Image URL'
             }
+        },
+        images: {
+            type: [{
+                type: String,
+                validate: {
+                    validator: (value) => IMAGE_PATH_PATTERN.test(value),
+                    message: 'Invalid Image URL'
+                }
+            }],
+            validate: {
+                validator: (images) => images.length <= 6,
+                message: 'A product can have up to 6 images'
+            },
+            default: [],
         },
         brand: { type: String, required: true },
         category: { type: String, required: true },

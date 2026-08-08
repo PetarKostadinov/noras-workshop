@@ -174,6 +174,15 @@ const bg = {
   'Made for your moment': 'Създадено за вашия момент', 'Looking for something personal?': 'Търсите нещо лично?',
   'Tell us about your gift, celebration, or studio idea and we’ll discuss what is possible.': 'Разкажете ни за вашия подарък, празник или идея за студио и ще обсъдим възможностите.',
   'Ask about this piece': 'Попитайте за този продукт', 'Discover our story': 'Открийте нашата история',
+  'Product gallery': 'Галерия на продукта', 'The first image is the storefront cover. Add up to six images and arrange their order.': 'Първото изображение е основно за магазина. Добавете до шест изображения и подредете реда им.',
+  'You can add up to {{count}} product images.': 'Можете да добавите до {{count}} изображения на продукт.',
+  'Product image {{count}}': 'Изображение на продукта {{count}}', 'Cover': 'Основно',
+  'Move image left': 'Премести изображението наляво', 'Move image right': 'Премести изображението надясно', 'Remove image': 'Премахни изображението',
+  'Add at least one product image.': 'Добавете поне едно изображение на продукта.',
+  'JPG, PNG, WebP, or GIF. Maximum 5 MB each.': 'JPG, PNG, WebP или GIF. Максимум 5 MB за всяко.', 'Uploading images…': 'Качване на изображения…',
+  'Product images': 'Изображения на продукта', 'View product image {{count}}': 'Вижте изображение на продукта {{count}}',
+  'Uploading image {{completed}} of {{total}}…': 'Качване на изображение {{completed}} от {{total}}…',
+  '{{count}} image(s) uploaded; some files could not be uploaded.': '{{count}} изображения са качени; някои файлове не можаха да бъдат качени.',
 };
 
 const savedLanguage = localStorage.getItem('language');

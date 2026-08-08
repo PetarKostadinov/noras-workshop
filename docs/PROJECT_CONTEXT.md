@@ -43,7 +43,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 `client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, product details, the bilingual workshop story at `/about`, `/legal/privacy`, `/legal/cookies`, and the customer-care routes `/help/shipping`, `/help/returns`, and `/help/faq`. Guests may build and persist a cart, but checkout and order pages require an account. `Protected` safely preserves the requested internal route through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
 
-Product-detail pages expose the stored product name, image, description, brand, category, price, availability, and optional aggregate rating as schema.org `Product` structured data. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
+Product-detail pages expose the stored product name, gallery images, description, brand, category, price, availability, and optional aggregate rating as schema.org `Product` structured data. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
 
 `client/src/helpersComponents/Store.js` is the global store. Durable browser keys are:
 
@@ -76,10 +76,10 @@ Mounted route groups:
 
 Relevant model vocabulary:
 
-- Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
+- Product inventory is named `countMany` (not `stock`). Product identity uses MongoDB `_id` plus a unique `slug`; names are also unique. A product keeps the required `image` cover URL for compatibility and up to six ordered URLs in `images`; older records without `images` render their cover as a one-image gallery. Product mutations require a current admin account on the server, not merely an admin claim in an old token.
 - Product edits submit the complete editable product record. Required text fields are trimmed and cannot be blank; numeric price, inventory, rating, and review constraints are enforced by the product schema.
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
-- Admin product images are uploaded as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; only that URL is stored with the product. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
+- Admin product images are uploaded individually as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB each) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; the ordered secure URLs are stored with the product and the first is synchronized to the compatibility `image` cover field. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.

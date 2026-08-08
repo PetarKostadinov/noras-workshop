@@ -7,6 +7,13 @@ import { admin, auth, escapeRegex } from '../utils.js';
 
 const productRouter = express.Router();
 
+const normalizeProductImages = (image, images) => {
+    const candidates = Array.isArray(images) ? images : [];
+    return [...new Set([image, ...candidates]
+        .filter((value) => typeof value === 'string' && value.trim())
+        .map((value) => value.trim()))].slice(0, 6);
+};
+
 const uploadToCloudinary = (imageBuffer) => new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -151,10 +158,12 @@ productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) 
         });
     }
 
+    const images = normalizeProductImages(req.body.image, req.body.images);
     const newProduct = new Product({
         name: req.body.name,
         slug: req.body.slug,
-        image: req.body.image,
+        image: images[0],
+        images,
         brand: req.body.brand,
         category: req.body.category,
         description: req.body.description,
@@ -171,6 +180,7 @@ productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) 
         name: product.name,
         slug: product.slug,
         image: product.image,
+        images: product.images,
         brand: product.brand,
         category: product.category,
         description: product.description,
@@ -214,7 +224,9 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
 
     item.name = nextName;
     item.slug = nextSlug;
-    item.image = req.body.image.trim();
+    const images = normalizeProductImages(req.body.image, req.body.images);
+    item.image = images[0];
+    item.images = images;
     item.brand = req.body.brand.trim();
     item.category = req.body.category.trim();
     item.description = req.body.description.trim();
@@ -230,6 +242,7 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
             name: updatedItem.name,
             slug: updatedItem.slug,
             image: updatedItem.image,
+            images: updatedItem.images,
             brand: updatedItem.brand,
             category: updatedItem.category,
             description: updatedItem.description,
