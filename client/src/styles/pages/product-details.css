@@ -42,6 +42,8 @@
 .product-detail-meta dd.low span { background: #b18739; }
 .product-detail-meta dd.unavailable { color: #a33f3a; }
 .product-detail-meta dd.unavailable span { background: #b54f49; }
+.related-products { margin-top: 4.5rem; padding-top: 3.5rem; border-top: 1px solid #eadfda; }
+.related-products .collection-heading { margin-bottom: 0; }
 .product-detail-purchase .btn { display: flex; align-items: center; justify-content: center; gap: 0.65rem; width: 100%; min-height: 52px; color: var(--color-white); background: #a95747; border-color: #a95747; border-radius: 999px; font-weight: 800; }
 .product-detail-purchase .btn:hover, .product-detail-purchase .btn:focus { color: var(--color-white); background: #874438; border-color: #874438; }
 .product-detail-purchase .btn:disabled { color: #7f6d67; background: #e8dfdb; border-color: #e8dfdb; }

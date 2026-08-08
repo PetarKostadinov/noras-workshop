@@ -89,6 +89,8 @@ const bg = {
   'Neutral Portrait Prop Set': 'Неутрален комплект реквизит за портрети',
   'Description': 'Описание', 'Materials': 'Материали', 'Dimensions': 'Размери', 'Preparation time': 'Време за изработка',
   'Optional. Give customers a realistic estimate before dispatch.': 'По избор. Посочете реалистичен срок преди изпращане.',
+  'More from the workshop': 'Още от работилницата', 'You may also like': 'Може да харесате още',
+  'Discover more handmade pieces from this collection.': 'Открийте още ръчно изработени предложения от тази колекция.',
   'In stock': 'В наличност', 'Unavailable': 'Не е наличен',
   'Overview': 'Общ преглед', 'Catalog management': 'Управление на каталога', 'Sales management': 'Управление на продажбите',
   'Account management': 'Управление на профилите', 'Review inventory, pricing, and product availability.': 'Преглед на наличностите, цените и достъпността на продуктите.',

@@ -72,6 +72,11 @@ export const fetchProduct = async (id) => {
   return parseResponse(response, 'Unable to load product');
 }
 
+export const fetchRelatedProducts = async (id, signal) => {
+  const response = await fetch(`/api/products/${id}/related`, { signal });
+  return parseResponse(response, 'Unable to load related products');
+};
+
 export const updateItem = async (id, slug, data, token) => {
   const response = await fetch(`/api/products/${id}/editItem/${slug}`, {
     method: 'PUT',

@@ -47,7 +47,7 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 The home shell remains in the initial client bundle; product detail, search, cart, checkout, account, informational, and admin route components are loaded through `React.lazy` under a shared `Suspense` loading status to reduce initial JavaScript work.
 
-Product-detail pages expose the stored product name, gallery images, description, brand, category, price, availability, optional materials/dimensions, and optional aggregate rating as schema.org `Product` structured data. Optional materials, dimensions, and preparation time are managed in the admin product forms and displayed when present. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
+Product-detail pages expose the stored product name, gallery images, description, brand, category, price, availability, optional materials/dimensions, and optional aggregate rating as schema.org `Product` structured data. Optional materials, dimensions, and preparation time are managed in the admin product forms and displayed when present. Up to three highly rated, recent products from the same category are recommended below the product content, excluding the current product. Product pages also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
 
 `client/src/helpersComponents/Store.js` is the global store. Durable browser keys are:
 

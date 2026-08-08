@@ -204,6 +204,26 @@ productRouter.delete('/:id/reviews/:reviewId', auth, admin, expressAsyncHandler(
     res.send({ message: 'Review removed' });
 }));
 
+productRouter.get('/:id/related', expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send({ message: 'Invalid product ID' });
+    }
+
+    const product = await Product.findById(req.params.id).select('category');
+    if (!product) {
+        return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
+    }
+
+    const products = await Product.find({
+        _id: { $ne: product._id },
+        category: product.category,
+    })
+        .sort({ rating: -1, createdAt: -1 })
+        .limit(3);
+
+    res.send(products);
+}));
+
 productRouter.get('/:id', expressAsyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send({ message: 'Invalid product ID' });

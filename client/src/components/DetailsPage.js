@@ -12,6 +12,7 @@ import MessageComponent from '../helpersComponents/MessageComponent';
 import Rating from '../helpersComponents/Rating';
 import { trackCartEvent, trackEvent, toAnalyticsItem } from '../service/analyticsService';
 import ProductReviews from './ProductReviews';
+import RelatedProducts from './RelatedProducts';
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
@@ -214,6 +215,8 @@ function ProductScreen() {
             </div>
 
             <ProductReviews product={product} userInfo={userInfo} onProductChange={setProduct} />
+
+            <RelatedProducts productId={product._id} />
 
             <aside className="product-detail-custom">
                 <div>
