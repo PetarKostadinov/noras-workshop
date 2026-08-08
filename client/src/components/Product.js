@@ -7,6 +7,7 @@ import { fetchProduct } from '../service/productService';
 import { toast } from 'react-toastify';
 import getError from '../util';
 import { useTranslation } from 'react-i18next';
+import { trackCartEvent } from '../service/analyticsService';
 
 function Product({ product }) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -26,6 +27,7 @@ function Product({ product }) {
       }
 
       ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+      trackCartEvent('add_to_cart', [{ ...item, quantity }]);
     } catch (error) {
       toast.error(getError(error, 'We couldn’t add this product to your cart. Please try again.'));
     }

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { fetchProduct } from '../service/productService';
 import getError, { getLoginUrl } from '../util';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { trackCartEvent } from '../service/analyticsService';
 
 function CartScreen() {
   const { t } = useTranslation();
@@ -15,6 +16,10 @@ function CartScreen() {
   const { cart: { cartItems }, userInfo } = state;
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+
+  useEffect(() => {
+    if (cartItems.length > 0) trackCartEvent('view_cart', cartItems);
+  }, [cartItems]);
 
   const updateCartHandler = async (item, quantity) => {
     try {
@@ -30,10 +35,12 @@ function CartScreen() {
   };
 
   const removeItemHandler = (item) => {
+    trackCartEvent('remove_from_cart', [item]);
     ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
 
   const checkoutHandler = () => {
+    trackCartEvent('begin_checkout', cartItems);
     navigate(userInfo ? '/shipping' : getLoginUrl('/shipping'));
   };
 

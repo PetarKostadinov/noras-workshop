@@ -2,6 +2,7 @@
 @import './styles/pages/product-details.css';
 @import './styles/components/language-switcher.css';
 @import './styles/components/feedback.css';
+@import './styles/components/analytics-consent.css';
 @import './styles/pages/admin-dashboard.css';
 @import './styles/pages/admin-management.css';
 @import './styles/pages/product-editor.css';

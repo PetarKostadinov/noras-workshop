@@ -105,6 +105,14 @@ CLOUDINARY_API_SECRET="your-api-secret"
 
 Generate a strong value for JWT_SECRET. Never commit server/.env.
 
+Optionally create `client/.env` from `client/.env.example` to enable consent-gated Google Analytics 4 ecommerce measurement:
+
+~~~env
+REACT_APP_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
+~~~
+
+When this value is omitted, no analytics prompt or Google Analytics script is shown or loaded.
+
 ### 3. Install dependencies
 
 ~~~bash
@@ -140,7 +148,7 @@ The repository includes `render.yaml` for a single Render Web Service. During de
 1. Push the repository to GitHub.
 2. Create a free MongoDB Atlas cluster and copy its connection string.
 3. In Render, choose **New > Blueprint**, connect the repository, and apply `render.yaml`.
-4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled.
+4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled. To enable analytics, add the public build-time value `REACT_APP_GA_MEASUREMENT_ID` separately.
 5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-workshop/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import CheckoutSteps from './CheckoutSteps';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
+import { trackCartEvent } from '../service/analyticsService';
 
 function Payment() {
     const { t } = useTranslation();
@@ -23,6 +24,7 @@ function Payment() {
     const submitHandler = (event) => {
         event.preventDefault();
         ctxDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: selectedMethod });
+        trackCartEvent('add_payment_info', cartItems, { payment_type: selectedMethod });
         navigate('/order');
     };
 

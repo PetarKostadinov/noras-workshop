@@ -159,6 +159,10 @@ const bg = {
   'Delete product': 'Изтрий продукта', 'About this piece': 'За този продукт',
   'Crafted by': 'Изработено от', 'Availability': 'Наличност', 'Adding…': 'Добавяне…',
   'Secure checkout with protected payments': 'Сигурно плащане със защитени разплащания',
+  'Help us improve the workshop': 'Помогнете ни да подобрим работилницата',
+  'With your permission, shopping analytics help us understand which products and pages are useful. Advertising cookies stay disabled.': 'С ваше разрешение анализите на пазаруването ни помагат да разберем кои продукти и страници са полезни. Рекламните бисквитки остават изключени.',
+  'Decline analytics': 'Отказвам анализите', 'Allow analytics': 'Разрешавам анализите',
+  'Analytics settings': 'Настройки за анализи',
 };
 
 const savedLanguage = localStorage.getItem('language');

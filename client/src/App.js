@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./components/Home";
 import { ToastContainer } from "react-toastify";
@@ -23,10 +24,16 @@ import EditItemPage from "./components/EditItemPage";
 import CarouselComponent from "./helpersComponents/Carousel";
 import Footer from "./components/Footer";
 import AdminManagementPage from "./components/AdminManagementPage";
+import AnalyticsConsent from "./helpersComponents/AnalyticsConsent";
+import { trackPageView } from "./service/analyticsService";
 
 function AppContent() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const showHomepageHero = pathname === "/";
+
+  useEffect(() => {
+    trackPageView(`${pathname}${search}`);
+  }, [pathname, search]);
 
   return (
     <>
@@ -73,6 +80,7 @@ function AppContent() {
         </main>
       </div>
       <Footer />
+      <AnalyticsConsent />
     </>
   );
 }

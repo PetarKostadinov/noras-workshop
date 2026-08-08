@@ -6,6 +6,7 @@ import CheckoutSteps from './CheckoutSteps';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
 import keepsakeBoxImage from '../assets/noras-workshop-keepsake-box.jpg';
+import { trackCartEvent } from '../service/analyticsService';
 
 function ShippingInfo() {
     const { t } = useTranslation();
@@ -32,6 +33,7 @@ function ShippingInfo() {
             country: country.trim(),
         };
         ctxDispatch({ type: 'SAVE_SHIPPING_INFO', payload: details });
+        trackCartEvent('add_shipping_info', cartItems, { shipping_tier: 'Standard' });
         navigate('/payment');
     };
 

@@ -31,6 +31,7 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | Database | MongoDB through Mongoose |
 | Authentication | 30-day bearer JWT containing user id, username, email, and `isAdmin` |
 | Payments | PayPal JS SDK plus Stripe-hosted card checkout; payment creation and verification remain server-side |
+| Analytics | Optional consent-gated Google Analytics 4 ecommerce events configured at client build time |
 
 For a single-service production deployment, `render.yaml` builds the CRA client and starts Express. When `NODE_ENV=production`, Express serves `client/build`, uses the same origin for browser and API traffic, and falls back to `index.html` for client-side routes. `/api/health` is the deployment health-check endpoint.
 
@@ -49,6 +50,8 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 - `shippingInfo`: checkout delivery address;
 - `paymentMethod`: selected payment method;
 - `language`: selected interface language (`en` or `bg`), owned by i18next rather than the global store.
+- `analyticsConsent`: the visitor's explicit `granted` or `denied` analytics choice, owned by the analytics integration.
+- `analyticsTrackedPurchases`: a bounded list used to prevent duplicate GA4 purchase events after refreshes.
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
 
@@ -114,6 +117,10 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET` (server-only)
+
+Optional client build configuration in `client/.env`:
+
+- `REACT_APP_GA_MEASUREMENT_ID` enables Google Analytics 4 only after visitor consent. If omitted, the consent interface and Google script remain disabled.
 
 Use Node.js 18 or newer because server code relies on the built-in `fetch` implementation.
 

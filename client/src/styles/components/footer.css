@@ -161,6 +161,21 @@
   color: #e6aa99;
 }
 
+.footer-privacy-button {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
+.footer-privacy-button:hover,
+.footer-privacy-button:focus-visible {
+  color: var(--color-white);
+}
+
 @media (max-width: 991.98px) {
   .footer-main {
     grid-template-columns: 1.3fr 0.7fr 0.7fr;

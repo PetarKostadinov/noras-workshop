@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { isAnalyticsConfigured } from '../service/analyticsService';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
@@ -69,6 +70,11 @@ function Footer() {
           <div>
             <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure shopping')}</span>
             <span><i className="fas fa-leaf" aria-hidden="true"></i> {t('Thoughtfully made')}</span>
+            {isAnalyticsConfigured && (
+              <button type="button" className="footer-privacy-button" onClick={() => window.dispatchEvent(new Event('open-analytics-preferences'))}>
+                {t('Analytics settings')}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import getError from '../util';
 import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import Rating from '../helpersComponents/Rating';
+import { trackCartEvent, trackEvent, toAnalyticsItem } from '../service/analyticsService';
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
@@ -44,6 +45,16 @@ function ProductScreen() {
         return () => { active = false; };
     }, [id]);
 
+    useEffect(() => {
+        if (product) {
+            trackEvent('view_item', {
+                currency: 'USD',
+                value: Number(product.price),
+                items: [toAnalyticsItem(product)],
+            });
+        }
+    }, [product]);
+
     const addToCartHandler = async () => {
         setAdding(true);
         try {
@@ -55,6 +66,7 @@ function ProductScreen() {
                 return;
             }
             dispatch({ type: 'CART_ADD_ITEM', payload: { ...latestProduct, quantity } });
+            trackCartEvent('add_to_cart', [{ ...latestProduct, quantity }]);
             navigate('/cart');
         } catch (err) {
             toast.error(getError(err, 'We couldn’t add this product to your cart. Please try again.'));

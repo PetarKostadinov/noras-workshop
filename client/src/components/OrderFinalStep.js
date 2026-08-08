@@ -9,6 +9,7 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
+import { trackPurchase } from '../service/analyticsService';
 
 function reducer(state, action) {
     switch (action.type) {
@@ -49,6 +50,10 @@ function OrderFinalStep() {
         loadingPay: false,
     });
     const [{ isPending, isRejected }, paypalDispatch] = usePayPalScriptReducer();
+
+    useEffect(() => {
+        trackPurchase(order);
+    }, [order]);
 
     useEffect(() => {
         if (!userInfo) {
