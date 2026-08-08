@@ -110,7 +110,7 @@
   font-size: 0.78rem;
 }
 
-.product-card .rating span:last-child {
+.product-card .rating > span:not(.rating-stars) {
   margin-left: 0.25rem;
   color: #8b7973;
 }

@@ -34,7 +34,7 @@ function AnalyticsConsent() {
   };
 
   return (
-    <aside className="analytics-consent" role="dialog" aria-labelledby="analytics-consent-title">
+    <aside className="analytics-consent" role="region" aria-labelledby="analytics-consent-title">
       <div>
         <strong id="analytics-consent-title">{t('Help us improve the workshop')}</strong>
         <p>{t('With your permission, shopping analytics help us understand which products and pages are useful. Advertising cookies stay disabled.')} <Link to="/legal/cookies">{t('Cookie details')}</Link></p>

@@ -78,7 +78,7 @@ function AboutPage() {
           <span>{content.eyebrow}</span><h1>{content.title}</h1><p>{content.intro}</p>
           <div className="about-actions"><Link to="/search">{content.shop}</Link><a href="mailto:petar_vs@outlook.com">{content.contact}</a></div>
         </div>
-        <div className="about-hero-media"><img src={weddingImage} alt={language === 'bg' ? 'Ръчно изработен сватбен декор' : 'Handmade wedding décor'} /></div>
+        <div className="about-hero-media"><img src={weddingImage} alt={language === 'bg' ? 'Ръчно изработен сватбен декор' : 'Handmade wedding décor'} loading="eager" decoding="async" /></div>
       </section>
 
       <section className="about-story">
@@ -93,7 +93,7 @@ function AboutPage() {
       </section>
 
       <section className="about-process">
-        <div className="about-process-media"><img src={keepsakeImage} alt={language === 'bg' ? 'Персонализиран подарък от работилницата' : 'Personalized workshop keepsake'} /></div>
+        <div className="about-process-media"><img src={keepsakeImage} alt={language === 'bg' ? 'Персонализиран подарък от работилницата' : 'Personalized workshop keepsake'} loading="lazy" decoding="async" /></div>
         <div className="about-process-content">
           <span>{language === 'bg' ? 'Персонализирани проекти' : 'Personal projects'}</span><h2>{content.processTitle}</h2><p>{content.processIntro}</p>
           <ol>{content.steps.map(([number, title, description]) => <li key={number}><span>{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>)}</ol>

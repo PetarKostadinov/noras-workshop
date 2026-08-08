@@ -45,6 +45,8 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 `client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, checkout, product and order details, the bilingual workshop story at `/about`, `/legal/privacy`, `/legal/cookies`, and the customer-care routes `/help/shipping`, `/help/returns`, and `/help/faq`. Guests may build a cart and complete checkout; accounts remain optional for order history and profile management. `Protected` safely preserves requested internal account routes through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
 
+The home shell remains in the initial client bundle; product detail, search, cart, checkout, account, informational, and admin route components are loaded through `React.lazy` under a shared `Suspense` loading status to reduce initial JavaScript work.
+
 Product-detail pages expose the stored product name, gallery images, description, brand, category, price, availability, and optional aggregate rating as schema.org `Product` structured data. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
 
 `client/src/helpersComponents/Store.js` is the global store. Durable browser keys are:
@@ -61,6 +63,8 @@ Product-detail pages expose the stored product name, gallery images, description
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
 
 `client/src/index.css` is the ordered stylesheet entry point. It imports global design tokens/foundations from `client/src/styles/base.css`, reusable component styles from `client/src/styles/components/`, and route-oriented styles from `client/src/styles/pages/`. Preserve the import order when rules depend on later overrides, reuse the shared custom properties in `:root`, and check desktop, tablet, and mobile behavior after broad UI changes.
+
+Global accessibility foundations include a keyboard skip link, consistent `:focus-visible` treatment, a polite route-change announcer, and reduced-motion overrides. The mobile catalog filter returns focus to its trigger and closes with Escape. Keep meaningful image alternatives, mark decorative icons/images appropriately, and lazy-load below-the-fold imagery while keeping likely largest-contentful images eager.
 
 ## Server structure and API
 

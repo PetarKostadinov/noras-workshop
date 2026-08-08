@@ -9,6 +9,8 @@ function CarouselComponent() {
         className="hero-image"
         src="/images/noras-workshop-hero.jpg"
         alt={t('Handmade gifts and artisan event decorations')}
+        loading="eager"
+        decoding="async"
       />
       <div className="hero-overlay">
         <div className="hero-content">

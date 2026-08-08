@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -55,6 +55,23 @@ function SearchPage() {
     const [countProducts, setCountProducts] = useState(0);
     const [categories, setCategories] = useState([]);
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const filterButtonRef = useRef(null);
+    const filterPanelRef = useRef(null);
+
+    useEffect(() => {
+        if (!filtersOpen) return undefined;
+        const filterButton = filterButtonRef.current;
+        const closeButton = filterPanelRef.current?.querySelector('button');
+        closeButton?.focus();
+        const closeOnEscape = (event) => {
+            if (event.key === 'Escape') setFiltersOpen(false);
+        };
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('keydown', closeOnEscape);
+            filterButton?.focus();
+        };
+    }, [filtersOpen]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -132,7 +149,7 @@ function SearchPage() {
                     {query !== 'all' && <span> matching “{query}”</span>}
                 </div>
                 <div className="catalog-toolbar-actions">
-                    <Button className="catalog-filter-toggle" onClick={() => setFiltersOpen(true)}>
+                    <Button ref={filterButtonRef} className="catalog-filter-toggle" onClick={() => setFiltersOpen(true)} aria-expanded={filtersOpen} aria-controls="catalog-filter-panel">
                         <i className="fas fa-sliders-h" aria-hidden="true"></i>
                         {t('Filters')}
                     </Button>
@@ -145,10 +162,10 @@ function SearchPage() {
                 </div>
             </div>
 
-            {filtersOpen && <button className="catalog-filter-backdrop" aria-label="Close filters" onClick={() => setFiltersOpen(false)} />}
+            {filtersOpen && <button className="catalog-filter-backdrop" tabIndex="-1" aria-hidden="true" onClick={() => setFiltersOpen(false)} />}
 
             <div className="catalog-layout">
-                <aside className={'catalog-filters' + (filtersOpen ? ' open' : '')} aria-label="Product filters">
+                <aside ref={filterPanelRef} id="catalog-filter-panel" className={'catalog-filters' + (filtersOpen ? ' open' : '')} aria-label="Product filters">
                     <div className="catalog-filters-header">
                         <div>
                             <span>{t('Refine results')}</span><h2>{t('Filters')}</h2>

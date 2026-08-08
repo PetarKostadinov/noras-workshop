@@ -128,7 +128,7 @@ function ShippingInfo() {
                 </div>
 
                 <aside className="shipping-assurance">
-                    <img src={keepsakeBoxImage} alt="" />
+                    <img src={keepsakeBoxImage} alt="" loading="lazy" decoding="async" />
                     <div>
                         <span>{t('From our workshop to you')}</span><h2>{t('Prepared with care')}</h2><p>{t('Every order is checked and thoughtfully packaged before leaving the studio.')}</p>
                         <ul>

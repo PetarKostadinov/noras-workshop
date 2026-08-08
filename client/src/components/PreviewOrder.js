@@ -108,7 +108,7 @@ function PreviewOrder() {
                                 const productUrl = '/product/' + item._id + '/' + item.slug;
                                 return (
                                     <article className="review-item" key={item._id}>
-                                        <Link to={productUrl}><img src={item.image} alt={item.name} /></Link>
+                                        <Link to={productUrl}><img src={item.image} alt={item.name} loading="lazy" decoding="async" /></Link>
                                         <div>
                                             <Link to={productUrl}><h3>{item.name}</h3></Link>
                                             <span>Quantity {item.quantity}</span>

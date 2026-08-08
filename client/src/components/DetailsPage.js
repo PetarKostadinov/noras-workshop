@@ -161,12 +161,12 @@ function ProductScreen() {
 
             <div className="product-detail-layout">
                 <div className="product-detail-gallery">
-                    <div className="product-detail-media"><img src={selectedImage || product.image} alt={t(product.name)} /></div>
+                    <div className="product-detail-media"><img src={selectedImage || product.image} alt={t(product.name)} loading="eager" decoding="async" /></div>
                     {productImages.length > 1 && (
                         <div className="product-detail-thumbnails" aria-label={t('Product images')}>
                             {productImages.map((image, index) => (
                                 <button key={image} type="button" className={image === selectedImage ? 'active' : ''} onClick={() => setSelectedImage(image)} aria-label={t('View product image {{count}}', { count: index + 1 })} aria-pressed={image === selectedImage}>
-                                    <img src={image} alt="" />
+                                    <img src={image} alt="" loading="lazy" decoding="async" />
                                 </button>
                             ))}
                         </div>

@@ -37,7 +37,7 @@ function Product({ product }) {
     <Card className="product-card h-100">
       <div className="product-card-media">
         <Link to={productUrl} aria-label={'View ' + product.name}>
-          <img src={product.image} className="card-img-top" alt={product.name} />
+          <img src={product.image} className="card-img-top" alt={product.name} loading="lazy" decoding="async" />
         </Link>
           <span className="product-category">{t(product.category)}</span>
         {product.countMany > 0 && product.countMany <= 5 && (

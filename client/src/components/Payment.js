@@ -105,7 +105,7 @@ function Payment() {
                     <div className="payment-summary-products">
                         {cartItems.slice(0, 3).map((item) => (
                             <div key={item._id}>
-                                <img src={item.image} alt="" />
+                                <img src={item.image} alt="" loading="lazy" decoding="async" />
                                 <p><strong>{item.name}</strong><small>{t('Quantity {{count}}', { count: item.quantity })}</small></p>
                                 <span>{'$' + (item.price * item.quantity).toFixed(2)}</span>
                             </div>

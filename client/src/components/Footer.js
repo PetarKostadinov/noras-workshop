@@ -14,7 +14,7 @@ function Footer() {
         <div className="footer-main">
           <div className="footer-brand">
             <Link to="/" className="footer-brand-lockup">
-              <img src="/images/noras-workshop-logo.png" alt="" />
+              <img src="/images/noras-workshop-logo.png" alt="" loading="lazy" decoding="async" />
               <span>
                 <strong>Nora’s Workshop</strong>
                 <small>{t('Handmade gifts & décor')}</small>

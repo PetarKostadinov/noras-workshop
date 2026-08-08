@@ -28,7 +28,7 @@
 .product-detail-category { color: var(--color-primary-strong); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
 .product-detail-content h1 { margin: 0.65rem 0 0.85rem; color: var(--color-heading); font-family: var(--font-display); font-size: clamp(2.35rem, 4vw, 3.7rem); font-weight: 500; line-height: 1.08; }
 .product-detail-rating .rating { display: flex; align-items: center; gap: 0.12rem; font-size: 0.83rem; }
-.product-detail-rating .rating span:last-child { margin-left: 0.4rem; color: #917d76; }
+.product-detail-rating .rating > span:not(.rating-stars) { margin-left: 0.4rem; color: #917d76; }
 .product-detail-price { margin: 1.4rem 0; color: var(--color-accent); font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; }
 .product-detail-description { padding: 1.35rem 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
 .product-detail-description h2 { margin: 0 0 0.65rem; color: #4b3934; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }

@@ -20,11 +20,10 @@ function Search() {
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t('Search gifts, décor and studio sets...')}
                     aria-label={t('Search products')}
-                    aria-describedby="button-search"
                 >
                 </FormControl>
-                <Button type="submit" id="button-search" className="header-search-button">
-                    <i className="fas fa-search"></i>
+                <Button type="submit" id="button-search" className="header-search-button" aria-label={t('Search products')}>
+                    <i className="fas fa-search" aria-hidden="true"></i>
                 </Button>
             </InputGroup>
         </Form>

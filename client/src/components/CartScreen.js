@@ -69,7 +69,7 @@ function CartScreen() {
               return (
                 <article className="cart-item" key={item._id}>
                   <Link to={productUrl} className="cart-item-image">
-                    <img src={item.image} alt={item.name} />
+                    <img src={item.image} alt={item.name} loading="lazy" decoding="async" />
                   </Link>
                   <div className="cart-item-details">
                     <span>{item.category || item.brand}</span>

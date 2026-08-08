@@ -194,6 +194,7 @@ const bg = {
   'Your review': 'Вашият отзив', 'Write at least 10 characters. One review is allowed per product.': 'Напишете поне 10 знака. Разрешен е един отзив за продукт.',
   'Publishing…': 'Публикуване…', 'Publish review': 'Публикувай отзива', 'Thank you. Your review is now published.': 'Благодарим ви. Вашият отзив е публикуван.',
   'Sign in to leave a genuine product review.': 'Влезте в профила си, за да оставите истински продуктов отзив.', 'Sign in to review': 'Вход за отзив',
+  '{{rating}} out of 5 stars': '{{rating}} от 5 звезди',
 };
 
 const savedLanguage = localStorage.getItem('language');

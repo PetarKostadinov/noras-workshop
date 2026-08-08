@@ -113,7 +113,7 @@ function AdminManagementPage({ collection }) {
 
 function ProductsTable({ products, deletingId, onDelete, t }) {
     return <table className="admin-data-table"><thead><tr><th>{t('Product')}</th><th>{t('Category')}</th><th>{t('Price')}</th><th>{t('Inventory')}</th><th><span className="visually-hidden">{t('Actions')}</span></th></tr></thead><tbody>{products.map((product) => <tr key={product._id}>
-        <td><div className="admin-product-cell"><img src={product.image} alt="" /><div><strong>{product.name}</strong><span>{product.slug}</span></div></div></td>
+        <td><div className="admin-product-cell"><img src={product.image} alt="" loading="lazy" decoding="async" /><div><strong>{product.name}</strong><span>{product.slug}</span></div></div></td>
         <td>{product.category}</td><td>{currency.format(product.price)}</td>
         <td><span className={`admin-stock-pill ${product.countMany === 0 ? 'empty' : product.countMany <= 5 ? 'low' : ''}`}>{product.countMany === 0 ? 'Out of stock' : product.countMany}</span></td>
         <td><div className="admin-row-actions"><Link to={`/product/${product._id}/${product.slug}`}>{t('View / edit')}</Link><Button variant="link" disabled={deletingId === product._id} onClick={() => onDelete(product)}>{t(deletingId === product._id ? 'Deleting…' : 'Delete')}</Button></div></td>

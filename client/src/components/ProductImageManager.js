@@ -94,7 +94,7 @@ function ProductImageManager({ images, onChange, token, uploading, setUploading,
                 <div className="product-image-list">
                     {images.map((image, index) => (
                         <article key={image} className="product-image-item">
-                            <img src={image} alt={t('Product image {{count}}', { count: index + 1 })} />
+                            <img src={image} alt={t('Product image {{count}}', { count: index + 1 })} loading="lazy" decoding="async" />
                             {index === 0 && <span>{t('Cover')}</span>}
                             <div>
                                 <Button type="button" variant="light" onClick={() => moveImage(index, -1)} disabled={disabled || uploading || index === 0} aria-label={t('Move image left')}><i className="fas fa-arrow-left" /></Button>

@@ -91,7 +91,7 @@ function DashboardPage() {
                         <div className="admin-stock-list">
                             {lowStockProducts.map((product) => (
                                 <Link to={`/product/${product._id}/${product.slug}`} className="admin-stock-row" key={product._id}>
-                                    <img src={product.image} alt="" />
+                                    <img src={product.image} alt="" loading="lazy" decoding="async" />
                                     <div><strong>{product.name}</strong><span>{currency.format(product.price)}</span></div>
                                     <span className={product.countMany === 0 ? 'sold-out' : ''}>{product.countMany === 0 ? 'Out of stock' : `${product.countMany} left`}</span>
                                 </Link>

@@ -35,6 +35,8 @@ The free Render service may sleep when idle, so the first request can take appro
 - Secure guest checkout with per-order browser access, alongside optional customer accounts
 - Account-based product reviews with verified-purchase labels and administrator moderation
 - Dynamic XML sitemap, robots guidance, canonical URLs, and product-specific social sharing cards
+- Accessibility foundations including skip navigation, visible keyboard focus, route announcements, reduced-motion support, and accessible ratings
+- Deferred loading and asynchronous decoding for below-the-fold product and checkout images
 
 ## Technology
 
