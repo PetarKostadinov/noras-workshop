@@ -34,6 +34,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Product galleries with up to six administrator-managed images per product
 - Secure guest checkout with per-order browser access, alongside optional customer accounts
 - Account-based product reviews with verified-purchase labels and administrator moderation
+- Dynamic XML sitemap, robots guidance, canonical URLs, and product-specific social sharing cards
 
 ## Technology
 
@@ -201,6 +202,8 @@ npm test        # Run server unit tests
 | POST | /api/orders/:id/stripe-checkout | Create or resume Stripe-hosted card checkout |
 | PUT | /api/orders/:id/sync-stripe | Verify the current Stripe Checkout Session |
 | POST | /api/stripe/webhook | Receive signed Stripe payment events |
+
+Public SEO endpoints are available at `/sitemap.xml` and `/robots.txt`. In production, Express injects route-specific canonical, Open Graph, and Twitter metadata into the CRA HTML shell before sending it to crawlers and social platforms.
 
 ## Payment notes
 

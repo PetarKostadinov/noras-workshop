@@ -101,6 +101,7 @@ function ProductScreen() {
     const lowStock = inStock && product.countMany <= 5;
     const productImages = product.images?.length ? product.images : [product.image];
     const productDescription = t(product.description);
+    const canonicalUrl = `${window.location.origin}/product/${product._id}/${product.slug}`;
     const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -129,6 +130,16 @@ function ProductScreen() {
             <Helmet>
                 <title>{t(product.name)} | Nora's Workshop</title>
                 <meta name="description" content={productDescription} />
+                <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:type" content="product" />
+                <meta property="og:title" content={`${t(product.name)} | Nora's Workshop`} />
+                <meta property="og:description" content={productDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:image" content={product.image} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`${t(product.name)} | Nora's Workshop`} />
+                <meta name="twitter:description" content={productDescription} />
+                <meta name="twitter:image" content={product.image} />
                 <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
             </Helmet>
 

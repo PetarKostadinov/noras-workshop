@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
+import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRouter.js";
@@ -9,6 +10,7 @@ import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 import adminRouter from "./routes/adminRouter.js";
 import Product from "./models/productModel.js";
 import Review from "./models/reviewModel.js";
+import { buildSitemap, injectSeoMetadata } from "./seo.js";
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.set('trust proxy', 1);
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
 const serverDirectory = path.dirname(fileURLToPath(import.meta.url));
 const clientBuildDirectory = path.resolve(serverDirectory, "../client/build");
+const defaultDescription = "Nora's Workshop — handmade gifts, wedding and event decorations, and photography studio décor.";
+const getPublicOrigin = (req) => (process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
 
 const synchronizeReviewRatings = async () => {
   const summaries = await Review.aggregate([
@@ -61,14 +65,70 @@ app.get("/api/health", (req, res) => {
   res.status(200).send({ status: "ok" });
 });
 
+app.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const products = await Product.find().select('_id slug updatedAt').sort({ _id: 1 }).lean();
+    res.type('application/xml').send(buildSitemap(getPublicOrigin(req), products));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/robots.txt', (req, res) => {
+  const origin = getPublicOrigin(req);
+  res.type('text/plain').send([
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /admin/',
+    'Disallow: /order',
+    'Disallow: /profile',
+    'Disallow: /login',
+    'Disallow: /register',
+    `Sitemap: ${origin}/sitemap.xml`,
+  ].join('\n'));
+});
+
 app.use("/api", (req, res) => {
   res.status(404).send({ message: "API endpoint not found" });
 });
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(clientBuildDirectory));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(clientBuildDirectory, "index.html"));
+  app.use(express.static(clientBuildDirectory, { index: false }));
+  const indexHtml = readFile(path.join(clientBuildDirectory, "index.html"), "utf8");
+  app.get("*", async (req, res, next) => {
+    try {
+      const origin = getPublicOrigin(req);
+      const productMatch = req.path.match(/^\/product\/([a-f\d]{24})(?:\/[^/]+)?$/i);
+      const product = productMatch
+        ? await Product.findById(productMatch[1]).select('name description image slug').lean()
+        : null;
+      const pageTitles = {
+        '/': "Handmade Gifts & Décor | Nora's Workshop",
+        '/about': "Our Story | Nora's Workshop",
+        '/help/shipping': "Shipping & Delivery | Nora's Workshop",
+        '/help/returns': "Returns | Nora's Workshop",
+        '/help/faq': "Frequently Asked Questions | Nora's Workshop",
+      };
+      const isPublicPage = Object.hasOwn(pageTitles, req.path);
+      const canonicalPath = product ? `/product/${product._id}/${product.slug}` : req.path;
+      const metadata = product ? {
+        title: `${product.name} | Nora's Workshop`,
+        description: product.description.slice(0, 180),
+        image: product.image,
+        type: 'product',
+        url: `${origin}${canonicalPath}`,
+      } : {
+        title: pageTitles[req.path] || "Nora's Workshop",
+        description: defaultDescription,
+        image: `${origin}/images/noras-workshop-logo.png`,
+        type: 'website',
+        url: `${origin}${canonicalPath}`,
+        noIndex: !isPublicPage,
+      };
+      res.send(injectSeoMetadata(await indexHtml, metadata));
+    } catch (error) {
+      next(error);
+    }
   });
 }
 

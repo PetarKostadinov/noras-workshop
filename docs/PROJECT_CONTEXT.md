@@ -35,6 +35,8 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 
 For a single-service production deployment, `render.yaml` builds the CRA client and starts Express. When `NODE_ENV=production`, Express serves `client/build`, uses the same origin for browser and API traffic, and falls back to `index.html` for client-side routes. `/api/health` is the deployment health-check endpoint.
 
+Production HTML responses receive server-injected canonical, Open Graph, and Twitter metadata. Product routes use the stored cover image and product copy; private, checkout, search, and unknown routes receive `noindex, nofollow`. `/sitemap.xml` is generated from public static routes and current products using `CLIENT_URL` (or the request origin), while `/robots.txt` links to it and excludes account, admin, and order paths.
+
 The client provider order in `client/src/index.js` is `StoreProvider` -> `HelmetProvider` -> deferred `PayPalScriptProvider` -> `App`. PayPal's browser script is loaded only on the payment/order flow after the public client ID is fetched.
 
 Stripe uses hosted Checkout rather than a client provider. `server/server.js` mounts `/api/stripe/webhook` with `express.raw({ type: 'application/json' })` before `express.json()`. Preserve this middleware order: Stripe signature verification requires the untouched request body.
