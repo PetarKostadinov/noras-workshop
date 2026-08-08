@@ -125,7 +125,7 @@ if (process.env.NODE_ENV === "production") {
         url: `${origin}${canonicalPath}`,
         noIndex: !isPublicPage,
       };
-      res.send(injectSeoMetadata(await indexHtml, metadata));
+      res.send(injectSeoMetadata(await indexHtml, metadata, process.env.GOOGLE_SITE_VERIFICATION));
     } catch (error) {
       next(error);
     }

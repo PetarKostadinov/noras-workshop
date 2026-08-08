@@ -15,3 +15,14 @@ test('SEO metadata is escaped before insertion into the HTML shell', () => {
   assert.match(result, /A &amp; B/);
   assert.match(result, /property="og:type" content="product"/);
 });
+
+test('Google ownership verification is injected only when configured', () => {
+  const html = '<head><meta name="description" content="old" /><title>Old</title></head>';
+  const metadata = { title: 'Shop', description: 'Description', url: 'https://example.com', image: 'https://example.com/image.jpg' };
+  const verified = injectSeoMetadata(html, metadata, 'token"><script>alert(1)</script>');
+  const unconfigured = injectSeoMetadata(html, metadata);
+
+  assert.match(verified, /name="google-site-verification"/);
+  assert.doesNotMatch(verified, /<script>alert/);
+  assert.doesNotMatch(unconfigured, /google-site-verification/);
+});

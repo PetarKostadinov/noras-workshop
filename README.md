@@ -160,7 +160,7 @@ The repository includes `render.yaml` for a single Render Web Service. During de
 1. Push the repository to GitHub.
 2. Create a free MongoDB Atlas cluster and copy its connection string.
 3. In Render, choose **New > Blueprint**, connect the repository, and apply `render.yaml`.
-4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled. To enable analytics, add the public build-time value `REACT_APP_GA_MEASUREMENT_ID` separately.
+4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled. To enable analytics, add the public build-time value `REACT_APP_GA_MEASUREMENT_ID` separately. For Google Search Console HTML-tag verification, set `GOOGLE_SITE_VERIFICATION` to only the tag's `content` value and redeploy.
 5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-workshop/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.
@@ -208,6 +208,10 @@ npm test        # Run server unit tests
 | POST | /api/stripe/webhook | Receive signed Stripe payment events |
 
 Public SEO endpoints are available at `/sitemap.xml` and `/robots.txt`. In production, Express injects route-specific canonical, Open Graph, and Twitter metadata into the CRA HTML shell before sending it to crawlers and social platforms.
+
+### Google Search Console
+
+Add the deployed HTTPS address as a URL-prefix property in Search Console and choose the HTML tag verification method. Copy only the value inside the tag's `content="..."` attribute into the server environment variable `GOOGLE_SITE_VERIFICATION`, redeploy, and select **Verify** in Search Console. Then open **Sitemaps**, submit `sitemap.xml`, and use URL Inspection to request indexing for the home page and important product pages. Keep the verification environment variable configured after verification.
 
 ## Payment notes
 

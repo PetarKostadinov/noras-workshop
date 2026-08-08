@@ -37,6 +37,8 @@ For a single-service production deployment, `render.yaml` builds the CRA client 
 
 Production HTML responses receive server-injected canonical, Open Graph, and Twitter metadata. Product routes use the stored cover image and product copy; private, checkout, search, and unknown routes receive `noindex, nofollow`. `/sitemap.xml` is generated from public static routes and current products using `CLIENT_URL` (or the request origin), while `/robots.txt` links to it and excludes account, admin, and order paths.
 
+When `GOOGLE_SITE_VERIFICATION` is configured, production HTML also receives an escaped Google Search Console ownership meta tag. Store only the HTML tag's `content` value in the environment variable and keep it configured so ownership remains verifiable.
+
 The client provider order in `client/src/index.js` is `StoreProvider` -> `HelmetProvider` -> deferred `PayPalScriptProvider` -> `App`. PayPal's browser script is loaded only on the payment/order flow after the public client ID is fetched.
 
 Stripe uses hosted Checkout rather than a client provider. `server/server.js` mounts `/api/stripe/webhook` with `express.raw({ type: 'application/json' })` before `express.json()`. Preserve this middleware order: Stripe signature verification requires the untouched request body.
@@ -125,6 +127,7 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `PAYPAL_ENVIRONMENT` (`sandbox` or `live`)
 - `NODE_ENV`
 - `CLIENT_URL` (public client origin used for Stripe return URLs)
+- `GOOGLE_SITE_VERIFICATION` (optional Search Console HTML-tag content value)
 - `STRIPE_SECRET_KEY` (server-only Stripe API key)
 - `STRIPE_WEBHOOK_SECRET` (server-only endpoint signing secret)
 - `CLOUDINARY_CLOUD_NAME`

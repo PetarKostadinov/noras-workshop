@@ -22,13 +22,15 @@ export const buildSitemap = (origin, products) => {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => `  <url>\n    <loc>${escapeMarkup(url.location)}</loc>${url.lastModified ? `\n    <lastmod>${escapeMarkup(url.lastModified)}</lastmod>` : ''}\n    <priority>${url.priority}</priority>\n  </url>`).join('\n')}\n</urlset>`;
 };
 
-export const injectSeoMetadata = (html, metadata) => {
+export const injectSeoMetadata = (html, metadata, googleSiteVerification = '') => {
   const title = escapeMarkup(metadata.title);
   const description = escapeMarkup(metadata.description);
   const url = escapeMarkup(metadata.url);
   const image = escapeMarkup(metadata.image);
   const type = escapeMarkup(metadata.type || 'website');
+  const verificationToken = escapeMarkup(googleSiteVerification.trim());
   const tags = [
+    ...(verificationToken ? [`<meta name="google-site-verification" content="${verificationToken}" />`] : []),
     `<link rel="canonical" href="${url}" />`,
     ...(metadata.noIndex ? ['<meta name="robots" content="noindex, nofollow" />'] : []),
     `<meta property="og:type" content="${type}" />`,
