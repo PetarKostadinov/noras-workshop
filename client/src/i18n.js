@@ -92,6 +92,8 @@ const bg = {
   'More from the workshop': 'Още от работилницата', 'You may also like': 'Може да харесате още',
   'Discover more handmade pieces from this collection.': 'Открийте още ръчно изработени предложения от тази колекция.',
   'In stock': 'В наличност', 'Unavailable': 'Не е наличен',
+  'Reservation expired': 'Резервацията е изтекла', 'This order can no longer be paid': 'Тази поръчка вече не може да бъде платена',
+  'Cancelled': 'Отказана', 'Expired': 'Изтекла', 'Order expired': 'Поръчката е изтекла',
   'Overview': 'Общ преглед', 'Catalog management': 'Управление на каталога', 'Sales management': 'Управление на продажбите',
   'Account management': 'Управление на профилите', 'Review inventory, pricing, and product availability.': 'Преглед на наличностите, цените и достъпността на продуктите.',
   'Review purchases, payment state, and fulfillment progress.': 'Преглед на покупките, плащанията и изпълнението.',

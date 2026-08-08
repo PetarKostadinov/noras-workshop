@@ -7,6 +7,7 @@ import Product from '../models/productModel.js';
 import User from '../models/userModel.js';
 import { auth, createRateLimiter, optionalAuth } from '../utils.js';
 import Stripe from 'stripe';
+import { expireOrderReservation, getReservationExpiry } from '../orderExpiration.js';
 
 const orderRouter = express.Router();
 const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
@@ -26,6 +27,24 @@ const getStripe = () => {
 
 const getClientUrl = () => (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/$/, '');
 const hashGuestToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const ensureActiveReservation = async (order) => {
+    if (order.isPaid) return order;
+    if (order.fulfillmentStatus === 'cancelled' || order.paymentStatus === 'expired') {
+        const error = new Error('This unpaid order has expired and its items are available to other customers');
+        error.status = 410;
+        throw error;
+    }
+    if (order.expiresAt && order.expiresAt <= new Date()) {
+        await expireOrderReservation(order._id);
+        const currentOrder = await Order.findById(order._id);
+        if (currentOrder?.isPaid) return currentOrder;
+        const error = new Error('This unpaid order has expired and its items are available to other customers');
+        error.status = 410;
+        throw error;
+    }
+    return order;
+};
 
 const restoreInventory = async (reservedItems) => {
     if (reservedItems.length === 0) return;
@@ -115,11 +134,19 @@ const applyPayPalCapture = async (order, paypalOrder) => {
     };
 
     if (paypalOrder.status === 'COMPLETED' && capturedPayment.status === 'COMPLETED') {
-        order.isPaid = true;
-        order.paidAt = new Date(capturedPayment.create_time || Date.now());
-        order.paymentStatus = 'paid';
-        order.fulfillmentStatus = 'processing';
-        await order.save();
+        const paidOrder = await Order.findOneAndUpdate(
+            { _id: order._id, isPaid: false, fulfillmentStatus: { $ne: 'cancelled' } },
+            { $set: {
+                isPaid: true,
+                paidAt: new Date(capturedPayment.create_time || Date.now()),
+                paymentStatus: 'paid',
+                fulfillmentStatus: 'processing',
+                paymentResult: order.paymentResult,
+            } },
+            { new: true }
+        );
+        if (!paidOrder) return { verified: false, pending: false };
+        order.set(paidOrder.toObject());
         return { verified: true, pending: false };
     }
 
@@ -145,17 +172,25 @@ const applyStripeSession = async (order, session) => {
     if (!isValid) return false;
 
     if (session.payment_status === 'paid') {
-        order.isPaid = true;
-        order.paidAt = new Date();
-        order.paymentStatus = 'paid';
-        order.fulfillmentStatus = 'processing';
-        order.paymentResult = {
+        const paymentResult = {
             id: session.payment_intent || session.id,
             status: session.payment_status,
             update_time: new Date().toISOString(),
             email_address: session.customer_details?.email,
         };
-        await order.save();
+        const paidOrder = await Order.findOneAndUpdate(
+            { _id: order._id, isPaid: false, fulfillmentStatus: { $ne: 'cancelled' } },
+            { $set: {
+                isPaid: true,
+                paidAt: new Date(),
+                paymentStatus: 'paid',
+                fulfillmentStatus: 'processing',
+                paymentResult,
+            } },
+            { new: true }
+        );
+        if (!paidOrder) return false;
+        order.set(paidOrder.toObject());
         return true;
     }
 
@@ -236,6 +271,7 @@ orderRouter.post('/', optionalAuth, checkoutLimiter, expressAsyncHandler(async (
             guestAccessTokenHash: guestAccessToken ? hashGuestToken(guestAccessToken) : undefined,
             paymentStatus: 'pending',
             fulfillmentStatus: 'awaiting_payment',
+            expiresAt: getReservationExpiry(),
         });
         const order = await newOrder.save();
         const orderResponse = order.toObject();
@@ -256,14 +292,23 @@ orderRouter.get('/mine', auth, expressAsyncHandler(async (req, res) => {
 }));
 
 orderRouter.get('/:id', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    if (!order.isPaid && order.fulfillmentStatus !== 'cancelled') {
+        try {
+            order = await ensureActiveReservation(order);
+        } catch (error) {
+            if (error.status !== 410) throw error;
+            order = await getAccessibleOrder(req);
+        }
+    }
     res.send(order);
 }));
 
 orderRouter.post('/:id/stripe-checkout', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    order = await ensureActiveReservation(order);
     if (order.isPaid) return res.status(400).send({ message: 'This order is already paid' });
     if (order.paymentMethod !== 'Card') {
         return res.status(400).send({ message: 'Card payment is not selected for this order' });
@@ -280,6 +325,9 @@ orderRouter.post('/:id/stripe-checkout', optionalAuth, expressAsyncHandler(async
             return res.status(400).send({ message: 'This order is already paid' });
         }
     }
+
+    order.expiresAt = getReservationExpiry();
+    await order.save();
 
     const previousAttempt = order.stripeCheckoutAttempt || 0;
     const attemptFilter = previousAttempt === 0
@@ -310,6 +358,7 @@ orderRouter.post('/:id/stripe-checkout', optionalAuth, expressAsyncHandler(async
         }],
         success_url: `${getClientUrl()}/order/${lockedOrder._id}?stripe=success`,
         cancel_url: `${getClientUrl()}/order/${lockedOrder._id}?stripe=cancelled`,
+        expires_at: Math.floor(lockedOrder.expiresAt.getTime() / 1000),
     }, {
         idempotencyKey: `order-${lockedOrder._id}-attempt-${lockedOrder.stripeCheckoutAttempt}`,
     });
@@ -320,8 +369,9 @@ orderRouter.post('/:id/stripe-checkout', optionalAuth, expressAsyncHandler(async
 }));
 
 orderRouter.put('/:id/sync-stripe', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    order = await ensureActiveReservation(order);
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (order.paymentMethod !== 'Card' || !order.stripeCheckoutSessionId) {
         return res.status(400).send({ message: 'No card payment has been started' });
@@ -334,10 +384,14 @@ orderRouter.put('/:id/sync-stripe', optionalAuth, expressAsyncHandler(async (req
 }));
 
 orderRouter.post('/:id/paypal-order', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    order = await ensureActiveReservation(order);
     if (order.isPaid) return res.status(400).send({ message: 'This order is already paid' });
     if (order.paymentMethod !== 'PayPal') return res.status(400).send({ message: 'PayPal is not selected for this order' });
+
+    order.expiresAt = getReservationExpiry();
+    await order.save();
 
     const paypalOrder = await paypalRequest('/v2/checkout/orders', {
         method: 'POST',
@@ -358,8 +412,9 @@ orderRouter.post('/:id/paypal-order', optionalAuth, expressAsyncHandler(async (r
 }));
 
 orderRouter.put('/:id/capture-paypal', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    order = await ensureActiveReservation(order);
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (!order.paypalOrderId) return res.status(400).send({ message: 'No PayPal payment has been started' });
 
@@ -378,8 +433,9 @@ orderRouter.put('/:id/capture-paypal', optionalAuth, expressAsyncHandler(async (
 }));
 
 orderRouter.put('/:id/sync-paypal', optionalAuth, expressAsyncHandler(async (req, res) => {
-    const order = await getAccessibleOrder(req);
+    let order = await getAccessibleOrder(req);
     if (!order) return res.status(404).send({ message: 'Order not found' });
+    order = await ensureActiveReservation(order);
     if (order.isPaid) return res.send({ message: 'Order already paid', order });
     if (!order.paypalOrderId) return res.status(400).send({ message: 'No PayPal payment has been started' });
 

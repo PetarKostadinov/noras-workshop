@@ -21,6 +21,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Persistent cart, delivery address, and payment selection
 - JWT-based registration, login, and protected account routes
 - Multi-step checkout with delivery, payment, and order review
+- Time-limited unpaid inventory reservations with automatic, idempotent stock restoration
 - Order creation, order history, and order-status pages
 - PayPal checkout integration
 - Stripe-hosted Visa and debit/credit card checkout
@@ -109,6 +110,7 @@ PAYPAL_CLIENT_ID="your-paypal-client-id"
 PAYPAL_CLIENT_SECRET="your-paypal-client-secret"
 PAYPAL_ENVIRONMENT="sandbox"
 CLIENT_URL="http://localhost:3000"
+ORDER_RESERVATION_MINUTES=60
 STRIPE_SECRET_KEY="sk_test_replace_me"
 STRIPE_WEBHOOK_SECRET="whsec_replace_me"
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
@@ -165,6 +167,8 @@ The repository includes `render.yaml` for a single Render Web Service. During de
 5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-workshop/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.
+
+Automatic restoration of inventory from expired orders uses MongoDB transactions. Use MongoDB Atlas or another replica-set/sharded deployment that supports transactions; a standalone local MongoDB server does not provide the required atomicity.
 
 The deployed application is available at [https://noras-workshop.onrender.com](https://noras-workshop.onrender.com/). Render's free service can sleep when idle, so the first request after an idle period may be slow. This deployment is appropriate for a portfolio/demo; use a paid always-on service for a customer-facing store.
 

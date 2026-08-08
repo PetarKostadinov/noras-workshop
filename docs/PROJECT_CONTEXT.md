@@ -96,7 +96,7 @@ Relevant model vocabulary:
 - Gallery changes for an existing product are persisted immediately through the admin-only `PATCH /api/products/:id/images` endpoint, preventing successful Cloudinary uploads from remaining unsaved when the editor is refreshed. New-product galleries are persisted with product creation.
 - Reviews use a dedicated collection with a unique product/user pair. Submission requires an account, accepts an integer 1–5 rating and 10–1000 character comment, and derives `verifiedPurchase` from a paid account order containing the product. Public product details include reviews but not reviewer account IDs. Administrators may remove reviews; product `rating` and `numReviews` are server-derived from review records and synchronized at startup, so the admin product editor cannot set them.
 - An order embeds product display snapshots but retains a `product` ObjectId reference. Its `user` reference is optional for guest orders; every new order stores a validated contact email. Guest access uses a random 256-bit token returned once to the browser while only its SHA-256 hash is stored with the order.
-- Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
+- Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`, `expired`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
 - Users have `isAdmin`; the JWT repeats this flag. Password hashes are excluded from ordinary user queries and requested explicitly only during login.
 
@@ -109,6 +109,7 @@ These rules are security-sensitive and must remain aligned across UI, API, and d
 - The server ignores client-supplied prices/totals during order creation and reloads products from MongoDB.
 - Quantities must be positive integers and must not exceed `countMany`.
 - Creating an order atomically reserves each requested quantity by decrementing `countMany`. If any reservation or the order save fails, already reserved quantities are restored.
+- New unpaid orders receive an `expiresAt` reservation deadline (60 minutes by default, configurable with `ORDER_RESERVATION_MINUTES`, clamped to 31 minutes–24 hours). A background pass and lazy order access expire due `pending`/`failed` reservations, restore every item within the same MongoDB transaction, and record `inventoryRestoredAt` so restoration cannot happen twice. Orders already under provider review remain reserved. Stripe Checkout Sessions use the same deadline, and expired orders cannot start or complete payment. The MongoDB deployment must support transactions (MongoDB Atlas does); this is required for atomic multi-product restoration.
 - Current pricing is USD: shipping is `$10` unless items exceed `$100`; tax is 15%; monetary results are rounded to two decimals.
 - Newly created orders accept only `PayPal` or `Card` as the payment method, with `paymentStatus` set to `pending` and `fulfillmentStatus` set to `awaiting_payment`.
 - A PayPal capture is accepted only when its currency is USD, its amount exactly matches the stored order total, and PayPal reports the expected completed state. Pending captures remain awaiting payment.
@@ -129,6 +130,7 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `PAYPAL_ENVIRONMENT` (`sandbox` or `live`)
 - `NODE_ENV`
 - `CLIENT_URL` (public client origin used for Stripe return URLs)
+- `ORDER_RESERVATION_MINUTES` (optional unpaid inventory reservation duration; defaults to 60)
 - `GOOGLE_SITE_VERIFICATION` (optional Search Console HTML-tag content value)
 - `STRIPE_SECRET_KEY` (server-only Stripe API key)
 - `STRIPE_WEBHOOK_SECRET` (server-only endpoint signing secret)
@@ -160,7 +162,6 @@ The server uses Node's built-in test runner (`npm test`) for focused unit tests.
 ## Known risks and legacy constraints
 
 - Client API access is split between services, direct Fetch, and Axios. Avoid assuming a single data-access abstraction.
-- Inventory is reserved when an order is created, but there is no automatic expiry/cancellation workflow to return inventory from abandoned unpaid orders. Add an explicit lifecycle before introducing order cancellation or payment timeouts.
 
 ## Definition of done for broad changes
 

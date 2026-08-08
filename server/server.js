@@ -11,6 +11,7 @@ import adminRouter from "./routes/adminRouter.js";
 import Product from "./models/productModel.js";
 import Review from "./models/reviewModel.js";
 import { buildMerchantFeed, buildSitemap, injectSeoMetadata } from "./seo.js";
+import { backfillOrderExpirations, expireDueOrders } from './orderExpiration.js';
 
 dotenv.config();
 
@@ -165,11 +166,17 @@ const startServer = async () => {
 
     console.log("Database connected");
     await synchronizeReviewRatings();
+    await backfillOrderExpirations();
+    await expireDueOrders();
 
     const port = process.env.PORT || 5000;
     const server = app.listen(port, () => {
       console.log(`server listen at http://localhost:${port}`);
     });
+    const expirationTimer = setInterval(() => {
+      expireDueOrders().catch((error) => console.error('Order expiration failed:', error.message));
+    }, 60 * 1000);
+    expirationTimer.unref();
 
     server.on("error", (error) => {
       if (error.code === "EADDRINUSE") {

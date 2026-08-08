@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema(
         guestAccessTokenHash: { type: String, select: false },
         paymentStatus: {
             type: String,
-            enum: ['pending', 'processing', 'paid', 'failed', 'refunded'],
+            enum: ['pending', 'processing', 'paid', 'failed', 'refunded', 'expired'],
             default: 'pending',
             required: true,
         },
@@ -48,6 +48,9 @@ const orderSchema = new mongoose.Schema(
         paypalOrderId: { type: String },
         stripeCheckoutSessionId: { type: String },
         stripeCheckoutAttempt: { type: Number, default: 0 },
+        expiresAt: { type: Date, index: true },
+        expiredAt: { type: Date },
+        inventoryRestoredAt: { type: Date, default: null },
         isPaid: { type: Boolean, default: false },
         paidAt: { type: Date },
         isDelivered: { type: Boolean, default: false },

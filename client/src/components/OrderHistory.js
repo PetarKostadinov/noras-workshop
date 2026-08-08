@@ -100,6 +100,7 @@ function OrderHistory() {
                                             <i className={order.isPaid ? 'fas fa-check-circle' : 'far fa-clock'} aria-hidden="true"></i>
                                             {order.isPaid
                                                 ? `Paid · ${formatDate(order.paidAt)}`
+                                                : order.paymentStatus === 'expired' ? 'Expired'
                                                 : order.paymentStatus === 'processing' ? 'Under PayPal review' : 'Awaiting payment'}
                                         </strong>
                                     </div>
@@ -109,7 +110,7 @@ function OrderHistory() {
                                             <i className={order.isDelivered ? 'fas fa-check-circle' : 'fas fa-truck'} aria-hidden="true"></i>
                                             {order.isDelivered
                                                 ? `Delivered · ${formatDate(order.deliveredAt)}`
-                                                : order.isPaid ? 'Being prepared' : 'Starts after payment'}
+                                                : order.isPaid ? 'Being prepared' : order.fulfillmentStatus === 'cancelled' ? 'Cancelled' : 'Starts after payment'}
                                         </strong>
                                     </div>
                                 </div>
@@ -122,6 +123,7 @@ function OrderHistory() {
                                 >
                                     {order.isPaid
                                         ? 'View details'
+                                        : order.paymentStatus === 'expired' ? 'View expired order'
                                         : order.paymentStatus === 'processing' ? 'Check payment' : 'Complete payment'} <i className="fas fa-arrow-right" aria-hidden="true"></i>
                                 </Button>
                             </article>

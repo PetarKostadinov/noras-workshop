@@ -202,6 +202,7 @@ function OrderFinalStep() {
         ? new Intl.DateTimeFormat(i18n.language === 'bg' ? 'bg-BG' : 'en-US', { dateStyle: 'long' }).format(new Date(order.createdAt))
         : '';
     const paymentProvider = order.paymentMethod === 'Card' ? 'Stripe' : 'PayPal';
+    const isExpired = order.paymentStatus === 'expired' && order.fulfillmentStatus === 'cancelled';
 
     return (
         <section className="order-page">
@@ -209,13 +210,15 @@ function OrderFinalStep() {
 
             <div className="order-success-banner">
                 <div className="order-success-icon">
-                    <i className={order.isPaid ? 'fas fa-check' : 'far fa-clock'} aria-hidden="true"></i>
+                    <i className={order.isPaid ? 'fas fa-check' : isExpired ? 'fas fa-times' : 'far fa-clock'} aria-hidden="true"></i>
                 </div>
                 <div>
-                    <span>{t(order.isPaid ? 'Thank you for your order' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely')}</span>
-                    <h1>{t(order.isPaid ? 'Your order is confirmed' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm')}</h1>
+                    <span>{t(order.isPaid ? 'Thank you for your order' : isExpired ? 'Reservation expired' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely')}</span>
+                    <h1>{t(order.isPaid ? 'Your order is confirmed' : isExpired ? 'This order can no longer be paid' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm')}</h1>
                     <p>{order.isPaid
                         ? 'We’ll begin preparing your handmade pieces with care.'
+                        : isExpired
+                            ? 'The unpaid reservation expired and its items were returned to the shop. Add the products to your cart again to place a new order.'
                         : order.paymentStatus === 'processing'
                             ? `${paymentProvider} is reviewing the transaction. We’ll confirm the order as soon as payment clears.`
                             : 'Your order is awaiting payment and will not be prepared until payment is confirmed.'}</p>
@@ -234,7 +237,7 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-truck" aria-hidden="true"></i></span>
                             <div><span>{t('Delivery')}</span><h2>{t('Shipping details')}</h2></div>
                             <span className={'order-status ' + (order.isDelivered ? 'complete' : 'pending')}>
-                                {t(order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : 'Awaiting payment')}
+                                {t(order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : isExpired ? 'Cancelled' : 'Awaiting payment')}
                             </span>
                         </div>
                         <div className="order-address">
@@ -250,12 +253,14 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-wallet" aria-hidden="true"></i></span>
                             <div><span>{t('Payment')}</span><h2>{order.paymentMethod}</h2></div>
                             <span className={'order-status ' + (order.isPaid ? 'complete' : 'attention')}>
-                                {t(order.isPaid ? 'Paid' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due')}
+                                {t(order.isPaid ? 'Paid' : isExpired ? 'Expired' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due')}
                             </span>
                         </div>
                         <p className="order-payment-copy">
                             {order.isPaid
                                 ? 'Payment received on ' + new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(order.paidAt))
+                                : isExpired
+                                    ? 'No payment was completed before the inventory reservation expired.'
                                 : order.paymentStatus === 'processing'
                                     ? `Payment was submitted successfully and is awaiting ${paymentProvider}’s final confirmation.`
                                     : `Complete your secure ${order.paymentMethod === 'Card' ? 'card' : 'PayPal'} payment from the order summary.`}
@@ -285,10 +290,10 @@ function OrderFinalStep() {
                 </div>
 
                 <aside className="order-summary-card">
-                    <span>{t('Order summary')}</span><h2>{t(order.isPaid ? 'Payment complete' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment')}</h2>
+                    <span>{t('Order summary')}</span><h2>{t(order.isPaid ? 'Payment complete' : isExpired ? 'Order expired' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment')}</h2>
                     <div className="order-summary-row"><span>{t('Items')}</span><strong>{'$' + order.itemsPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Delivery')}</span><strong>{order.shippingPrice === 0 ? t('Free') : '$' + order.shippingPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Tax')}</span><strong>{'$' + order.taxPrice.toFixed(2)}</strong></div><div className="order-summary-total"><span>{t('Total')}</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
 
-                    {!order.isPaid && order.paymentMethod === 'PayPal' && (
+                    {!order.isPaid && !isExpired && order.paymentMethod === 'PayPal' && (
                         <div className="order-paypal">
                             <p><i className="fas fa-lock" aria-hidden="true"></i> Secure payment powered by PayPal</p>
                             {order.paypalOrderId && ['processing', 'failed'].includes(order.paymentStatus) ? (
@@ -338,7 +343,7 @@ function OrderFinalStep() {
                         </div>
                     )}
 
-                    {!order.isPaid && order.paymentMethod === 'Card' && (
+                    {!order.isPaid && !isExpired && order.paymentMethod === 'Card' && (
                         <div className="order-card-payment">
                             <p><i className="fas fa-lock" aria-hidden="true"></i> Secure card payment powered by Stripe</p>
                             {stripeReturnStatus === 'cancelled' && (
@@ -355,6 +360,13 @@ function OrderFinalStep() {
                         <div className="order-paid-message">
                             <i className="fas fa-check-circle" aria-hidden="true"></i>
                             <div><strong>Payment received</strong><span>Your order is being prepared.</span></div>
+                        </div>
+                    )}
+
+                    {isExpired && (
+                        <div className="order-paid-message">
+                            <i className="fas fa-info-circle" aria-hidden="true"></i>
+                            <div><strong>Inventory released</strong><span>Create a new order if you still want these items.</span></div>
                         </div>
                     )}
 
