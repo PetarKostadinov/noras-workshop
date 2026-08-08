@@ -33,6 +33,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Search-friendly product pages with structured product data, purchase reassurance, and custom-order enquiries
 - Product galleries with up to six administrator-managed images per product
 - Secure guest checkout with per-order browser access, alongside optional customer accounts
+- Account-based product reviews with verified-purchase labels and administrator moderation
 
 ## Technology
 
@@ -187,6 +188,8 @@ npm test        # Run server unit tests
 | GET | /api/products/search | Search, filter, sort, and paginate |
 | GET | /api/products/categories | List product categories |
 | GET | /api/products/:id | Fetch one product |
+| POST | /api/products/:id/reviews | Submit one signed-in customer review |
+| DELETE | /api/products/:id/reviews/:reviewId | Remove a review as an administrator |
 | POST | /api/users/register | Create an account |
 | POST | /api/users/login | Authenticate a user |
 | PUT | /api/users/profile | Update the signed-in user's profile |

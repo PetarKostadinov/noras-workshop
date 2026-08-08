@@ -11,6 +11,7 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import Rating from '../helpersComponents/Rating';
 import { trackCartEvent, trackEvent, toAnalyticsItem } from '../service/analyticsService';
+import ProductReviews from './ProductReviews';
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
@@ -195,6 +196,8 @@ function ProductScreen() {
                     <div><h2>{t('Protected payment')}</h2><p>{t('Pay securely with PayPal or card.')}</p></div>
                 </article>
             </div>
+
+            <ProductReviews product={product} userInfo={userInfo} onProductChange={setProduct} />
 
             <aside className="product-detail-custom">
                 <div>

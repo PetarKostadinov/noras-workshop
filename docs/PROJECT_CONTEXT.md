@@ -68,7 +68,7 @@ Mounted route groups:
 
 | Prefix | Responsibilities |
 | --- | --- |
-| `/api/products` | Catalog listing, search/filter/sort, categories, detail, product management, and admin image uploads |
+| `/api/products` | Catalog listing, search/filter/sort, categories, detail, customer reviews, product management, and admin image uploads |
 | `/api/users` | Registration, login, and authenticated profile update |
 | `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
 | `/api/admin` | Current-admin-only dashboard totals plus paginated product, order, and user management lists |
@@ -82,6 +82,7 @@ Relevant model vocabulary:
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
 - Admin product images are uploaded individually as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB each) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; the ordered secure URLs are stored with the product and the first is synchronized to the compatibility `image` cover field. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
 - Gallery changes for an existing product are persisted immediately through the admin-only `PATCH /api/products/:id/images` endpoint, preventing successful Cloudinary uploads from remaining unsaved when the editor is refreshed. New-product galleries are persisted with product creation.
+- Reviews use a dedicated collection with a unique product/user pair. Submission requires an account, accepts an integer 1–5 rating and 10–1000 character comment, and derives `verifiedPurchase` from a paid account order containing the product. Public product details include reviews but not reviewer account IDs. Administrators may remove reviews; product `rating` and `numReviews` are server-derived from review records and synchronized at startup, so the admin product editor cannot set them.
 - An order embeds product display snapshots but retains a `product` ObjectId reference. Its `user` reference is optional for guest orders; every new order stores a validated contact email. Guest access uses a random 256-bit token returned once to the browser while only its SHA-256 hash is stored with the order.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.

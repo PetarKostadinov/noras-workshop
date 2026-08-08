@@ -187,6 +187,13 @@ const bg = {
   'Guest checkout available': 'Поръчка без регистрация', 'No account is required. You can sign in for order history and easier checkout.': 'Не е необходим профил. Можете да влезете за история на поръчките и по-лесно плащане.',
   'Contact': 'Контакт', 'Used to identify your order during secure payment.': 'Използва се за идентифициране на поръчката при сигурно плащане.',
   'This guest order is not available in this browser.': 'Тази гост поръчка не е достъпна в този браузър.',
+  'Customer stories': 'Истории на клиенти', '{{count}} published reviews': '{{count}} публикувани отзива',
+  'Verified purchase': 'Потвърдена покупка', 'Remove review': 'Премахни отзива', 'Remove this review?': 'Да премахнем ли този отзив?', 'Review removed.': 'Отзивът е премахнат.',
+  'No reviews yet': 'Все още няма отзиви', 'Be the first customer to share an honest experience with this piece.': 'Бъдете първият клиент, който споделя честно впечатление за този продукт.',
+  'Share your experience': 'Споделете впечатлението си', 'Write a review': 'Напишете отзив', 'Your rating': 'Вашата оценка', '{{count}} stars': '{{count}} звезди',
+  'Your review': 'Вашият отзив', 'Write at least 10 characters. One review is allowed per product.': 'Напишете поне 10 знака. Разрешен е един отзив за продукт.',
+  'Publishing…': 'Публикуване…', 'Publish review': 'Публикувай отзива', 'Thank you. Your review is now published.': 'Благодарим ви. Вашият отзив е публикуван.',
+  'Sign in to leave a genuine product review.': 'Влезте в профила си, за да оставите истински продуктов отзив.', 'Sign in to review': 'Вход за отзив',
 };
 
 const savedLanguage = localStorage.getItem('language');

@@ -42,6 +42,23 @@ export const updateProductImages = async (id, images, token) => {
   return parseResponse(response, 'Unable to save product images');
 };
 
+export const createProductReview = async (id, review, token) => {
+  const response = await fetch(`/api/products/${id}/reviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(review),
+  });
+  return parseResponse(response, 'Unable to submit review');
+};
+
+export const deleteProductReview = async (productId, reviewId, token) => {
+  const response = await fetch(`/api/products/${productId}/reviews/${reviewId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return parseResponse(response, 'Unable to remove review');
+};
+
 export const deleteProduct = async (id, token) => {
   const response = await fetch(`/api/products/${id}`, {
       method: 'DELETE',

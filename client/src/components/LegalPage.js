@@ -13,6 +13,7 @@ const policies = {
         ]],
         ['Information we collect', [
           'Account information: your name, email address, hashed password, account role, and authentication information.',
+          'Review information: your public account name, star rating, written review, submission date, and whether the account has a verified paid purchase of that product.',
           'Order information: contact email, purchased products, quantities, prices, delivery name and address, payment method, transaction references, payment status, and fulfillment status.',
           'Shopping information stored in your browser: cart contents, delivery details, payment-method selection, language, analytics preference, and a random per-order access token when you check out as a guest.',
           'Usage information: page views and ecommerce interactions are sent to Google Analytics only after you allow analytics.',
@@ -74,6 +75,7 @@ const policies = {
         ['Кой носи отговорност', ['Nora’s Workshop, базирана в Бургас, България, отговаря за личните данни, обработвани чрез този уебсайт. Въпроси и искания относно поверителността могат да бъдат изпращани на petar_vs@outlook.com.']],
         ['Каква информация събираме', [
           'Данни за профила: име, имейл адрес, хеширана парола, роля и информация за удостоверяване.',
+          'Данни за отзиви: публичното име на профила, оценка със звезди, написан отзив, дата и дали профилът има потвърдена платена покупка на продукта.',
           'Данни за поръчката: имейл за контакт, продукти, количества, цени, име и адрес за доставка, начин на плащане, референции за транзакции и статус на плащането и изпълнението.',
           'Информация в браузъра: съдържание на количката, данни за доставка, избран начин на плащане, език, избор за анализи и случаен ключ за достъп до конкретна поръчка без профил.',
           'Данни за използването: прегледи на страници и действия в магазина се изпращат към Google Analytics само след разрешение.',

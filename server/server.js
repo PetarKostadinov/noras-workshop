@@ -7,6 +7,8 @@ import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRouter.js";
 import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 import adminRouter from "./routes/adminRouter.js";
+import Product from "./models/productModel.js";
+import Review from "./models/reviewModel.js";
 
 dotenv.config();
 
@@ -19,6 +21,21 @@ app.set('trust proxy', 1);
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/shoppingcart";
 const serverDirectory = path.dirname(fileURLToPath(import.meta.url));
 const clientBuildDirectory = path.resolve(serverDirectory, "../client/build");
+
+const synchronizeReviewRatings = async () => {
+  const summaries = await Review.aggregate([
+    { $group: { _id: '$product', rating: { $avg: '$rating' }, count: { $sum: 1 } } },
+  ]);
+  await Product.updateMany({}, { $set: { rating: 0, numReviews: 0 } }, { timestamps: false });
+  if (summaries.length) {
+    await Product.bulkWrite(summaries.map((summary) => ({
+      updateOne: {
+        filter: { _id: summary._id },
+        update: { $set: { rating: Math.round(summary.rating * 10) / 10, numReviews: summary.count } },
+      },
+    })), { timestamps: false });
+  }
+};
 
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.json());
@@ -75,6 +92,7 @@ const startServer = async () => {
     });
 
     console.log("Database connected");
+    await synchronizeReviewRatings();
 
     const port = process.env.PORT || 5000;
     const server = app.listen(port, () => {

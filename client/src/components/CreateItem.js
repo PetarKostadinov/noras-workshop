@@ -31,8 +31,6 @@ function CreateItem() {
         description: '',
         price: '',
         countMany: '',
-        rating: '0',
-        numReviews: '0',
     });
     const [slugEdited, setSlugEdited] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -59,13 +57,9 @@ function CreateItem() {
 
         const price = Number(form.price);
         const countMany = Number(form.countMany);
-        const rating = Number(form.rating);
-        const numReviews = Number(form.numReviews);
 
         if (price < 0) return toast.error('Price cannot be negative.');
         if (!Number.isInteger(countMany) || countMany < 0) return toast.error('Inventory must be a whole number of 0 or more.');
-        if (rating < 0 || rating > 5) return toast.error('Rating must be between 0 and 5.');
-        if (!Number.isInteger(numReviews) || numReviews < 0) return toast.error('Reviews must be a whole number of 0 or more.');
 
         setSubmitting(true);
         try {
@@ -79,8 +73,6 @@ function CreateItem() {
                 description: form.description.trim(),
                 price,
                 countMany,
-                rating,
-                numReviews,
             };
             const data = await createProduct(userInfo, item);
             toast.success('Product created successfully.');
@@ -158,18 +150,6 @@ function CreateItem() {
                                     <Form.Group controlId="create-count">
                                         <Form.Label>{t('Inventory')}</Form.Label>
                                         <Form.Control type="number" min="0" step="1" value={form.countMany} onChange={(e) => updateField('countMany', e.target.value)} placeholder="0" required />
-                                    </Form.Group>
-                                </Col>
-                                <Col sm={6} md={3}>
-                                    <Form.Group controlId="create-rating">
-                                        <Form.Label>{t('Rating')}</Form.Label>
-                                        <Form.Control type="number" min="0" max="5" step="0.1" value={form.rating} onChange={(e) => updateField('rating', e.target.value)} required />
-                                    </Form.Group>
-                                </Col>
-                                <Col sm={6} md={3}>
-                                    <Form.Group controlId="create-reviews">
-                                        <Form.Label>{t('Reviews')}</Form.Label>
-                                        <Form.Control type="number" min="0" step="1" value={form.numReviews} onChange={(e) => updateField('numReviews', e.target.value)} required />
                                     </Form.Group>
                                 </Col>
                             </Row>

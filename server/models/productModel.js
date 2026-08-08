@@ -32,13 +32,6 @@ const productSchema = new Schema(
         countMany: { type: Number, required: true, min: 0, validate: Number.isInteger },
         rating: { type: Number, required: true, min: 0, max: 5 },
         numReviews: { type: Number, required: true, min: 0, validate: Number.isInteger },
-        commentList: [
-            new Schema({
-                 userId:  String,
-                 username: String,
-                 comment: String
-             })
-         ],
     },
     {
         timestamps: true

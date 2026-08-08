@@ -3,9 +3,24 @@ import expressAsyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
 import Product from '../models/productModel.js';
-import { admin, auth, escapeRegex } from '../utils.js';
+import Review from '../models/reviewModel.js';
+import Order from '../models/orderModel.js';
+import User from '../models/userModel.js';
+import { admin, auth, createRateLimiter, escapeRegex } from '../utils.js';
 
 const productRouter = express.Router();
+const reviewLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too many review attempts. Please wait and try again.' });
+
+const updateProductRating = async (productId) => {
+    const [summary] = await Review.aggregate([
+        { $match: { product: new mongoose.Types.ObjectId(productId) } },
+        { $group: { _id: null, rating: { $avg: '$rating' }, count: { $sum: 1 } } },
+    ]);
+    await Product.findByIdAndUpdate(productId, {
+        rating: summary ? Math.round(summary.rating * 10) / 10 : 0,
+        numReviews: summary?.count || 0,
+    }, { timestamps: false });
+};
 
 const normalizeProductImages = (image, images) => {
     const candidates = Array.isArray(images) ? images : [];
@@ -156,13 +171,47 @@ productRouter.patch('/:id/images', auth, admin, expressAsyncHandler(async (req, 
     res.send({ image: product.image, images: product.images });
 }));
 
+productRouter.post('/:id/reviews', auth, reviewLimiter, expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).send({ message: 'Invalid product ID' });
+    const product = await Product.exists({ _id: req.params.id });
+    if (!product) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
+
+    const rating = Number(req.body.rating);
+    const comment = typeof req.body.comment === 'string' ? req.body.comment.trim() : '';
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) return res.status(400).send({ message: 'Choose a rating from 1 to 5 stars' });
+    if (comment.length < 10 || comment.length > 1000) return res.status(400).send({ message: 'Review text must be between 10 and 1000 characters' });
+
+    const reviewer = await User.findById(req.user._id).select('username');
+    if (!reviewer) return res.status(401).send({ message: 'Your account is no longer available' });
+    const verifiedPurchase = Boolean(await Order.exists({ user: reviewer._id, isPaid: true, 'orderItems.product': req.params.id }));
+    try {
+        const review = await Review.create({ product: req.params.id, user: reviewer._id, username: reviewer.username, rating, comment, verifiedPurchase });
+        await updateProductRating(req.params.id);
+        res.status(201).send({ _id: review._id, username: review.username, rating: review.rating, comment: review.comment, verifiedPurchase: review.verifiedPurchase, createdAt: review.createdAt });
+    } catch (error) {
+        if (error?.code === 11000) return res.status(409).send({ message: 'You have already reviewed this product' });
+        throw error;
+    }
+}));
+
+productRouter.delete('/:id/reviews/:reviewId', auth, admin, expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id) || !mongoose.isValidObjectId(req.params.reviewId)) return res.status(400).send({ message: 'Invalid review ID' });
+    const review = await Review.findOneAndDelete({ _id: req.params.reviewId, product: req.params.id });
+    if (!review) return res.status(404).send({ message: 'Review not found' });
+    await updateProductRating(req.params.id);
+    res.send({ message: 'Review removed' });
+}));
+
 productRouter.get('/:id', expressAsyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send({ message: 'Invalid product ID' });
     }
-    const product = await Product.findById(req.params.id);
+    const [product, reviews] = await Promise.all([
+        Product.findById(req.params.id),
+        Review.find({ product: req.params.id }).sort({ createdAt: -1 }).lean(),
+    ]);
     if (product) {
-        res.send(product);
+        res.send({ ...product.toObject(), reviews });
     } else {
         res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
     }
@@ -191,8 +240,8 @@ productRouter.post('/create', auth, admin, expressAsyncHandler(async (req, res) 
         description: req.body.description,
         price: req.body.price,
         countMany: req.body.countMany,
-        rating: req.body.rating,
-        numReviews: req.body.numReviews
+        rating: 0,
+        numReviews: 0
 
     });
 
@@ -218,6 +267,8 @@ productRouter.delete('/:id', auth, admin, expressAsyncHandler(async (req, res) =
     const product = await Product.findByIdAndDelete(id)
 
     if (!product) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
+
+    await Review.deleteMany({ product: product._id });
 
     res.send({ message: 'Item Deleted' })
 }));
@@ -254,8 +305,6 @@ productRouter.put('/:id/editItem/:slug', auth, admin, expressAsyncHandler(async 
     item.description = req.body.description.trim();
     item.price = req.body.price;
     item.countMany = req.body.countMany;
-    item.rating = req.body.rating;
-    item.numReviews = req.body.numReviews;
 
     const updatedItem = await item.save();
 

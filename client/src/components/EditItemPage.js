@@ -10,7 +10,7 @@ import getError from '../util';
 import ProductImageManager from './ProductImageManager';
 const EMPTY_FORM = {
     name: '', slug: '', image: '', images: [], brand: '', category: '', description: '',
-    price: '', countMany: '', rating: '', numReviews: '',
+    price: '', countMany: '',
 };
 
 const slugify = (value) => value
@@ -45,7 +45,6 @@ function EditItemPage() {
                     images: product.images?.length ? product.images : product.image ? [product.image] : [],
                     brand: product.brand ?? '', category: product.category ?? '', description: product.description ?? '',
                     price: String(product.price ?? ''), countMany: String(product.countMany ?? ''),
-                    rating: String(product.rating ?? ''), numReviews: String(product.numReviews ?? ''),
                 });
             } catch (err) {
                 if (active) setLoadError(getError(err));
@@ -84,12 +83,8 @@ function EditItemPage() {
 
         const price = Number(form.price);
         const countMany = Number(form.countMany);
-        const rating = Number(form.rating);
-        const numReviews = Number(form.numReviews);
         if (!Number.isFinite(price) || price < 0) return toast.error('Price must be 0 or more.');
         if (!Number.isInteger(countMany) || countMany < 0) return toast.error('Inventory must be a whole number of 0 or more.');
-        if (!Number.isFinite(rating) || rating < 0 || rating > 5) return toast.error('Rating must be between 0 and 5.');
-        if (!Number.isInteger(numReviews) || numReviews < 0) return toast.error('Reviews must be a whole number of 0 or more.');
 
         setSubmitting(true);
         try {
@@ -97,7 +92,7 @@ function EditItemPage() {
                 ...form,
                 name: form.name.trim(), slug: form.slug.trim().toLowerCase(), image: form.images[0],
                 brand: form.brand.trim(), category: form.category.trim(), description: form.description.trim(),
-                price, countMany, rating, numReviews,
+                price, countMany,
             };
             const result = await updateItem(id, payload.slug, payload, userInfo.token);
             toast.success('Product updated successfully.');
@@ -140,8 +135,6 @@ function EditItemPage() {
                             <Row className="g-3">
                                 <Col sm={6} md={3}><Form.Group controlId="edit-price"><Form.Label>{t('Price (USD)')}</Form.Label><Form.Control type="number" min="0" step="0.01" value={form.price} onChange={(e) => updateField('price', e.target.value)} required /></Form.Group></Col>
                                 <Col sm={6} md={3}><Form.Group controlId="edit-count"><Form.Label>{t('Inventory')}</Form.Label><Form.Control type="number" min="0" step="1" value={form.countMany} onChange={(e) => updateField('countMany', e.target.value)} required /></Form.Group></Col>
-                                <Col sm={6} md={3}><Form.Group controlId="edit-rating"><Form.Label>{t('Rating')}</Form.Label><Form.Control type="number" min="0" max="5" step="0.1" value={form.rating} onChange={(e) => updateField('rating', e.target.value)} required /></Form.Group></Col>
-                                <Col sm={6} md={3}><Form.Group controlId="edit-reviews"><Form.Label>{t('Reviews')}</Form.Label><Form.Control type="number" min="0" step="1" value={form.numReviews} onChange={(e) => updateField('numReviews', e.target.value)} required /></Form.Group></Col>
                             </Row>
                         </div>
                     </Col>
