@@ -42,6 +42,8 @@
 .product-detail-purchase .btn:disabled { color: #7f6d67; background: #e8dfdb; border-color: #e8dfdb; }
 .product-detail-purchase p { margin: 0.75rem 0 0; color: #9a8780; font-size: 0.7rem; text-align: center; }
 .product-detail-purchase p i { margin-right: 0.4rem; color: #6d897a; }
+.product-detail-policies { display: flex; justify-content: center; gap: 1rem; margin-top: 0.55rem; font-size: 0.72rem; }
+.product-detail-policies a { color: #8f5145; font-weight: 750; text-underline-offset: 0.16rem; }
 
 @media (max-width: 991.98px) {
   .product-detail-layout { grid-template-columns: 1fr; }

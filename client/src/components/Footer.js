@@ -51,6 +51,13 @@ function Footer() {
             <Link to="/orderhistory">{t('Order history')}</Link>
           </nav>
 
+          <nav className="footer-column" aria-label="Customer care">
+            <h2>{t('Customer care')}</h2>
+            <Link to="/help/shipping">{t('Shipping and delivery')}</Link>
+            <Link to="/help/returns">{t('Returns')}</Link>
+            <Link to="/help/faq">{t('FAQ')}</Link>
+          </nav>
+
           <div className="footer-column footer-contact">
             <h2>{t('Let’s create something')}</h2>
             <p>{t('Questions about a gift, event setup, or custom studio styling?')}</p>

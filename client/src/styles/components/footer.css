@@ -15,7 +15,7 @@
 
 .footer-main {
   display: grid;
-  grid-template-columns: minmax(260px, 1.4fr) repeat(2, minmax(140px, 0.7fr)) minmax(230px, 1fr);
+  grid-template-columns: minmax(230px, 1.25fr) repeat(3, minmax(120px, 0.65fr)) minmax(210px, 0.9fr);
   gap: clamp(2rem, 5vw, 4.5rem);
   padding: 4.5rem 0 3.5rem;
 }

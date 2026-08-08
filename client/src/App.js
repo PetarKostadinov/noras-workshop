@@ -27,6 +27,7 @@ import AdminManagementPage from "./components/AdminManagementPage";
 import AnalyticsConsent from "./helpersComponents/AnalyticsConsent";
 import { trackPageView } from "./service/analyticsService";
 import LegalPage from "./components/LegalPage";
+import CustomerCarePage from "./components/CustomerCarePage";
 
 function AppContent() {
   const { pathname, search } = useLocation();
@@ -57,6 +58,7 @@ function AppContent() {
               <Route path="/orderhistory" element={<Protected><OrderHistory /></Protected>} />
               <Route path="/product/:id/:slug" element={<DetailsPage />} />
               <Route path="/legal/:policy" element={<LegalPage />} />
+              <Route path="/help/:topic" element={<CustomerCarePage />} />
               {/* Admin Routes */}
               <Route path="/admin/dashboard"
                 element={<AdminRoute>

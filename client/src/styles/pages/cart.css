@@ -267,6 +267,22 @@
   color: #e5a495;
 }
 
+.cart-policy-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.8rem;
+  font-size: 0.7rem;
+}
+
+.cart-policy-links a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: underline;
+  text-underline-offset: 0.16rem;
+}
+
+.cart-policy-links a:hover { color: var(--color-white); }
+
 .cart-continue {
   display: block;
   margin-top: 1.25rem;

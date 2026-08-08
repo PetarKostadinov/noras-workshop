@@ -125,6 +125,7 @@ function CartScreen() {
               <span><i className="fas fa-lock" aria-hidden="true"></i> {t('Secure checkout')}</span>
               <span><i className="fas fa-box" aria-hidden="true"></i> {t('Carefully packaged')}</span>
             </div>
+            <div className="cart-policy-links"><Link to="/help/shipping">{t('Shipping information')}</Link><Link to="/help/returns">{t('Return policy')}</Link></div>
             <Link to="/search" className="cart-continue">{t('Continue shopping')}</Link>
           </aside>
         </div>

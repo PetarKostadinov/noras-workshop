@@ -135,6 +135,7 @@ function ProductScreen() {
                             <span>{t(adding ? 'Adding…' : inStock ? 'Add to cart' : 'Out of stock')}</span>
                         </Button>
                         <p><i className="fas fa-lock" aria-hidden="true"></i>{t('Secure checkout with protected payments')}</p>
+                        <div className="product-detail-policies"><Link to="/help/shipping">{t('Shipping information')}</Link><Link to="/help/returns">{t('Return policy')}</Link></div>
                     </div>
                 </div>
             </div>

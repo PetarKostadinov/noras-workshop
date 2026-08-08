@@ -164,6 +164,8 @@ const bg = {
   'Decline analytics': 'Отказвам анализите', 'Allow analytics': 'Разрешавам анализите',
   'Analytics settings': 'Настройки за анализи',
   'Cookie details': 'Подробности за бисквитките', 'Privacy': 'Поверителност', 'Cookies': 'Бисквитки',
+  'Customer care': 'Помощ за клиенти', 'Shipping and delivery': 'Доставка', 'Returns': 'Връщане', 'FAQ': 'Често задавани въпроси',
+  'Shipping information': 'Информация за доставка', 'Return policy': 'Условия за връщане',
 };
 
 const savedLanguage = localStorage.getItem('language');
