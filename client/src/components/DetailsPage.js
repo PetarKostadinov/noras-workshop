@@ -96,10 +96,37 @@ function ProductScreen() {
     const isAdmin = Boolean(userInfo?.isAdmin);
     const inStock = product.countMany > 0;
     const lowStock = inStock && product.countMany <= 5;
+    const productDescription = t(product.description);
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: t(product.name),
+        image: [product.image],
+        description: productDescription,
+        brand: { '@type': 'Brand', name: product.brand },
+        category: t(product.category),
+        offers: {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: Number(product.price).toFixed(2),
+            availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        },
+        ...(product.numReviews > 0 ? {
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: product.rating,
+                reviewCount: product.numReviews,
+            },
+        } : {}),
+    };
 
     return (
         <section className="product-detail-page">
-            <Helmet><title>{t(product.name)} | Nora's Workshop</title></Helmet>
+            <Helmet>
+                <title>{t(product.name)} | Nora's Workshop</title>
+                <meta name="description" content={productDescription} />
+                <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+            </Helmet>
 
             <nav className="product-detail-breadcrumb" aria-label={t('Breadcrumb')}>
                 <Link to="/">{t('Shop')}</Link><i className="fas fa-chevron-right" aria-hidden="true"></i><span>{t(product.name)}</span>
@@ -139,6 +166,33 @@ function ProductScreen() {
                     </div>
                 </div>
             </div>
+
+            <div className="product-detail-assurances" aria-label={t('Shopping reassurance')}>
+                <article>
+                    <span><i className="fas fa-box-open" aria-hidden="true"></i></span>
+                    <div><h2>{t('Carefully packaged')}</h2><p>{t('Prepared with care for its journey to you.')}</p></div>
+                </article>
+                <article>
+                    <span><i className="fas fa-truck" aria-hidden="true"></i></span>
+                    <div><h2>{t('Free shipping over $100')}</h2><p><Link to="/help/shipping">{t('See delivery information')}</Link></p></div>
+                </article>
+                <article>
+                    <span><i className="fas fa-shield-alt" aria-hidden="true"></i></span>
+                    <div><h2>{t('Protected payment')}</h2><p>{t('Pay securely with PayPal or card.')}</p></div>
+                </article>
+            </div>
+
+            <aside className="product-detail-custom">
+                <div>
+                    <span>{t('Made for your moment')}</span>
+                    <h2>{t('Looking for something personal?')}</h2>
+                    <p>{t('Tell us about your gift, celebration, or studio idea and we’ll discuss what is possible.')}</p>
+                </div>
+                <div className="product-detail-custom-actions">
+                    <a href={`mailto:petar_vs@outlook.com?subject=${encodeURIComponent(`Custom enquiry: ${product.name}`)}`}>{t('Ask about this piece')}</a>
+                    <Link to="/about">{t('Discover our story')}</Link>
+                </div>
+            </aside>
         </section>
     );
 }

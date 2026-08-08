@@ -30,6 +30,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Consent-gated ecommerce analytics with customer-facing privacy and cookie policies
 - Bilingual shipping, returns, and frequently asked questions pages
 - Bilingual workshop story and custom-project enquiry journey
+- Search-friendly product pages with structured product data, purchase reassurance, and custom-order enquiries
 
 ## Technology
 

@@ -44,10 +44,30 @@
 .product-detail-purchase p i { margin-right: 0.4rem; color: #6d897a; }
 .product-detail-policies { display: flex; justify-content: center; gap: 1rem; margin-top: 0.55rem; font-size: 0.72rem; }
 .product-detail-policies a { color: #8f5145; font-weight: 750; text-underline-offset: 0.16rem; }
+.product-detail-assurances { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 1.25rem; overflow: hidden; background: rgba(255, 255, 255, 0.82); border: 1px solid var(--color-border); border-radius: 1rem; }
+.product-detail-assurances article { display: flex; align-items: center; gap: 0.85rem; min-width: 0; padding: 1.2rem 1.35rem; }
+.product-detail-assurances article + article { border-left: 1px solid var(--color-border); }
+.product-detail-assurances article > span { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; color: var(--color-primary-strong); background: #fae9e3; border-radius: 50%; }
+.product-detail-assurances h2 { margin: 0 0 0.2rem; color: var(--color-heading); font-size: 0.8rem; font-weight: 800; }
+.product-detail-assurances p { margin: 0; color: var(--color-text-muted); font-size: 0.72rem; line-height: 1.45; }
+.product-detail-assurances a { color: var(--color-primary-strong); font-weight: 700; text-underline-offset: 0.14rem; }
+.product-detail-custom { display: flex; align-items: center; justify-content: space-between; gap: 2rem; margin-top: 1.25rem; padding: clamp(1.6rem, 4vw, 2.5rem); color: #fff; background: linear-gradient(120deg, #78463d, #a75c4e); border-radius: 1rem; box-shadow: 0 15px 35px rgba(88, 61, 52, 0.13); }
+.product-detail-custom > div:first-child { max-width: 670px; }
+.product-detail-custom > div:first-child > span { color: #f5d8cf; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.product-detail-custom h2 { margin: 0.35rem 0 0.45rem; font-family: var(--font-display); font-size: clamp(1.65rem, 3vw, 2.25rem); font-weight: 500; }
+.product-detail-custom p { margin: 0; color: rgba(255, 255, 255, 0.82); font-size: 0.86rem; line-height: 1.65; }
+.product-detail-custom-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 0.75rem; }
+.product-detail-custom-actions a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0.65rem 1rem; color: #78463d; background: #fff; border: 1px solid #fff; border-radius: 999px; font-size: 0.76rem; font-weight: 800; text-decoration: none; }
+.product-detail-custom-actions a:last-child { color: #fff; background: transparent; }
+.product-detail-custom-actions a:hover { color: #5e352e; background: #fff4f0; }
+.product-detail-custom-actions a:last-child:hover { color: #78463d; background: #fff; }
 
 @media (max-width: 991.98px) {
   .product-detail-layout { grid-template-columns: 1fr; }
   .product-detail-media, .product-detail-media img { min-height: auto; aspect-ratio: 4 / 3; }
+  .product-detail-assurances { grid-template-columns: 1fr; }
+  .product-detail-assurances article + article { border-top: 1px solid var(--color-border); border-left: 0; }
+  .product-detail-custom { align-items: flex-start; flex-direction: column; }
 }
 
 @media (max-width: 575.98px) {
@@ -58,4 +78,5 @@
   .product-detail-content { padding: 1.6rem 1.25rem 1.8rem; }
   .product-detail-content h1 { font-size: 2.25rem; }
   .product-detail-meta { grid-template-columns: 1fr; }
+  .product-detail-custom-actions { width: 100%; align-items: stretch; flex-direction: column; }
 }

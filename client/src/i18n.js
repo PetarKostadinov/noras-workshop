@@ -167,6 +167,13 @@ const bg = {
   'Customer care': 'Помощ за клиенти', 'Shipping and delivery': 'Доставка', 'Returns': 'Връщане', 'FAQ': 'Често задавани въпроси',
   'Shipping information': 'Информация за доставка', 'Return policy': 'Условия за връщане',
   'Our story': 'Нашата история',
+  'Shopping reassurance': 'Сигурност при пазаруване',
+  'Prepared with care for its journey to you.': 'Подготвено с грижа за пътя до вас.',
+  'Free shipping over $100': 'Безплатна доставка над $100', 'See delivery information': 'Вижте информацията за доставка',
+  'Pay securely with PayPal or card.': 'Платете сигурно с PayPal или карта.',
+  'Made for your moment': 'Създадено за вашия момент', 'Looking for something personal?': 'Търсите нещо лично?',
+  'Tell us about your gift, celebration, or studio idea and we’ll discuss what is possible.': 'Разкажете ни за вашия подарък, празник или идея за студио и ще обсъдим възможностите.',
+  'Ask about this piece': 'Попитайте за този продукт', 'Discover our story': 'Открийте нашата история',
 };
 
 const savedLanguage = localStorage.getItem('language');

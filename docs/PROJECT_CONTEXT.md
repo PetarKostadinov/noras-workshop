@@ -43,6 +43,8 @@ Stripe uses hosted Checkout rather than a client provider. `server/server.js` mo
 
 `client/src/App.js` owns browser routes. Public pages include home, search, cart, login, registration, product details, the bilingual workshop story at `/about`, `/legal/privacy`, `/legal/cookies`, and the customer-care routes `/help/shipping`, `/help/returns`, and `/help/faq`. Guests may build and persist a cart, but checkout and order pages require an account. `Protected` safely preserves the requested internal route through login/registration; malformed or external redirect targets fall back to `/`. `AdminRoute` guards the admin dashboard and product management screens in the browser.
 
+Product-detail pages expose the stored product name, image, description, brand, category, price, availability, and optional aggregate rating as schema.org `Product` structured data. They also link customers to the existing shipping/returns guidance and to a pre-addressed custom-product email enquiry; these presentation features do not change inventory or checkout behavior.
+
 `client/src/helpersComponents/Store.js` is the global store. Durable browser keys are:
 
 - `userInfo`: signed-in user details and bearer token;
