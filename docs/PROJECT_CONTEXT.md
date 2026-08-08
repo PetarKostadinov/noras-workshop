@@ -32,6 +32,7 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | Authentication | 30-day bearer JWT containing user id, username, email, and `isAdmin` |
 | Payments | PayPal JS SDK plus Stripe-hosted card checkout; payment creation and verification remain server-side |
 | Analytics | Optional consent-gated Google Analytics 4 ecommerce funnel events configured at client build time |
+| Error monitoring | Optional error-only Sentry reporting for React and Express, without session replay, tracing, or attached user identity |
 
 For a single-service production deployment, `render.yaml` builds the CRA client and starts Express. When `NODE_ENV=production`, Express serves `client/build`, uses the same origin for browser and API traffic, and falls back to `index.html` for client-side routes. `/api/health` is the deployment health-check endpoint.
 
@@ -74,7 +75,7 @@ Global accessibility foundations include a keyboard skip link, consistent `:focu
 
 ## Server structure and API
 
-`server/server.js` loads environment configuration, JSON/form middleware, routers, the final error handler, MongoDB, and the HTTP listener.
+`server/instrument.js` initializes optional Sentry monitoring before application imports. The server start commands preload it with Node's `--import` flag. `server/server.js` loads environment configuration, JSON/form middleware, routers, Sentry's Express error middleware, the final application error handler, MongoDB, and the HTTP listener. Keep Sentry's error middleware after routes and before the final application error handler.
 
 Mounted route groups:
 
@@ -137,10 +138,16 @@ Server configuration lives in uncommitted `server/.env`, documented by `server/.
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET` (server-only)
+- `SENTRY_DSN` (optional Node/Express Sentry project DSN; monitoring is disabled when omitted)
+- `SENTRY_ENVIRONMENT` (optional Sentry environment label; defaults to `NODE_ENV`)
 
 Optional client build configuration in `client/.env`:
 
 - `REACT_APP_GA_MEASUREMENT_ID` enables Google Analytics 4 only after visitor consent. If omitted, the consent interface and Google script remain disabled.
+- `REACT_APP_SENTRY_DSN` enables browser error reporting to a Sentry React project. If omitted, the error boundary remains available but sends no report.
+- `REACT_APP_SENTRY_ENVIRONMENT` optionally labels browser reports; it is fixed at client build time.
+
+Both Sentry integrations are configured for errors only. They disable tracing and session replay, do not attach user identity, and remove request bodies, cookies, and authorization headers before sending events. Sentry monitoring is operational rather than marketing analytics and is not controlled by the GA4 consent preference.
 
 Use Node.js 18 or newer because server code relies on the built-in `fetch` implementation.
 
@@ -155,7 +162,7 @@ client tests once: npm test -- --watchAll=false
 local Stripe events: stripe listen --forward-to http://localhost:5000/api/stripe/webhook
 ```
 
-Render deployment uses `npm install --prefix server && npm install --prefix client && npm run build --prefix client` followed by `node server/server.js`. Render supplies `PORT`; the Blueprint requests the remaining production secrets. `CLIENT_URL` must be the final public origin used for Stripe return URLs.
+Render deployment uses `npm install --prefix server && npm install --prefix client && npm run build --prefix client` followed by `node --import ./server/instrument.js server/server.js`. Render supplies `PORT`; the Blueprint requests the remaining production secrets. `CLIENT_URL` must be the final public origin used for Stripe return URLs. Client values prefixed with `REACT_APP_`, including the optional browser Sentry DSN, are embedded during the build and require a redeploy when changed.
 
 The server uses Node's built-in test runner (`npm test`) for focused unit tests. Database-backed route coverage remains limited, so perform focused API smoke tests when MongoDB and integration credentials are available.
 

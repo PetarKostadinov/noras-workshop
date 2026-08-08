@@ -29,6 +29,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - MongoDB-backed products, users, and orders
 - Responsive layouts for desktop, tablet, and mobile
 - Consent-gated GA4 ecommerce funnel analytics, including product, cart, checkout, purchase, and checkout-error events, with customer-facing privacy and cookie policies
+- Optional privacy-conscious Sentry monitoring for browser and server errors
 - Bilingual shipping, returns, and frequently asked questions pages
 - Bilingual workshop story and custom-project enquiry journey
 - Search-friendly product pages with structured product data, purchase reassurance, and custom-order enquiries
@@ -128,6 +129,20 @@ REACT_APP_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
 
 When this value is omitted, no analytics prompt or Google Analytics script is shown or loaded.
 
+Sentry error monitoring is also optional. Create separate React and Node/Express projects in Sentry, then configure the server DSN in `server/.env` and the public browser DSN in `client/.env`:
+
+~~~env
+# server/.env
+SENTRY_DSN="your-node-project-dsn"
+SENTRY_ENVIRONMENT="development"
+
+# client/.env
+REACT_APP_SENTRY_DSN="your-react-project-dsn"
+REACT_APP_SENTRY_ENVIRONMENT="development"
+~~~
+
+The application runs normally when either DSN is omitted. The integration reports errors only: session replay and performance tracing are disabled, personal identity is not attached, and request bodies, cookies, and authorization headers are removed before events are sent. A browser DSN is public by design; never place a Sentry authentication token in client configuration.
+
 ### 3. Install dependencies
 
 ~~~bash
@@ -163,7 +178,7 @@ The repository includes `render.yaml` for a single Render Web Service. During de
 1. Push the repository to GitHub.
 2. Create a free MongoDB Atlas cluster and copy its connection string.
 3. In Render, choose **New > Blueprint**, connect the repository, and apply `render.yaml`.
-4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled. To enable analytics, add the public build-time value `REACT_APP_GA_MEASUREMENT_ID` separately. For Google Search Console HTML-tag verification, set `GOOGLE_SITE_VERIFICATION` to only the tag's `content` value and redeploy.
+4. Enter the requested secret environment variables. Set `MONGODB_URI`, generate a long random `JWT_SECRET`, set `CLIENT_URL` to `https://noras-workshop.onrender.com`, and copy the Cloudinary cloud name, API key, and API secret from your Cloudinary dashboard. Add PayPal and Stripe secrets when those payment methods are enabled. To enable analytics, add the public build-time value `REACT_APP_GA_MEASUREMENT_ID` separately. To enable error monitoring, add `SENTRY_DSN` from a Sentry Node/Express project and the public build-time `REACT_APP_SENTRY_DSN` from a Sentry React project; use `production` for both Sentry environment values. For Google Search Console HTML-tag verification, set `GOOGLE_SITE_VERIFICATION` to only the tag's `content` value and redeploy.
 5. After deployment, update `CLIENT_URL` if you attach a custom domain. In Stripe, register `https://YOUR_DOMAIN/api/stripe/webhook` and save its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 Render supplies `PORT` automatically. Do not set it manually. Admin uploads are stored in the `noras-workshop/products` folder in Cloudinary, and only the returned HTTPS URL is saved with the MongoDB product. Images already bundled in `client/public/images/` are unaffected.

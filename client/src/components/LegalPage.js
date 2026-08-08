@@ -17,6 +17,7 @@ const policies = {
           'Order information: contact email, purchased products, quantities, prices, delivery name and address, payment method, transaction references, payment status, and fulfillment status.',
           'Shopping information stored in your browser: cart contents, delivery details, payment-method selection, language, analytics preference, and a random per-order access token when you check out as a guest.',
           'Usage information: page views and ecommerce interactions are sent to Google Analytics only after you allow analytics.',
+          'Error diagnostics: when error monitoring is configured, Sentry may receive the technical error, page route, browser or device details, and timestamp needed to diagnose a failure. Request bodies, cookies, and authorization headers are excluded by the shop configuration.',
           'We do not collect or store raw card numbers, expiry dates, or security codes. Card details are entered on Stripe-hosted Checkout, and PayPal credentials are handled by PayPal.',
         ]],
         ['Why we use information', [
@@ -24,12 +25,14 @@ const policies = {
           'To perform the purchase contract and take steps you request before purchasing.',
           'To meet applicable accounting, tax, legal, and regulatory obligations.',
           'To understand and improve the shop when you have consented to analytics.',
+          'To detect and resolve technical failures and keep the shop reliable and secure.',
         ]],
         ['Services that receive information', [
           'Hosting and database providers process information needed to operate the website and store accounts and orders.',
           'Stripe and PayPal process payments and return transaction status information to the shop.',
           'Google Analytics receives usage and ecommerce-event information only after consent.',
           'Cloudinary hosts product images uploaded by administrators; customer payment details are not sent to Cloudinary.',
+          'Sentry processes sanitized technical error diagnostics when error monitoring is configured. Session replay and performance tracing are not enabled.',
           'Providers may process information outside the European Economic Area under their applicable safeguards and contractual terms.',
         ]],
         ['Retention and security', [
@@ -79,6 +82,7 @@ const policies = {
           'Данни за поръчката: имейл за контакт, продукти, количества, цени, име и адрес за доставка, начин на плащане, референции за транзакции и статус на плащането и изпълнението.',
           'Информация в браузъра: съдържание на количката, данни за доставка, избран начин на плащане, език, избор за анализи и случаен ключ за достъп до конкретна поръчка без профил.',
           'Данни за използването: прегледи на страници и действия в магазина се изпращат към Google Analytics само след разрешение.',
+          'Диагностика на грешки: когато наблюдението за грешки е настроено, Sentry може да получава техническата грешка, адреса на страницата, данни за браузъра или устройството и часа, необходими за откриване на проблема. Данни от заявки, бисквитки и заглавки за удостоверяване се изключват от настройките на магазина.',
           'Не събираме и не съхраняваме номера на карти, срокове на валидност или кодове за сигурност. Картовите данни се въвеждат в Stripe Checkout, а данните за PayPal се обработват от PayPal.',
         ]],
         ['Защо използваме информацията', [
@@ -86,12 +90,14 @@ const policies = {
           'За изпълнение на договора за покупка и действията, поискани от вас преди покупката.',
           'За изпълнение на приложими счетоводни, данъчни и законови задължения.',
           'За подобряване на магазина, когато сте дали съгласие за анализи.',
+          'За откриване и отстраняване на технически проблеми и поддържане на надеждността и сигурността на магазина.',
         ]],
         ['Услуги, които получават информация', [
           'Доставчиците на хостинг и база данни обработват необходимата информация за работата на сайта и съхранението на профили и поръчки.',
           'Stripe и PayPal обработват плащания и връщат информация за статуса на транзакциите.',
           'Google Analytics получава данни за използването и електронната търговия само след съгласие.',
           'Cloudinary съхранява продуктови изображения, качени от администратори; клиентски платежни данни не се изпращат към Cloudinary.',
+          'Sentry обработва ограничени технически данни за грешки, когато наблюдението е настроено. Запис на потребителски сесии и проследяване на производителността не са активирани.',
           'Доставчиците могат да обработват информация извън Европейското икономическо пространство съгласно приложимите гаранции и договорни условия.',
         ]],
         ['Съхранение и сигурност', [

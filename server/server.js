@@ -12,6 +12,7 @@ import Product from "./models/productModel.js";
 import Review from "./models/reviewModel.js";
 import { buildMerchantFeed, buildSitemap, injectSeoMetadata } from "./seo.js";
 import { backfillOrderExpirations, expireDueOrders } from './orderExpiration.js';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
 
@@ -145,6 +146,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+Sentry.setupExpressErrorHandler(app);
+
 app.use((err, req, res, next) => {
   if (err?.code === 11000) {
     return res.status(409).send({ message: 'A record with that unique value already exists' });
@@ -174,7 +177,10 @@ const startServer = async () => {
       console.log(`server listen at http://localhost:${port}`);
     });
     const expirationTimer = setInterval(() => {
-      expireDueOrders().catch((error) => console.error('Order expiration failed:', error.message));
+      expireDueOrders().catch((error) => {
+        Sentry.captureException(error);
+        console.error('Order expiration failed:', error.message);
+      });
     }, 60 * 1000);
     expirationTimer.unref();
 
@@ -188,6 +194,7 @@ const startServer = async () => {
       process.exit(1);
     });
   } catch (error) {
+    Sentry.captureException(error);
     console.error("MongoDB connection failed:", error.message);
     console.error(
       "Set MONGODB_URI in your server/.env file or start a local MongoDB instance at mongodb://127.0.0.1:27017"

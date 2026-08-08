@@ -40,6 +40,11 @@
   border: 0;
 }
 
+.app-error-fallback { display: grid; min-height: 70vh; padding: 2rem; place-content: center; text-align: center; }
+.app-error-fallback h1 { margin-bottom: 0.75rem; font-family: var(--font-display); color: var(--color-dark); }
+.app-error-fallback p { color: var(--color-muted); }
+.app-error-fallback button { justify-self: center; min-height: 44px; padding: 0.7rem 1.2rem; color: var(--color-white); background: var(--color-primary); border: 0; border-radius: 999px; font-weight: 800; }
+
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid #256d85;
   outline-offset: 3px;

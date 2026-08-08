@@ -7,6 +7,8 @@ import { HelmetProvider } from "react-helmet-async";
 import StoreProvider from './helpersComponents/Store';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import './i18n';
+import { Sentry } from './service/monitoringService';
+import AppErrorFallback from './helpersComponents/AppErrorFallback';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,7 +18,9 @@ root.render(
         <PayPalScriptProvider deferLoading={true}> 
         {/* Setting deferLoading={true} is to optimize the initial load time of the application 
         and only load the PayPal script when it is actually needed */}
-          <App />
+          <Sentry.ErrorBoundary fallback={<AppErrorFallback />}>
+            <App />
+          </Sentry.ErrorBoundary>
         </PayPalScriptProvider>
       </HelmetProvider>
     </StoreProvider>

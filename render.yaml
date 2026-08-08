@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm install --prefix server && npm install --prefix client && npm run build --prefix client
-    startCommand: node server/server.js
+    startCommand: node --import ./server/instrument.js server/server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -19,6 +19,14 @@ services:
         value: 60
       - key: GOOGLE_SITE_VERIFICATION
         sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: REACT_APP_SENTRY_DSN
+        sync: false
+      - key: REACT_APP_SENTRY_ENVIRONMENT
+        value: production
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
