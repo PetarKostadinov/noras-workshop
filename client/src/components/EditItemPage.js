@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { Store } from '../helpersComponents/Store';
-import { fetchProduct, updateItem } from '../service/productService';
+import { fetchProduct, updateItem, updateProductImages } from '../service/productService';
 import getError from '../util';
 import ProductImageManager from './ProductImageManager';
 const EMPTY_FORM = {
@@ -58,6 +58,23 @@ function EditItemPage() {
     }, [id]);
 
     const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+    const updateImages = async (images) => {
+        setForm((current) => ({ ...current, images, image: images[0] || '' }));
+        if (!images.length) return;
+        try {
+            const saved = await updateProductImages(id, images, userInfo.token);
+            setForm((current) => ({ ...current, images: saved.images, image: saved.image }));
+        } catch (err) {
+            const persistedProduct = await fetchProduct(id).catch(() => null);
+            if (persistedProduct) {
+                const persistedImages = persistedProduct.images?.length ? persistedProduct.images : [persistedProduct.image];
+                setForm((current) => ({ ...current, images: persistedImages, image: persistedImages[0] }));
+            }
+            toast.error(getError(err));
+            throw err;
+        }
+    };
 
     const submitHandler = async (event) => {
         event.preventDefault();
@@ -130,7 +147,7 @@ function EditItemPage() {
                     </Col>
                     <Col lg={4}>
                         <div className="product-editor-card product-image-panel">
-                            <ProductImageManager images={form.images} onChange={(images) => setForm((current) => ({ ...current, images, image: images[0] || '' }))} token={userInfo.token} uploading={uploading} setUploading={setUploading} disabled={submitting} />
+                            <ProductImageManager images={form.images} onChange={updateImages} token={userInfo.token} uploading={uploading} setUploading={setUploading} disabled={submitting} autoSave />
                         </div>
                         <div className="product-editor-actions">
                             <Button type="submit" disabled={submitting || uploading}>{submitting && <Spinner size="sm" animation="border" aria-hidden="true" />}<span>{t(submitting ? 'Saving changes…' : 'Save changes')}</span></Button>

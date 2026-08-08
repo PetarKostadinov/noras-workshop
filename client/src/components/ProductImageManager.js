@@ -9,7 +9,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gi
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_IMAGES = 6;
 
-function ProductImageManager({ images, onChange, token, uploading, setUploading, disabled }) {
+function ProductImageManager({ images, onChange, token, uploading, setUploading, disabled, autoSave = false }) {
     const { t } = useTranslation();
     const inputRef = useRef(null);
     const [uploadProgress, setUploadProgress] = useState(null);
@@ -43,7 +43,7 @@ function ProductImageManager({ images, onChange, token, uploading, setUploading,
                 try {
                     const data = await uploadProductImage(token, file);
                     nextImages = [...nextImages, data.image];
-                    onChange(nextImages);
+                    await onChange(nextImages);
                 } catch (err) {
                     failedFiles.push(file.name);
                     toast.error(`${file.name}: ${getError(err)}`);
@@ -61,18 +61,35 @@ function ProductImageManager({ images, onChange, token, uploading, setUploading,
         }
     };
 
-    const moveImage = (index, direction) => {
+    const moveImage = async (index, direction) => {
         const target = index + direction;
         if (target < 0 || target >= images.length) return;
         const next = [...images];
         [next[index], next[target]] = [next[target], next[index]];
-        onChange(next);
+        try {
+            await onChange(next);
+        } catch {
+            // The parent restores the last persisted gallery and reports the error.
+        }
+    };
+
+    const removeImage = async (index) => {
+        if (images.length === 1) {
+            toast.error(t('A product must keep at least one image.'));
+            return;
+        }
+        try {
+            await onChange(images.filter((_, itemIndex) => itemIndex !== index));
+        } catch {
+            // The parent restores the last persisted gallery and reports the error.
+        }
     };
 
     return (
         <div className="product-image-manager">
             <h2>{t('Product gallery')}</h2>
             <p className="product-image-help">{t('The first image is the storefront cover. Add up to six images and arrange their order.')}</p>
+            {autoSave && <p className="product-image-help">{t('Gallery changes to existing products save automatically.')}</p>}
             {images.length ? (
                 <div className="product-image-list">
                     {images.map((image, index) => (
@@ -82,7 +99,7 @@ function ProductImageManager({ images, onChange, token, uploading, setUploading,
                             <div>
                                 <Button type="button" variant="light" onClick={() => moveImage(index, -1)} disabled={disabled || uploading || index === 0} aria-label={t('Move image left')}><i className="fas fa-arrow-left" /></Button>
                                 <Button type="button" variant="light" onClick={() => moveImage(index, 1)} disabled={disabled || uploading || index === images.length - 1} aria-label={t('Move image right')}><i className="fas fa-arrow-right" /></Button>
-                                <Button type="button" variant="light" onClick={() => onChange(images.filter((_, itemIndex) => itemIndex !== index))} disabled={disabled || uploading} aria-label={t('Remove image')}><i className="far fa-trash-alt" /></Button>
+                                <Button type="button" variant="light" onClick={() => removeImage(index)} disabled={disabled || uploading} aria-label={t('Remove image')}><i className="far fa-trash-alt" /></Button>
                             </div>
                         </article>
                     ))}

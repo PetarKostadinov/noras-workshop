@@ -134,6 +134,28 @@ productRouter.post(
     })
 );
 
+productRouter.patch('/:id/images', auth, admin, expressAsyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send({ message: 'Invalid product ID' });
+    }
+    if (!Array.isArray(req.body.images) || req.body.images.length === 0 || req.body.images.length > 6) {
+        return res.status(400).send({ message: 'Provide between 1 and 6 product images' });
+    }
+
+    const images = normalizeProductImages(req.body.images[0], req.body.images);
+    if (images.length !== req.body.images.length) {
+        return res.status(400).send({ message: 'Product images must be unique, non-empty URLs' });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).send({ message: 'We could not find that product. It may have been removed.' });
+
+    product.image = images[0];
+    product.images = images;
+    await product.save();
+    res.send({ image: product.image, images: product.images });
+}));
+
 productRouter.get('/:id', expressAsyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send({ message: 'Invalid product ID' });

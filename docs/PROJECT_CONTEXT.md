@@ -80,6 +80,7 @@ Relevant model vocabulary:
 - Product edits submit the complete editable product record. Required text fields are trimmed and cannot be blank; numeric price, inventory, rating, and review constraints are enforced by the product schema.
 - Public product-detail endpoints reject malformed MongoDB identifiers with HTTP 400 and return HTTP 404 for valid identifiers that do not match a product.
 - Admin product images are uploaded individually as raw JPG, PNG, WebP, or GIF bodies (maximum 5 MB each) through `POST /api/products/upload`. The server uploads them to the `noras-workshop/products` Cloudinary folder and returns `{ image: <secure URL> }`; the ordered secure URLs are stored with the product and the first is synchronized to the compatibility `image` cover field. Product image values must be HTTP(S) URLs; the server has no local product-image storage or serving route.
+- Gallery changes for an existing product are persisted immediately through the admin-only `PATCH /api/products/:id/images` endpoint, preventing successful Cloudinary uploads from remaining unsaved when the editor is refreshed. New-product galleries are persisted with product creation.
 - An order embeds product display snapshots but retains a `product` ObjectId reference.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.

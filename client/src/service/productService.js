@@ -30,6 +30,18 @@ export const uploadProductImage = async (token, file) => {
   return parseResponse(response, 'Unable to upload image');
 };
 
+export const updateProductImages = async (id, images, token) => {
+  const response = await fetch(`/api/products/${id}/images`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ images }),
+  });
+  return parseResponse(response, 'Unable to save product images');
+};
+
 export const deleteProduct = async (id, token) => {
   const response = await fetch(`/api/products/${id}`, {
       method: 'DELETE',

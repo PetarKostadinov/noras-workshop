@@ -183,6 +183,7 @@ const bg = {
   'Product images': 'Изображения на продукта', 'View product image {{count}}': 'Вижте изображение на продукта {{count}}',
   'Uploading image {{completed}} of {{total}}…': 'Качване на изображение {{completed}} от {{total}}…',
   '{{count}} image(s) uploaded; some files could not be uploaded.': '{{count}} изображения са качени; някои файлове не можаха да бъдат качени.',
+  'Gallery changes to existing products save automatically.': 'Промените в галерията на съществуващи продукти се запазват автоматично.', 'A product must keep at least one image.': 'Продуктът трябва да има поне едно изображение.',
 };
 
 const savedLanguage = localStorage.getItem('language');
