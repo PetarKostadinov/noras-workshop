@@ -166,6 +166,7 @@ const bg = {
   'Cookie details': 'Подробности за бисквитките', 'Privacy': 'Поверителност', 'Cookies': 'Бисквитки',
   'Customer care': 'Помощ за клиенти', 'Shipping and delivery': 'Доставка', 'Returns': 'Връщане', 'FAQ': 'Често задавани въпроси',
   'Shipping information': 'Информация за доставка', 'Return policy': 'Условия за връщане',
+  'Our story': 'Нашата история',
 };
 
 const savedLanguage = localStorage.getItem('language');

@@ -147,6 +147,7 @@ function Header() {
             <nav className="category-bar" aria-label="Product categories">
                 <Container className="category-bar-inner">
                     <Link to="/search" className="category-bar-link category-bar-all">{t('Shop all')}</Link>
+                    <Link to="/about" className="category-bar-link">{t('Our story')}</Link>
                     {categories.map((category) => (
                         <Link
                             key={category}

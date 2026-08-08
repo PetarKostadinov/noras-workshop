@@ -13,6 +13,7 @@
 @import './styles/pages/authentication.css';
 @import './styles/pages/legal.css';
 @import './styles/pages/customer-care.css';
+@import './styles/pages/about.css';
 @import './styles/components/product-card.css';
 @import './styles/pages/checkout.css';
 @import './styles/pages/payment.css';

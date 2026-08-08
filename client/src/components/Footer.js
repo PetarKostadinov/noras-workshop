@@ -36,6 +36,7 @@ function Footer() {
           <nav className="footer-column" aria-label="Shop">
             <h2>{t('Shop')}</h2>
             <Link to="/search">{t('All products')}</Link>
+            <Link to="/about">{t('Our story')}</Link>
             <Link to="/search?category=Handmade%20Gifts">{t('Handmade gifts')}</Link>
             <Link to="/search?category=Wedding%20Decor">{t('Wedding décor')}</Link>
             <Link to="/search?category=Event%20Decor">{t('Event décor')}</Link>

@@ -29,6 +29,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Responsive layouts for desktop, tablet, and mobile
 - Consent-gated ecommerce analytics with customer-facing privacy and cookie policies
 - Bilingual shipping, returns, and frequently asked questions pages
+- Bilingual workshop story and custom-project enquiry journey
 
 ## Technology
 

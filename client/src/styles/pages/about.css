@@ -1,0 +1,47 @@
+/* ABOUT THE WORKSHOP */
+.about-page { padding: 1rem 0 5rem; }
+.about-hero { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); min-height: 620px; overflow: hidden; background: var(--color-dark); border-radius: 1.4rem; box-shadow: 0 24px 60px rgba(60, 40, 34, 0.18); }
+.about-hero-copy { display: flex; padding: clamp(2rem, 6vw, 5rem); flex-direction: column; justify-content: center; color: var(--color-white); }
+.about-hero-copy > span, .about-process-content > span { color: #efa38f; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.about-hero h1 { margin: 0.8rem 0 1rem; font-family: var(--font-display); font-size: clamp(2.8rem, 5vw, 4.8rem); font-weight: 500; line-height: 1.02; }
+.about-hero-copy > p { margin: 0; color: #dfcfca; line-height: 1.8; }
+.about-hero-media { min-height: 620px; }
+.about-hero-media img, .about-process-media img { width: 100%; height: 100%; object-fit: cover; }
+.about-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.6rem; }
+.about-actions a { min-height: 46px; padding: 0.75rem 1.1rem; color: var(--color-white); border: 1px solid rgba(255, 255, 255, 0.45); border-radius: 999px; font-size: 0.78rem; font-weight: 800; text-decoration: none; }
+.about-actions a:first-child { background: var(--color-primary); border-color: var(--color-primary); }
+.about-actions a:hover { color: var(--color-white); background: var(--color-primary-dark); border-color: var(--color-primary-dark); }
+.about-story { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(2rem, 7vw, 6rem); padding: clamp(4rem, 9vw, 7rem) clamp(0rem, 4vw, 3rem); }
+.about-story span { color: var(--color-primary-strong); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; }
+.about-story h2, .about-process h2, .about-closing h2 { margin: 0.65rem 0 0; color: var(--color-heading); font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 500; }
+.about-story p { margin: 0 0 1rem; color: #705c55; line-height: 1.85; }
+.about-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.about-values article { padding: 2rem; background: rgba(255, 255, 255, 0.9); border: 1px solid var(--color-border); border-radius: 1rem; box-shadow: 0 12px 35px rgba(88, 61, 52, 0.07); }
+.about-values article > span { color: var(--color-primary); font-family: var(--font-display); font-size: 1.2rem; }
+.about-values h2 { margin: 1rem 0 0.6rem; color: var(--color-heading-alt); font-family: var(--font-display); font-size: 1.35rem; }
+.about-values p { margin: 0; color: #725e57; font-size: 0.86rem; line-height: 1.7; }
+.about-process { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); margin-top: clamp(4rem, 9vw, 7rem); overflow: hidden; background: #fff9f5; border: 1px solid var(--color-border); border-radius: 1.25rem; }
+.about-process-media { min-height: 650px; }
+.about-process-content { padding: clamp(2rem, 6vw, 4.5rem); }
+.about-process-content > p { margin: 1rem 0 1.6rem; color: #725e57; line-height: 1.75; }
+.about-process ol { margin: 0; padding: 0; list-style: none; }
+.about-process li { display: grid; grid-template-columns: 42px 1fr; gap: 0.85rem; padding: 1rem 0; border-top: 1px solid var(--color-border); }
+.about-process li > span { color: var(--color-primary); font-family: var(--font-display); font-size: 1.05rem; }
+.about-process h3 { margin: 0 0 0.25rem; color: var(--color-heading-alt); font-size: 0.92rem; }
+.about-process li p { margin: 0; color: #806d66; font-size: 0.8rem; line-height: 1.6; }
+.about-closing { max-width: 760px; margin: clamp(4rem, 9vw, 7rem) auto 0; text-align: center; }
+.about-closing > span { display: grid; width: 48px; height: 48px; margin: 0 auto 1rem; color: var(--color-primary-strong); background: #f7e8e3; place-items: center; border-radius: 50%; }
+.about-closing p { color: var(--color-text-muted); line-height: 1.75; }
+.about-closing .about-actions { justify-content: center; }
+.about-closing .about-actions a { color: #8f5145; border-color: #d8bcb3; }
+.about-closing .about-actions a:first-child, .about-closing .about-actions a:hover { color: var(--color-white); }
+
+@media (max-width: 991.98px) {
+  .about-hero, .about-process { grid-template-columns: 1fr; }
+  .about-hero-media, .about-process-media { min-height: auto; aspect-ratio: 16 / 10; }
+}
+
+@media (max-width: 767.98px) {
+  .about-story, .about-values { grid-template-columns: 1fr; }
+  .about-story { gap: 1.25rem; }
+}
