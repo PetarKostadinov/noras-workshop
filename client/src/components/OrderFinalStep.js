@@ -9,7 +9,7 @@ import LoadingComponent from '../helpersComponents/LoadingComponent';
 import MessageComponent from '../helpersComponents/MessageComponent';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
-import { trackPurchase } from '../service/analyticsService';
+import { trackCheckoutError, trackPurchase } from '../service/analyticsService';
 
 const getAccessHeaders = (userInfo, guestToken) => guestToken
     ? { 'x-guest-order-token': guestToken }
@@ -92,6 +92,7 @@ function OrderFinalStep() {
                 if (response.data.order.isPaid) toast.success('Card payment verified. Your order is confirmed.');
                 else toast.info('Your card payment is still being confirmed.');
             } catch (err) {
+                trackCheckoutError('card_payment_confirmation', err, 'Card');
                 toast.error(getError(err));
             } finally {
                 setCheckingPayment(false);
@@ -113,6 +114,7 @@ function OrderFinalStep() {
                 });
                 paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
             } catch (err) {
+                trackCheckoutError('paypal_setup', err, 'PayPal');
                 setPaypalConfigError(getError(err));
             }
         };
@@ -143,6 +145,7 @@ function OrderFinalStep() {
                 toast.info('Payment received. PayPal is reviewing the transaction.');
             }
         } catch (err) {
+            trackCheckoutError('paypal_payment', err, 'PayPal');
             const message = getError(err);
             dispatch({ type: 'PAY_FAIL', payload: message });
             toast.error(message);
@@ -164,6 +167,7 @@ function OrderFinalStep() {
                 toast.info('Payment is still under PayPal review.');
             }
         } catch (err) {
+            trackCheckoutError('paypal_payment_confirmation', err, 'PayPal');
             toast.error(getError(err));
         } finally {
             setCheckingPayment(false);
@@ -180,6 +184,7 @@ function OrderFinalStep() {
             );
             window.location.assign(response.data.url);
         } catch (err) {
+            trackCheckoutError('card_payment_start', err, 'Card');
             toast.error(getError(err));
             setStartingCardPayment(false);
         }
@@ -321,6 +326,7 @@ function OrderFinalStep() {
                                     onApprove={approvePayPalOrder}
                                     onCancel={() => toast.info('Payment cancelled. You can complete it later from Order history.')}
                                     onError={(err) => {
+                                        trackCheckoutError('paypal_payment_start', err, 'PayPal');
                                         const message = getError(err) || 'PayPal could not start the payment. Please try again.';
                                         dispatch({ type: 'PAY_FAIL', payload: message });
                                         toast.error(message);

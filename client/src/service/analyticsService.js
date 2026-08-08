@@ -87,6 +87,15 @@ export const trackCartEvent = (name, items, extra = {}) => {
   trackEvent(name, { currency: 'USD', value, items: analyticsItems, ...extra });
 };
 
+export const trackCheckoutError = (checkoutStep, error, paymentType) => {
+  const status = Number(error?.response?.status);
+  trackEvent('checkout_error', {
+    checkout_step: checkoutStep,
+    error_type: Number.isInteger(status) ? `http_${status}` : 'client_or_network_error',
+    ...(paymentType ? { payment_type: paymentType } : {}),
+  });
+};
+
 export const trackPurchase = (order) => {
   if (!order?.isPaid || !order._id || !canTrack()) return;
 

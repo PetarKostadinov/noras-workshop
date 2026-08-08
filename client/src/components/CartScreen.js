@@ -29,6 +29,12 @@ function CartScreen() {
         return;
       }
       ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
+      const quantityChange = quantity - item.quantity;
+      if (quantityChange !== 0) {
+        trackCartEvent(quantityChange > 0 ? 'add_to_cart' : 'remove_from_cart', [
+          { ...item, quantity: Math.abs(quantityChange) },
+        ]);
+      }
     } catch (error) {
       toast.error(getError(error, 'We couldn’t update the cart. Please try again.'));
     }

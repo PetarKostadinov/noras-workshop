@@ -69,7 +69,7 @@ function ProductScreen() {
                 return;
             }
             dispatch({ type: 'CART_ADD_ITEM', payload: { ...latestProduct, quantity } });
-            trackCartEvent('add_to_cart', [{ ...latestProduct, quantity }]);
+            trackCartEvent('add_to_cart', [{ ...latestProduct, quantity: 1 }]);
             navigate('/cart');
         } catch (err) {
             toast.error(getError(err, 'We couldn’t add this product to your cart. Please try again.'));

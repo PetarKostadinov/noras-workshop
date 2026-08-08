@@ -8,6 +8,7 @@ import CheckoutSteps from './CheckoutSteps';
 import { Store } from '../helpersComponents/Store';
 import { useTranslation } from 'react-i18next';
 import { createOrder } from '../service/orderService';
+import { trackCheckoutError } from '../service/analyticsService';
 
 function PreviewOrder() {
     const { t } = useTranslation();
@@ -50,6 +51,7 @@ function PreviewOrder() {
             ctxDispatch({ type: 'CART_CLEAR' });
             navigate('/order/' + data.order._id);
         } catch (err) {
+            trackCheckoutError('order_creation', err, cart.paymentMethod);
             toast.error(getError(err));
         } finally {
             setPlacingOrder(false);

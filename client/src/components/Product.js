@@ -27,7 +27,7 @@ function Product({ product }) {
       }
 
       ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
-      trackCartEvent('add_to_cart', [{ ...item, quantity }]);
+      trackCartEvent('add_to_cart', [{ ...item, quantity: 1 }]);
     } catch (error) {
       toast.error(getError(error, 'We couldn’t add this product to your cart. Please try again.'));
     }

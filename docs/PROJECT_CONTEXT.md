@@ -31,7 +31,7 @@ Admin-facing screens allow product creation, editing, and deletion. See **Known 
 | Database | MongoDB through Mongoose |
 | Authentication | 30-day bearer JWT containing user id, username, email, and `isAdmin` |
 | Payments | PayPal JS SDK plus Stripe-hosted card checkout; payment creation and verification remain server-side |
-| Analytics | Optional consent-gated Google Analytics 4 ecommerce events configured at client build time |
+| Analytics | Optional consent-gated Google Analytics 4 ecommerce funnel events configured at client build time |
 
 For a single-service production deployment, `render.yaml` builds the CRA client and starts Express. When `NODE_ENV=production`, Express serves `client/build`, uses the same origin for browser and API traffic, and falls back to `index.html` for client-side routes. `/api/health` is the deployment health-check endpoint.
 
@@ -61,6 +61,8 @@ Product-detail pages expose the stored product name, gallery images, description
 - `guestOrderAccess`: per-order guest access tokens retained in the browser so a guest can return from Stripe or revisit an order without gaining access to any other order.
 
 Services in `client/src/service/` contain API calls and the client-side cart-total preview. Components still contain some direct Axios calls, notably the PayPal/order-final step. The home catalog uses the server-paginated search endpoint with six products per page. When changing API contracts, search both `service/` and components.
+
+Consent-gated GA4 measurement covers `view_item`, `add_to_cart`, `remove_from_cart`, `view_cart`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, and deduplicated paid `purchase` events. A custom `checkout_error` event reports only the checkout stage, broad error type, and payment method; it must not include personal details, payment data, or raw error messages.
 
 `client/src/index.css` is the ordered stylesheet entry point. It imports global design tokens/foundations from `client/src/styles/base.css`, reusable component styles from `client/src/styles/components/`, and route-oriented styles from `client/src/styles/pages/`. Preserve the import order when rules depend on later overrides, reuse the shared custom properties in `:root`, and check desktop, tablet, and mobile behavior after broad UI changes.
 
