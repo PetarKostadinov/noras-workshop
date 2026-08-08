@@ -98,7 +98,9 @@ function OrderHistory() {
                                         <span>{t('Payment')}</span>
                                         <strong className={`order-status ${order.isPaid ? 'complete' : 'pending'}`}>
                                             <i className={order.isPaid ? 'fas fa-check-circle' : 'far fa-clock'} aria-hidden="true"></i>
-                                            {order.isPaid
+                                            {order.paymentStatus === 'refunded'
+                                                ? 'Refunded'
+                                                : order.isPaid
                                                 ? `Paid · ${formatDate(order.paidAt)}`
                                                 : order.paymentStatus === 'expired' ? 'Expired'
                                                 : order.paymentStatus === 'processing' ? 'Under PayPal review' : 'Awaiting payment'}
@@ -110,7 +112,9 @@ function OrderHistory() {
                                             <i className={order.isDelivered ? 'fas fa-check-circle' : 'fas fa-truck'} aria-hidden="true"></i>
                                             {order.isDelivered
                                                 ? `Delivered · ${formatDate(order.deliveredAt)}`
-                                                : order.isPaid ? 'Being prepared' : order.fulfillmentStatus === 'cancelled' ? 'Cancelled' : 'Starts after payment'}
+                                                : order.fulfillmentStatus === 'cancelled' ? 'Cancelled'
+                                                : order.fulfillmentStatus === 'shipped' ? `Shipped · ${order.tracking?.carrier || ''}`
+                                                : order.isPaid ? 'Being prepared' : 'Starts after payment'}
                                         </strong>
                                     </div>
                                 </div>

@@ -16,7 +16,7 @@ Nora's Workshop is a responsive ecommerce portfolio application for handmade gif
 6. Complete payment; the server verifies PayPal captures or Stripe Checkout through a signed webhook/server lookup.
 7. View the resulting order and order history.
 
-Admin-facing screens allow product creation, editing, and deletion. See **Known risks** for the current server-side authorization gap.
+Admin-facing screens allow product creation, editing, and deletion, plus controlled order cancellation, shipment, delivery, and external-refund recording.
 
 ## Runtime architecture
 
@@ -84,7 +84,7 @@ Mounted route groups:
 | `/api/products` | Catalog listing, search/filter/sort, categories, detail, customer reviews, product management, and admin image uploads |
 | `/api/users` | Registration, login, and authenticated profile update |
 | `/api/orders` | Server-priced order creation, owned order reads, PayPal capture, and Stripe Checkout creation/sync |
-| `/api/admin` | Current-admin-only dashboard totals plus paginated product, order, and user management lists |
+| `/api/admin` | Current-admin-only dashboard totals, paginated product/order/user management lists, and controlled order lifecycle transitions |
 | `/api/stripe/webhook` | Signed Stripe Checkout completion events (raw request body) |
 | `/api/keys/paypal` | Returns only the public PayPal client ID when server credentials are configured |
 
@@ -99,6 +99,8 @@ Relevant model vocabulary:
 - An order embeds product display snapshots but retains a `product` ObjectId reference. Its `user` reference is optional for guest orders; every new order stores a validated contact email. Guest access uses a random 256-bit token returned once to the browser while only its SHA-256 hash is stored with the order.
 - Order payment statuses: `pending`, `processing`, `paid`, `failed`, `refunded`, `expired`.
 - Order fulfillment statuses: `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled`.
+- Admin order transitions use `PATCH /api/admin/orders/:id/lifecycle`. Unpaid `pending`/`failed` orders awaiting payment may be cancelled; paid processing orders may be shipped with a required carrier and tracking number; shipped orders may be delivered. Paid processing orders may be recorded as fully refunded only after the administrator supplies the successful Stripe or PayPal refund reference. This endpoint records an external full refund; it does not issue money through a payment provider.
+- Cancellation and pre-shipment refund transitions restore reserved inventory once inside a MongoDB transaction. Orders retain shipment tracking, lifecycle timestamps, cancellation/refund details, and an administrator-attributed status history. Shipped orders cannot be cancelled or recorded as refunded through this workflow.
 - Users have `isAdmin`; the JWT repeats this flag. Password hashes are excluded from ordinary user queries and requested explicitly only during login.
 
 Authenticated requests use `Authorization: Bearer <token>`. The order lookup helper restricts normal users to their own orders and permits admins to retrieve any order only after confirming their current database role, so revoking administrator access takes effect even for an existing token. Guest order reads and payment actions require `X-Guest-Order-Token`; its hash must match that specific guest order. Account order history remains authenticated. Login and registration share a per-client, in-memory request limit of 20 attempts per 15 minutes; order creation is limited to 10 attempts per client per 15 minutes.
@@ -118,6 +120,7 @@ These rules are security-sensitive and must remain aligned across UI, API, and d
 - Stripe Checkout Sessions use an atomic attempt counter plus idempotency key. Reuse an open Session; create a new attempt only after the previous Session is no longer open.
 - Client-reported payment completion is intentionally rejected (`PUT /api/orders/:id/pay` returns HTTP 410).
 - PayPal live endpoints are used only when `PAYPAL_ENVIRONMENT=live`; every other value uses sandbox endpoints.
+- Refunds must be completed in Stripe or PayPal before an administrator records the full refund in the shop. Recording the provider reference changes the order to `paymentStatus: refunded` and `fulfillmentStatus: cancelled`; it deliberately does not call a provider refund API.
 
 ## Configuration and commands
 

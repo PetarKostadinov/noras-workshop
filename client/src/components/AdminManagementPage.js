@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Store } from '../helpersComponents/Store';
-import { getAdminCollection } from '../service/adminService';
+import { getAdminCollection, updateOrderLifecycle } from '../service/adminService';
 import { deleteProduct } from '../service/productService';
 import getError from '../util';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +29,7 @@ function AdminManagementPage({ collection }) {
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState('');
+    const [updatingId, setUpdatingId] = useState('');
     const copy = pageCopy[collection];
     const activeResult = result?.collection === collection ? result : null;
     const activeLoading = loading;
@@ -69,6 +70,41 @@ function AdminManagementPage({ collection }) {
 
     const setPage = (nextPage) => setSearchParams(nextPage === 1 ? {} : { page: String(nextPage) });
 
+    const updateOrder = async (order, action) => {
+        let change = { action };
+        if (action === 'ship') {
+            const carrier = window.prompt('Shipping carrier (for example DHL or Speedy):');
+            if (carrier === null) return;
+            const trackingNumber = window.prompt('Tracking number:');
+            if (trackingNumber === null) return;
+            const trackingUrl = window.prompt('Tracking URL (optional):') || '';
+            change = { action, carrier, trackingNumber, trackingUrl };
+        } else if (action === 'cancel') {
+            if (!window.confirm('Cancel this unpaid order and return its items to inventory?')) return;
+            const reason = window.prompt('Cancellation reason (optional):') || '';
+            change = { action, reason };
+        } else if (action === 'record_refund') {
+            if (!window.confirm('Continue only after the full refund has succeeded in Stripe or PayPal. This action only records that external refund.')) return;
+            const providerRefundId = window.prompt('Stripe or PayPal refund reference:');
+            if (providerRefundId === null) return;
+            const reason = window.prompt('Refund reason (optional):') || '';
+            change = { action, providerRefundId, reason };
+        } else if (action === 'deliver' && !window.confirm('Mark this shipment as delivered?')) {
+            return;
+        }
+
+        setUpdatingId(order._id);
+        try {
+            await updateOrderLifecycle(order._id, change, userInfo.token);
+            toast.success('Order updated successfully.');
+            await load();
+        } catch (error) {
+            toast.error(getError(error));
+        } finally {
+            setUpdatingId('');
+        }
+    };
+
     return (
         <section className="admin-management-page">
             <Helmet><title>{copy.title} | Nora's Workshop Admin</title></Helmet>
@@ -94,7 +130,7 @@ function AdminManagementPage({ collection }) {
                 ) : (
                     <div className="admin-table-scroll">
                         {collection === 'products' && <ProductsTable products={activeResult.items} deletingId={deletingId} onDelete={deleteHandler} t={t} />}
-                        {collection === 'orders' && <OrdersTable orders={activeResult.items} t={t} />}
+                        {collection === 'orders' && <OrdersTable orders={activeResult.items} updatingId={updatingId} onUpdate={updateOrder} t={t} />}
                         {collection === 'users' && <UsersTable users={activeResult.items} t={t} />}
                     </div>
                 )}
@@ -120,14 +156,29 @@ function ProductsTable({ products, deletingId, onDelete, t }) {
     </tr>)}</tbody></table>;
 }
 
-function OrdersTable({ orders, t }) {
-    return <table className="admin-data-table"><thead><tr><th>{t('Order')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Total')}</th><th>{t('Payment')}</th><th>{t('Fulfillment')}</th></tr></thead><tbody>{orders.map((order) => <tr key={order._id}>
+function OrdersTable({ orders, updatingId, onUpdate, t }) {
+    return <table className="admin-data-table"><thead><tr><th>{t('Order')}</th><th>{t('Customer')}</th><th>{t('Date')}</th><th>{t('Total')}</th><th>{t('Payment')}</th><th>{t('Fulfillment')}</th><th>{t('Actions')}</th></tr></thead><tbody>{orders.map((order) => <tr key={order._id}>
         <td><Link className="admin-id-link" to={`/order/${order._id}`}>#{order._id.slice(-8).toUpperCase()}</Link><small>{order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'}</small></td>
-        <td><strong>{order.user?.username || 'Deleted user'}</strong><small>{order.user?.email || 'Account unavailable'}</small></td>
+        <td><strong>{order.user?.username || 'Guest customer'}</strong><small>{order.user?.email || order.contactEmail}</small></td>
         <td>{date.format(new Date(order.createdAt))}</td><td>{currency.format(order.totalPrice)}</td>
         <td><span className={`admin-status ${order.paymentStatus}`}>{statusLabel(order.paymentStatus)}</span></td>
-        <td><span className={`admin-status fulfillment-${order.fulfillmentStatus}`}>{statusLabel(order.fulfillmentStatus)}</span></td>
+        <td><span className={`admin-status fulfillment-${order.fulfillmentStatus}`}>{statusLabel(order.fulfillmentStatus)}</span>{order.tracking?.trackingNumber && <small>{order.tracking.carrier}: {order.tracking.trackingNumber}</small>}</td>
+        <td><OrderActions order={order} busy={updatingId === order._id} onUpdate={onUpdate} /></td>
     </tr>)}</tbody></table>;
+}
+
+function OrderActions({ order, busy, onUpdate }) {
+    if (busy) return <Spinner size="sm" animation="border" aria-label="Updating order" />;
+    if (!order.isPaid && order.fulfillmentStatus === 'awaiting_payment' && ['pending', 'failed'].includes(order.paymentStatus)) {
+        return <Button size="sm" variant="outline-danger" onClick={() => onUpdate(order, 'cancel')}>Cancel</Button>;
+    }
+    if (order.paymentStatus === 'paid' && order.fulfillmentStatus === 'processing') {
+        return <div className="admin-order-actions"><Button size="sm" variant="outline-primary" onClick={() => onUpdate(order, 'ship')}>Ship</Button><Button size="sm" variant="outline-danger" onClick={() => onUpdate(order, 'record_refund')}>Record refund</Button></div>;
+    }
+    if (order.fulfillmentStatus === 'shipped') {
+        return <Button size="sm" variant="outline-success" onClick={() => onUpdate(order, 'deliver')}>Mark delivered</Button>;
+    }
+    return <span className="admin-no-action">—</span>;
 }
 
 function UsersTable({ users, t }) {

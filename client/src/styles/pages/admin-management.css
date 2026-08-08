@@ -3,6 +3,22 @@
   padding: 2.5rem 0 5rem;
 }
 
+.admin-order-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 10rem;
+}
+
+.admin-order-actions .btn,
+.admin-data-table td > .btn {
+  white-space: nowrap;
+}
+
+.admin-no-action {
+  color: var(--color-text-muted);
+}
+
 .admin-management-heading {
   display: flex;
   align-items: flex-end;

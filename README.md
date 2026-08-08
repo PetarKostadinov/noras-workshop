@@ -19,6 +19,7 @@ The free Render service may sleep when idle, so the first request can take appro
 - Product search, category, price, rating, and sorting filters
 - Product details and inventory-aware cart controls
 - Persistent cart, delivery address, and payment selection
+- Admin order operations for unpaid cancellation, shipment tracking, delivery, and recording provider-completed full refunds
 - JWT-based registration, login, and protected account routes
 - Multi-step checkout with delivery, payment, and order review
 - Time-limited unpaid inventory reservations with automatic, idempotent stock restoration

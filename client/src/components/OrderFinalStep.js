@@ -203,6 +203,8 @@ function OrderFinalStep() {
         : '';
     const paymentProvider = order.paymentMethod === 'Card' ? 'Stripe' : 'PayPal';
     const isExpired = order.paymentStatus === 'expired' && order.fulfillmentStatus === 'cancelled';
+    const isRefunded = order.paymentStatus === 'refunded';
+    const isCancelled = order.fulfillmentStatus === 'cancelled';
 
     return (
         <section className="order-page">
@@ -210,12 +212,16 @@ function OrderFinalStep() {
 
             <div className="order-success-banner">
                 <div className="order-success-icon">
-                    <i className={order.isPaid ? 'fas fa-check' : isExpired ? 'fas fa-times' : 'far fa-clock'} aria-hidden="true"></i>
+                    <i className={isCancelled ? 'fas fa-times' : order.isPaid ? 'fas fa-check' : 'far fa-clock'} aria-hidden="true"></i>
                 </div>
                 <div>
-                    <span>{t(order.isPaid ? 'Thank you for your order' : isExpired ? 'Reservation expired' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely')}</span>
-                    <h1>{t(order.isPaid ? 'Your order is confirmed' : isExpired ? 'This order can no longer be paid' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm')}</h1>
-                    <p>{order.isPaid
+                    <span>{t(isRefunded ? 'Refund recorded' : isCancelled ? 'Cancelled' : order.isPaid ? 'Thank you for your order' : order.paymentStatus === 'processing' ? 'Payment submitted' : 'Order saved securely')}</span>
+                    <h1>{t(isRefunded ? 'Your order was refunded' : isExpired ? 'This order can no longer be paid' : isCancelled ? 'Your order was cancelled' : order.isPaid ? 'Your order is confirmed' : order.paymentStatus === 'processing' ? 'Payment is under review' : 'Complete payment to confirm')}</h1>
+                    <p>{isRefunded
+                        ? 'The full refund was recorded after being processed by the payment provider.'
+                        : isCancelled
+                        ? 'This order will not be prepared or shipped.'
+                        : order.isPaid
                         ? 'We’ll begin preparing your handmade pieces with care.'
                         : isExpired
                             ? 'The unpaid reservation expired and its items were returned to the shop. Add the products to your cart again to place a new order.'
@@ -237,7 +243,7 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-truck" aria-hidden="true"></i></span>
                             <div><span>{t('Delivery')}</span><h2>{t('Shipping details')}</h2></div>
                             <span className={'order-status ' + (order.isDelivered ? 'complete' : 'pending')}>
-                                {t(order.isDelivered ? 'Delivered' : order.isPaid ? 'Preparing' : isExpired ? 'Cancelled' : 'Awaiting payment')}
+                                {t(order.isDelivered ? 'Delivered' : isCancelled ? 'Cancelled' : order.fulfillmentStatus === 'shipped' ? 'Shipped' : order.isPaid ? 'Preparing' : 'Awaiting payment')}
                             </span>
                         </div>
                         <div className="order-address">
@@ -246,6 +252,7 @@ function OrderFinalStep() {
                             <span>{order.shippingInfo.city}, {order.shippingInfo.postCode}</span>
                             <span>{order.shippingInfo.country}</span>
                         </div>
+                        {order.tracking?.trackingNumber && <p className="order-payment-copy"><strong>{t('Tracking')}:</strong> {order.tracking.carrier} · {order.tracking.trackingNumber}{order.tracking.trackingUrl && <> · <a href={order.tracking.trackingUrl} target="_blank" rel="noreferrer">{t('Track shipment')}</a></>}</p>}
                     </section>
 
                     <section className="order-detail-card">
@@ -253,11 +260,13 @@ function OrderFinalStep() {
                             <span className="order-detail-icon"><i className="fas fa-wallet" aria-hidden="true"></i></span>
                             <div><span>{t('Payment')}</span><h2>{order.paymentMethod}</h2></div>
                             <span className={'order-status ' + (order.isPaid ? 'complete' : 'attention')}>
-                                {t(order.isPaid ? 'Paid' : isExpired ? 'Expired' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due')}
+                                {t(isRefunded ? 'Refunded' : order.isPaid ? 'Paid' : isExpired ? 'Expired' : order.paymentStatus === 'processing' ? 'Under review' : 'Payment due')}
                             </span>
                         </div>
                         <p className="order-payment-copy">
-                            {order.isPaid
+                            {isRefunded
+                                ? 'A full refund was recorded through the original payment provider.'
+                                : order.isPaid
                                 ? 'Payment received on ' + new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date(order.paidAt))
                                 : isExpired
                                     ? 'No payment was completed before the inventory reservation expired.'
@@ -290,7 +299,7 @@ function OrderFinalStep() {
                 </div>
 
                 <aside className="order-summary-card">
-                    <span>{t('Order summary')}</span><h2>{t(order.isPaid ? 'Payment complete' : isExpired ? 'Order expired' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment')}</h2>
+                    <span>{t('Order summary')}</span><h2>{t(isRefunded ? 'Refunded' : order.isPaid ? 'Payment complete' : isExpired ? 'Order expired' : order.paymentStatus === 'processing' ? 'Payment under review' : 'Complete payment')}</h2>
                     <div className="order-summary-row"><span>{t('Items')}</span><strong>{'$' + order.itemsPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Delivery')}</span><strong>{order.shippingPrice === 0 ? t('Free') : '$' + order.shippingPrice.toFixed(2)}</strong></div><div className="order-summary-row"><span>{t('Tax')}</span><strong>{'$' + order.taxPrice.toFixed(2)}</strong></div><div className="order-summary-total"><span>{t('Total')}</span><strong>{'$' + order.totalPrice.toFixed(2)}</strong></div>
 
                     {!order.isPaid && !isExpired && order.paymentMethod === 'PayPal' && (
@@ -356,7 +365,7 @@ function OrderFinalStep() {
                         </div>
                     )}
 
-                    {order.isPaid && (
+                    {order.isPaid && !isCancelled && (
                         <div className="order-paid-message">
                             <i className="fas fa-check-circle" aria-hidden="true"></i>
                             <div><strong>Payment received</strong><span>Your order is being prepared.</span></div>
