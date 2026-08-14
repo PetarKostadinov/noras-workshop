@@ -11,6 +11,7 @@ import CarouselComponent from "./helpersComponents/Carousel";
 import Footer from "./components/Footer";
 import AnalyticsConsent from "./helpersComponents/AnalyticsConsent";
 import LoadingComponent from "./helpersComponents/LoadingComponent";
+import FaqAssistant from "./components/faq/FaqAssistant";
 import { trackPageView } from "./service/analyticsService";
 
 const CartScreen = lazy(() => import("./components/CartScreen"));
@@ -92,6 +93,7 @@ function AppContent() {
         </main>
       </div>
       <Footer />
+      <FaqAssistant />
       <AnalyticsConsent />
     </>
   );
