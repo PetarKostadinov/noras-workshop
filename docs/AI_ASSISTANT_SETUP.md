@@ -1,26 +1,56 @@
-# AI assistant setup
+# Assistant setup
 
-Nora's Workshop stores assistant knowledge and embeddings in MongoDB. The public FAQ widget sends only the current question and language to the Express API; chat messages are not persisted by this feature.
+Nora's Workshop stores assistant knowledge in MongoDB. Basic FAQ answering works without OpenAI. OpenAI is an optional enhancement for harder questions.
 
-## Required server configuration
+## Required server configuration for free/basic mode
 
-Add these values to `server/.env`:
+```env
+MONGODB_URI="your-mongodb-atlas-uri"
+ASSISTANT_CLIENT_ID="noras-workshop"
+```
+
+Seed the bilingual knowledge from `server/`:
+
+```bash
+npm run seed:assistant-basic
+```
+
+This command does not call OpenAI. It upserts records by `clientId + language + key`, so it is safe to rerun.
+
+## How basic mode works
+
+1. `POST /api/assistant/message` validates and rate-limits the question.
+2. The server loads active MongoDB knowledge for the configured client and language.
+3. Exact question, keyword, and text overlap are scored deterministically.
+4. High-confidence matches return the stored MongoDB answer directly with no OpenAI request.
+5. Low-confidence questions return suggestions/contact guidance when OpenAI is unavailable.
+
+The endpoint accepts at most 500 characters and supports `en` and `bg`.
+
+## Optional OpenAI enhancement
+
+To let GPT compose answers for lower-confidence questions, add:
 
 ```env
 OPENAI_API_KEY="your-server-only-openai-api-key"
 OPENAI_MODEL="gpt-5-mini"
 OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
-ASSISTANT_CLIENT_ID="noras-workshop"
 ASSISTANT_VECTOR_INDEX="assistant_knowledge_vector"
 ```
 
-`OPENAI_API_KEY` must never be exposed through a `REACT_APP_` variable or committed to the repository.
+`OPENAI_API_KEY` must never be exposed through a `REACT_APP_` variable or committed to the repository. If OpenAI has no quota, is unavailable, or returns an error, the public assistant falls back to MongoDB instead of failing.
 
-## MongoDB Atlas Vector Search index
+The paid fallback sends only the current question and the best MongoDB knowledge matches to the Responses API. Common high-confidence FAQ questions do not incur OpenAI usage.
 
-The assistant requires MongoDB Atlas Vector Search. Create an index named `assistant_knowledge_vector` on the collection MongoDB creates for the `KnowledgeEntry` model (`knowledgeentries` by default).
+## Optional embeddings / Atlas Vector Search
 
-For the default `text-embedding-3-small` model, use 1536 dimensions:
+The existing embedding seed remains available:
+
+```bash
+npm run seed:assistant-knowledge
+```
+
+It generates OpenAI embeddings and stores them on the same `knowledgeentries` records. If you use the vector index, create `assistant_knowledge_vector` on `knowledgeentries` with 1536 dimensions for `text-embedding-3-small`:
 
 ```json
 {
@@ -38,26 +68,6 @@ For the default `text-embedding-3-small` model, use 1536 dimensions:
 }
 ```
 
-If the embedding model or its dimensions change, recreate the vector index with matching dimensions and reseed every knowledge entry before serving assistant traffic.
+Embeddings are optional; basic MongoDB FAQ functionality does not depend on this index.
 
-## Seed initial knowledge
-
-From `server/` run:
-
-```bash
-npm run seed:assistant-knowledge
-```
-
-The command embeds and upserts the bilingual Nora FAQ records by `clientId + language + key`. Re-running it updates existing records instead of creating duplicates.
-
-MongoDB is the source of truth after seeding. Future admin knowledge editing should update the knowledge record and regenerate that record's embedding in the same server-side operation.
-
-## Request flow
-
-1. `POST /api/assistant/message` validates and rate-limits the public question.
-2. The server creates one embedding for the question.
-3. Atlas Vector Search retrieves up to five active records filtered to the configured client and requested language.
-4. The server sends only the retrieved Nora context plus the question to the OpenAI Responses API.
-5. The model must use retrieved knowledge for Nora-specific facts. It may give general gift/decor advice, but must not present general knowledge as a Nora-specific fact.
-
-The endpoint accepts at most 500 characters and supports `en` and `bg`.
+MongoDB is the source of truth. Future admin editing should update the text/question/keywords in MongoDB and only regenerate embeddings when the embedding-based feature is enabled.
