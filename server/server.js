@@ -8,6 +8,7 @@ import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRouter.js";
 import orderRouter, { handleStripeWebhook } from "./routes/orderRouter.js";
 import adminRouter from "./routes/adminRouter.js";
+import assistantRouter from "./routes/assistantRouter.js";
 import Product from "./models/productModel.js";
 import Review from "./models/reviewModel.js";
 import { buildMerchantFeed, buildSitemap, injectSeoMetadata } from "./seo.js";
@@ -62,6 +63,7 @@ app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/assistant", assistantRouter);
 
 app.get("/api/health", (req, res) => {
   res.status(200).send({ status: "ok" });
