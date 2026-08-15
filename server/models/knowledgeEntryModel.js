@@ -5,10 +5,12 @@ const knowledgeEntrySchema = new mongoose.Schema({
   key: { type: String, required: true, trim: true },
   language: { type: String, required: true, enum: ['en', 'bg'], index: true },
   category: { type: String, required: true, trim: true },
+  question: { type: String, required: true, trim: true },
+  keywords: { type: [String], default: [] },
   title: { type: String, required: true, trim: true },
   content: { type: String, required: true, trim: true },
   href: { type: String, default: '', trim: true },
-  embedding: { type: [Number], required: true, select: false },
+  embedding: { type: [Number], default: undefined, select: false },
   active: { type: Boolean, default: true, index: true },
 }, { timestamps: true });
 

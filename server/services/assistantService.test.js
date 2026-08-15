@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildAnswerInstructions, buildVectorPipeline, extractResponseText } from './assistantService.js';
+import {
+  answerAssistantQuestion,
+  buildAnswerInstructions,
+  buildVectorPipeline,
+  extractResponseText,
+} from './assistantService.js';
 
 test('vector pipeline scopes retrieval to client, language, and active knowledge', () => {
   const pipeline = buildVectorPipeline({
@@ -36,4 +41,38 @@ test('extractResponseText reads Responses API output text safely', () => {
   });
 
   assert.equal(text, 'Hello from Nora');
+});
+
+test('high-confidence MongoDB knowledge answers directly without OpenAI', async () => {
+  let openAiCalled = false;
+  const result = await answerAssistantQuestion({ message: 'How much is shipping?', language: 'en' }, {
+    basicRetriever: async () => [{ key: 'shipping-cost', title: 'Shipping cost', content: 'Standard shipping is $10.', href: '/help/shipping', score: 1 }],
+    answerGenerator: async () => { openAiCalled = true; throw new Error('should not run'); },
+  });
+
+  assert.equal(result.answer, 'Standard shipping is $10.');
+  assert.equal(result.mode, 'basic');
+  assert.equal(openAiCalled, false);
+});
+
+test('without OpenAI configuration low-confidence matches return a safe MongoDB fallback', async () => {
+  const result = await answerAssistantQuestion({ message: 'Do you sell bicycles?', language: 'en' }, {
+    basicRetriever: async () => [{ key: 'shipping-cost', title: 'Shipping cost', content: 'Standard shipping is $10.', href: '/help/shipping', score: 0.2 }],
+    apiKey: '',
+  });
+
+  assert.match(result.answer, /couldn't find a confident answer/i);
+  assert.equal(result.mode, 'fallback');
+  assert.equal(result.sources.length, 1);
+});
+
+test('OpenAI quota failure falls back to MongoDB suggestions instead of throwing', async () => {
+  const result = await answerAssistantQuestion({ message: 'Can you recommend a wedding gift?', language: 'en' }, {
+    basicRetriever: async () => [{ key: 'custom-orders', title: 'Personalized products', content: 'Custom products are available.', href: '/about', score: 0.4 }],
+    apiKey: 'test-key',
+    answerGenerator: async () => { const error = new Error('quota exceeded'); error.status = 429; throw error; },
+  });
+
+  assert.equal(result.mode, 'fallback');
+  assert.match(result.answer, /contact Nora|couldn't find a confident answer/i);
 });

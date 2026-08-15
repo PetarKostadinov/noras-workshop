@@ -1,10 +1,12 @@
 import KnowledgeEntry from '../models/knowledgeEntryModel.js';
+import { retrieveBasicKnowledge } from './basicKnowledgeService.js';
 
 const OPENAI_BASE_URL = 'https://api.openai.com/v1';
 const DEFAULT_CLIENT_ID = 'noras-workshop';
 const DEFAULT_VECTOR_INDEX = 'assistant_knowledge_vector';
 const DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small';
 const DEFAULT_RESPONSE_MODEL = 'gpt-5-mini';
+const BASIC_CONFIDENCE_THRESHOLD = 0.72;
 
 const openAiRequest = async (path, body, { fetchImpl = fetch, apiKey = process.env.OPENAI_API_KEY } = {}) => {
   if (!apiKey) throw Object.assign(new Error('OpenAI is not configured'), { status: 503 });
@@ -21,7 +23,7 @@ const openAiRequest = async (path, body, { fetchImpl = fetch, apiKey = process.e
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(payload?.error?.message || 'OpenAI request failed');
-    error.status = response.status >= 500 ? 503 : 500;
+    error.status = response.status;
     throw error;
   }
   return payload;
@@ -103,12 +105,55 @@ export const generateAssistantAnswer = async ({ message, language, knowledge, op
   return answer;
 };
 
-export const answerAssistantQuestion = async ({ message, language }) => {
-  const embedding = await embedText(message);
-  const knowledge = await retrieveKnowledge({ language, embedding });
-  const answer = await generateAssistantAnswer({ message, language, knowledge });
+const sourceFromEntry = ({ key, title, href, score }) => ({ key, title, href, score });
+
+const fallbackAnswer = (language) => language === 'bg'
+  ? 'Не намерих достатъчно сигурен отговор в информацията на Nora’s Workshop. Можете да прегледате предложените теми или да се свържете с Нора за помощ.'
+  : "I couldn't find a confident answer in Nora's Workshop knowledge. You can review the suggested topics or contact Nora for help.";
+
+export const answerAssistantQuestion = async ({ message, language }, {
+  basicRetriever = retrieveBasicKnowledge,
+  answerGenerator = generateAssistantAnswer,
+  apiKey = process.env.OPENAI_API_KEY,
+} = {}) => {
+  const knowledge = await basicRetriever({
+    clientId: process.env.ASSISTANT_CLIENT_ID || DEFAULT_CLIENT_ID,
+    language,
+    message,
+    limit: 5,
+  });
+
+  const bestMatch = knowledge[0];
+  if (bestMatch && bestMatch.score >= BASIC_CONFIDENCE_THRESHOLD) {
+    return {
+      answer: bestMatch.content,
+      mode: 'basic',
+      sources: [sourceFromEntry(bestMatch)],
+    };
+  }
+
+  if (apiKey) {
+    try {
+      const answer = await answerGenerator({
+        message,
+        language,
+        knowledge,
+        options: { apiKey },
+      });
+      return {
+        answer,
+        mode: 'ai',
+        sources: knowledge.map(sourceFromEntry),
+      };
+    } catch (error) {
+      // OpenAI is an optional enhancement. Quota, network, and model failures
+      // must not make the public assistant unusable.
+    }
+  }
+
   return {
-    answer,
-    sources: knowledge.map(({ key, title, href, score }) => ({ key, title, href, score })),
+    answer: fallbackAnswer(language),
+    mode: 'fallback',
+    sources: knowledge.map(sourceFromEntry),
   };
 };

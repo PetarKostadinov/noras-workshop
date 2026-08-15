@@ -8,6 +8,7 @@
     "start": "node --import ./instrument.js server.js",
     "dev": "nodemon --exec \"node --import ./instrument.js\" server.js --ignore client",
     "test": "node --test",
+    "seed:assistant-basic": "node scripts/seedAssistantBasic.js",
     "seed:assistant-knowledge": "node scripts/seedAssistantKnowledge.js"
   },
   "author": "",
