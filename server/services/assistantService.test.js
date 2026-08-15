@@ -47,7 +47,7 @@ test('high-confidence MongoDB knowledge answers directly without OpenAI', async 
   let openAiCalled = false;
   const result = await answerAssistantQuestion({ message: 'How much is shipping?', language: 'en' }, {
     basicRetriever: async () => [{ key: 'shipping-cost', title: 'Shipping cost', content: 'Standard shipping is $10.', href: '/help/shipping', score: 1 }],
-    embedder: async () => { openAiCalled = true; throw new Error('should not run'); },
+    answerGenerator: async () => { openAiCalled = true; throw new Error('should not run'); },
   });
 
   assert.equal(result.answer, 'Standard shipping is $10.');
@@ -70,7 +70,7 @@ test('OpenAI quota failure falls back to MongoDB suggestions instead of throwing
   const result = await answerAssistantQuestion({ message: 'Can you recommend a wedding gift?', language: 'en' }, {
     basicRetriever: async () => [{ key: 'custom-orders', title: 'Personalized products', content: 'Custom products are available.', href: '/about', score: 0.4 }],
     apiKey: 'test-key',
-    embedder: async () => { const error = new Error('quota exceeded'); error.status = 429; throw error; },
+    answerGenerator: async () => { const error = new Error('quota exceeded'); error.status = 429; throw error; },
   });
 
   assert.equal(result.mode, 'fallback');
