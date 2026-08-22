@@ -4,6 +4,14 @@ Full-stack ecommerce application for handmade gifts, wedding and event decoratio
 
 Nora's Workshop is a portfolio project demonstrating a complete shopping flow—from browsing and filtering products through account registration, delivery details, order review, order creation, and secure PayPal or card payment.
 
+## Engineering highlights
+
+- Protects stock with time-limited reservations and idempotent restoration
+- Verifies PayPal and Stripe payment state on the server
+- Supports authenticated and token-authorized guest order access
+- Adds consent-gated analytics, privacy-conscious monitoring, structured SEO data, and accessibility foundations
+- Deploys the React client and Express API as one production service
+
 ## Live application
 
 Nora's Workshop is deployed as a single React and Express service on Render:
